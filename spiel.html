@@ -295,6 +295,7 @@ body.lefty #btnB{right:auto;left:22vw}
 #actMoves button small{font-size:clamp(9.5px,2.3vh,12.5px);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 #actMoves button[data-m="back"],#actMoves button[data-s="back"],#actMoves button[data-i="back"],#actMoves button[data-c="back"]{background:linear-gradient(180deg,#5a5f6a,#3a3e48)}
 @media (max-width:540px){#actMoves{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:1150px){#battleScene,#battleMenu{width:1100px;margin:0 auto;max-width:100%}#battlePanel{background:radial-gradient(ellipse at 50% 35%,#3a4a5e,#0d1620 75%)}#battleMenu{border-radius:14px 14px 0 0}}
 </style>
 </head>
 <body>
@@ -2769,7 +2770,8 @@ function askPlayerName(){
 // ---------- RENDER (isometrisch) ----------
 const cv=document.getElementById("cv"),ctx=cv.getContext("2d");
 let DPR=1,VW=innerWidth,VH=innerHeight;
-function resize(){DPR=Math.min(2,window.devicePixelRatio||1);VW=innerWidth;VH=innerHeight;cv.width=Math.round(VW*DPR);cv.height=Math.round(VH*DPR)}
+let ZOOM=1;
+function resize(){DPR=Math.min(2,window.devicePixelRatio||1);ZOOM=Math.max(1,Math.min(2,innerWidth/900,innerHeight/470));VW=innerWidth/ZOOM;VH=innerHeight/ZOOM;cv.width=Math.round(innerWidth*DPR);cv.height=Math.round(innerHeight*DPR)}
 addEventListener("resize",resize);resize();
 const COLORS={".":"#6ec766","v":"#c9a86a","g":"#4a9850","w":"#4a9850","~":"#3fa0c8",
  "r":"#948a76","s":"#e8cf8e","p":"#d1a85f","n":"#6ec766","c":"#6ec766","t":"#6ec766","h":"#c9a86a","m":"#c9a86a",
@@ -3299,14 +3301,14 @@ function drawBuilding(b,camX,camY){
  }
 }
 function draw(){
- ctx.setTransform(DPR,0,0,DPR,0,0);ctx.imageSmoothingQuality="high";
+ ctx.setTransform(DPR*ZOOM,0,0,DPR*ZOOM,0,0);ctx.imageSmoothingQuality="high";
  ctx.fillStyle="#132318";ctx.fillRect(0,0,VW,VH);
  const rp=renderPos();
- const p=isoPos(rp.x,rp.y),camX=Math.round((p.sx-VW/2)*DPR)/DPR,camY=Math.round((p.sy-VH/2)*DPR)/DPR;
- const vx0=Math.max(0,Math.floor(camX/ISO_W)-5),vx1=Math.min(WORLD_W-1,Math.ceil((camX+VW)/ISO_W)+5);
- const vy0=Math.max(0,Math.floor(camY/ISO_H)-3),vy1=Math.min(WORLD_H-1,Math.ceil((camY+VH)/ISO_H)+6);
+ const p=isoPos(rp.x,rp.y),camX=Math.round((p.sx-VW/2)*DPR*ZOOM)/(DPR*ZOOM),camY=Math.round((p.sy-VH/2)*DPR*ZOOM)/(DPR*ZOOM);
+ const vx0=Math.floor(camX/ISO_W)-2,vx1=Math.ceil((camX+VW)/ISO_W)+2;
+ const vy0=Math.floor(camY/ISO_H)-3,vy1=Math.ceil((camY+VH)/ISO_H)+6;
  for(let y=vy0;y<=vy1;y++)for(let x=vx0;x<=vx1;x++){
-  const t=MAP[y][x],pos=isoPos(x,y),dx=pos.sx-camX,dy=pos.sy-camY;
+  const t=(MAP[y]&&MAP[y][x])||"w",pos=isoPos(x,y),dx=pos.sx-camX,dy=pos.sy-camY;
   if(t==="w"){drawTreeTile(dx,dy,x,y)}
   else if(t==="B"||BUILDING_DOORS[x+","+y]){
    drawGroundTile(dx,dy,x,y,"#6ec766");
@@ -3391,7 +3393,7 @@ function draw(){
  drawRival(camX,camY);
  drawStoryNpcs(camX,camY);
  // Spieler (immer Bildschirmmitte, da Kamera auf ihn zentriert ist)
- const cx=cv.width/2,cy=cv.height/2;
+ const cx=VW/2,cy=VH/2;
  if(state.surfing){
   const bob=Math.sin(worldTime*3)*2,im=legendImg(state.surfSid||"tropfling");
   ctx.strokeStyle="rgba(255,255,255,.55)";ctx.lineWidth=1.6;const rr=(worldTime*1.2)%1;
@@ -5307,7 +5309,7 @@ function applyDesktopInput(){
  let x=0,y=0;
  KEYS.forEach(k=>{const d=KEY_DIR[k];if(d){x+=d[0];y+=d[1]}});
  if(!x&&!y&&MOUSE.held){
-  const dx=MOUSE.x-VW/2,dy=MOUSE.y-VH/2;
+  const dx=MOUSE.x/ZOOM-VW/2,dy=MOUSE.y/ZOOM-VH/2;
   if(Math.hypot(dx,dy)>ISO_W*0.6){if(Math.abs(dx)>Math.abs(dy))x=Math.sign(dx);else y=Math.sign(dy)}
  }
  joyVec={x:Math.max(-1,Math.min(1,x)),y:Math.max(-1,Math.min(1,y))};
@@ -5361,7 +5363,7 @@ addEventListener("pointerup",e=>{
  if(e.pointerType!=="mouse"||!MOUSE.held)return;
  MOUSE.held=false;
  if(performance.now()-MOUSE.t0>250||state.inBattle||desktopBusy())return;
- const dx=e.clientX-VW/2,dy=e.clientY-VH/2;
+ const dx=e.clientX/ZOOM-VW/2,dy=e.clientY/ZOOM-VH/2;
  if(Math.abs(dx)<ISO_W*1.6&&Math.abs(dy)<ISO_H*1.6&&Math.hypot(dx,dy)>ISO_W*0.4){
   state.dir=Math.abs(dx)>Math.abs(dy)?(dx>0?"right":"left"):(dy>0?"down":"up");
   interact();
@@ -6049,7 +6051,7 @@ function showTitle(){
  el.innerHTML=stars+`<div id="titleInner"><div id="titleLogo">MONSTERWELT</div><div id="titleSub">Das große Monster-Abenteuer</div>
   <div id="titleMons">${STARTER_SIDS.map((sid,i)=>`<div style="animation-delay:${i*0.18}s">${creatureSVG(sid)}</div>`).join("")}</div>
   <div id="titleLoad">Lade Monsterwelt …<div id="titleBar"><div></div></div></div>
-  <div id="titleMenu"></div><div id="titlePanel"></div></div><div id="titleVer">v1.5 · by Franks</div>`;
+  <div id="titleMenu"></div><div id="titlePanel"></div></div><div id="titleVer">v1.6 · by Franks</div>`;
  document.body.appendChild(el);makeTouchScrollable(el);
  const bar=el.querySelector("#titleBar div"),loadBox=el.querySelector("#titleLoad"),menuEl=el.querySelector("#titleMenu"),panel=el.querySelector("#titlePanel"),mons=el.querySelector("#titleMons");
  // Ladebalken: Monster-Grafiken vorbereiten (füllt den Grafik-Speicher), mindestens ~1,2 s anzeigen
