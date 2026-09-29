@@ -12,7 +12,10 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:sans-
 #game{position:fixed;inset:0}
 canvas{display:block;width:100%;height:100%;background:#4a7a4a}
 #rotateMsg{position:fixed;inset:0;background:#000;color:#fff;display:none;align-items:center;justify-content:center;text-align:center;font-size:5vw;z-index:999;padding:20px}
-@media (orientation:portrait){#rotateMsg{display:flex}#game,#btnB,#btnStart,#btnPoints,#btnFish{display:none!important}}
+@media (orientation:portrait) and (pointer:coarse){#rotateMsg{display:flex}#game,#btnB,#btnStart,#btnPoints,#btnFish{display:none!important}}
+@media (hover:hover) and (pointer:fine){#joyBase,#btnA{display:none}body:not(.overlay) #btnB{display:none}}
+#keyHelp{position:fixed;left:8px;bottom:8px;z-index:40;background:#000a;color:#fff;font:12px/1.45 sans-serif;padding:6px 10px;border-radius:8px;pointer-events:none;opacity:.85;display:none}
+@media (hover:hover) and (pointer:fine){body.showKeys #keyHelp{display:block}body.showKeys #dialog{bottom:calc(2vh + 48px)}}
 #joyBase{position:fixed;left:6vw;bottom:8vh;width:26vw;max-width:140px;height:26vw;max-height:140px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.3)}
 #joyStick{position:absolute;left:50%;top:50%;width:45%;height:45%;border-radius:50%;background:rgba(255,255,255,.5);transform:translate(-50%,-50%)}
 .abtn{position:fixed;width:15vw;max-width:70px;height:15vw;max-height:70px;border-radius:50%;background:var(--accent);color:#3a2c0c;font-weight:bold;display:flex;align-items:center;justify-content:center;font-size:5vw;border:2px solid #0006}
@@ -103,7 +106,10 @@ body.lefty #btnB{right:auto;left:22vw}
 #introInputRow button{padding:9px 18px;font-size:16px;font-weight:bold;background:#3a5a8a;color:#fff;border:2px solid #2a4468;border-radius:10px}
 #introSkip{position:absolute;top:calc(8px + env(safe-area-inset-top,0px));right:10px;background:#0006;color:#fff;border:1px solid #fff6;border-radius:12px;padding:5px 12px;font-size:13px;z-index:2}
 .menuCard h2{margin:0 0 16px;text-align:center;font-size:23px;letter-spacing:1.5px;color:#ffe9ad;text-shadow:0 2px 3px #0007}
-.menuGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.menuGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px}.menuGrid button{min-width:0;padding:10px 4px!important;font-size:14px!important}
+#subContent .teamTile.boxSel{box-shadow:0 0 0 3px #7fdcff,0 3px 8px #0006;background:linear-gradient(180deg,#2f5a6a,#16303b)}
+#subContent .teamTile.boxTarget{box-shadow:0 0 0 2px #ffe37a,0 3px 8px #0006}
+.boxHint{font-size:13px;text-align:center;margin:-4px 0 8px;padding:6px 8px;border-radius:10px;background:#0005}
 .menuGrid button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 6px;font-size:15px}
 .menuGrid button .mi{font-size:26px;line-height:1}
 .menuDivider{height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);margin:4px 0 14px;opacity:.7}
@@ -280,9 +286,19 @@ body.lefty #btnB{right:auto;left:22vw}
 .endTeam .etImg{width:48px;height:48px}
 .endBtn{margin-top:10px;padding:10px 22px;border-radius:12px;font-size:16px;font-weight:bold;background:linear-gradient(180deg,#e8b020,#a86a10);color:#fff;border:2px solid #fff}
 #log{position:absolute;top:calc(1% + env(safe-area-inset-top,0px));left:4%;right:4%;text-align:center;font-size:clamp(12px,2.6vh,16px);min-height:20px;text-shadow:0 1px 3px #000}
+/* Attacken-/Untermenüs im Kampf: festes Raster, jede Kachel passt vollständig hinein */
+#battleMenu:has(#actMoves[style*="grid"]){height:clamp(150px,44vh,340px)}
+#actMoves{grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:minmax(0,1fr);gap:clamp(4px,1vh,8px);align-content:stretch;height:100%;min-height:0;overflow:auto}
+#actMoves>div{grid-column:1/-1}
+#actMoves button{min-width:0;min-height:0;height:100%;padding:clamp(2px,.7vh,8px) 6px;font-size:clamp(13px,3.2vh,18px);gap:0;line-height:1.15;overflow:hidden;border-radius:12px}
+#actMoves button b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+#actMoves button small{font-size:clamp(9.5px,2.3vh,12.5px);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+#actMoves button[data-m="back"],#actMoves button[data-s="back"],#actMoves button[data-i="back"],#actMoves button[data-c="back"]{background:linear-gradient(180deg,#5a5f6a,#3a3e48)}
+@media (max-width:540px){#actMoves{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
 <body>
+<div id="keyHelp">⌨️ WASD/Pfeile laufen · Leertaste/Enter = A · Esc = B/zurück · M = Menü · F = Angeln · A vor Wasser = Surfen (ab 5. Orden) · 1–6 = Auswahl im Kampf · 🖱️ Maus gedrückt halten = laufen · H = Hilfe aus/an</div>
 <div id="rotateMsg">Bitte drehe dein Smartphone ins Querformat.</div>
 <div id="game">
 <canvas id="cv"></canvas>
@@ -298,6 +314,7 @@ body.lefty #btnB{right:auto;left:22vw}
    <button id="mTeam"><span class="mi">🐾</span>Team</button>
    <button id="mTrainer"><span class="mi">🧍</span>Trainer</button>
    <button id="mDex"><span class="mi">📖</span>Dex</button>
+   <button id="mBox"><span class="mi">📦</span>Monsterbox</button>
    <button id="mInv"><span class="mi">🎒</span>Inventar</button>
    <button id="mQuests"><span class="mi">📜</span>Quests</button>
    <button id="mMap"><span class="mi">🗺️</span>Karte</button>
@@ -343,6 +360,8 @@ body.lefty #btnB{right:auto;left:22vw}
 <div id="btnPoints" title="Werte verteilen" style="visibility:hidden">✨<span class="pbadge"></span></div>
 <div id="btnFish" title="Angeln" style="visibility:hidden">🎣</div>
 <script>
+// Sprache (de/en) – wird ganz am Anfang gelesen, damit alle Texte passend angezeigt werden
+const LANG=(()=>{try{const o=JSON.parse(localStorage.getItem("monsterwelt_opts")||"null");if(o&&(o.lang==="en"||o.lang==="de"))return o.lang}catch(e){}return (navigator.language||"de").toLowerCase().startsWith("de")?"de":"en"})();
 // ---------- FEHLER-ANZEIGE (Debug) ----------
 function showDebugError(msg){
  let box=document.getElementById("debugBox");
@@ -480,6 +499,276 @@ const MOVES={
  himmelslicht:{name:"Himmelslicht",type:"Neutral",pow:90,acc:.95,drain:0.5,desc:"Einzigartig (Engel aus dem Ei): gleißendes Licht, heilt 50 % des verursachten Schadens"},
  weltendrache:{name:"Weltendrache",type:"Drache",pow:105,acc:.75,desc:"Ultimative Urgewalt der Drachen"},
 };
+// ---------- SPRACHE / LANGUAGE (Englisch) ----------
+// Deutsche Texte bleiben im Code; bei „English“ übersetzt eine Tabelle alle Anzeigen (Dialoge, Menüs, Kampf, Canvas).
+const I18N={
+"Wasser löscht Feuer":"Water douses Fire","Feuer verbrennt Natur":"Fire burns Nature","Wurzeln sprengen Erde":"Roots break Earth","Erde leitet Blitze ab":"Earth grounds Lightning","Stromschläge stören den Geist":"Shocks disturb the mind","Geisteskraft bändigt Drachen":"Mind power tames Dragons","Drachen beherrschen die Lüfte":"Dragons rule the skies","Stürme peitschen das Wasser":"Storms whip the Water",
+"● Normal":"● Normal","▲ Sehr effektiv":"▲ Super effective","▼ Wenig effektiv":"▼ Not very effective","{0} gegen {1}{2}":"{0} vs {1}{2}","Sehr effektiv!":"It's super effective!","Nicht sehr effektiv …":"It's not very effective …",
+"Kristallkäfer":"Kristallkäfer",
+"Versteckter Hain nördlich der Felsroute":"Hidden grove north of the Rock Route","Ein uralter, leuchtender Hirsch tritt aus dem Dickicht …":"An ancient, glowing stag steps out of the thicket …","Sandinsel südlich von Sturmhafen":"Sand island south of Sturmhafen","Das Meer schäumt auf – eine riesige Seeschlange erhebt sich aus den Wellen!":"The sea foams – a giant sea serpent rises from the waves!","Sternenschrein bei der Sternenstadt":"Star shrine near Sternenstadt","Die Sterne flackern … ein gewaltiger Drache aus Zeit und Licht erwacht!":"The stars flicker … a mighty dragon of time and light awakens!",
+"Seemann: „Hinter dem Meer im Osten liegt das Nebelmoor – dort sind die Monster schon viel stärker!“":"Sailor: “Beyond the sea to the east lies the Mist Moor – the monsters there are much stronger!”",
+"Wahrsagerin: „Ich sehe … Felsen im Osten. Dort wartet eine harte Arena auf dich.“":"Fortune teller: “I see … rocks in the east. A tough gym awaits you there.”",
+"Stadt im Nebel":"Town in the mist","Tor zum Meer":"Gateway to the sea","Hart wie Stein":"Hard as stone","Wo der Wind wohnt":"Where the wind lives","Insel der Blitze":"Island of lightning","Stadt aus Glut":"Town of embers","Stadt der Champions":"Town of champions",
+"Bergarbeiter: „Der Weg nach Süden führt zum Sturmhafen. Pass auf die starken Windmonster auf!“":"Miner: “The path south leads to Sturmhafen. Watch out for the strong wind monsters!”",
+"Fischerin: „Über die lange Brücke im Osten kommst du zur Donnerinsel.“":"Fisherwoman: “The long bridge to the east takes you to Donnerinsel.”",
+"Inselbewohner: „Im Süden liegt der Drachenpfad. Nur echte Profis kommen dort durch.“":"Islander: “The Dragon Path lies to the south. Only real pros get through there.”",
+"Schmied: „Die große Brücke nach Westen führt zur Sternenstadt – dort wartet der Champion!“":"Blacksmith: “The great bridge to the west leads to Sternenstadt – the Champion awaits there!”",
+"Sternenkundler: „Wer alle acht Medaillen hat, ist eine echte Legende!“":"Astronomer: “Whoever has all eight medals is a true legend!”",
+"Die Arena von Eichendorff":"The Eichendorff Gym","Die Arena von {0}":"The {0} Gym","Das Heilzentrum von {0}":"The {0} Healing Center","Der Markt von {0}":"The {0} Market","Ein Wohnhaus in {0}":"A house in {0}","Das Haus deines Rivalen":"Your rival's house",
+"Eine dichte Dornenranke versperrt den Weg.":"A thick thorn vine blocks the path.","sie wegbrennen":"burn it away","Die Dornenranke brennt lichterloh nieder":"The thorn vine burns down in bright flames",
+"Ein knisternder Stromzaun versperrt den Weg.":"A crackling electric fence blocks the path.","den Strom in den Boden ableiten":"ground the current","Der Strom fließt in die Erde ab – der Zaun fällt in sich zusammen":"The current flows into the ground – the fence collapses",
+"Ein flimmernder Trugbild-Nebel versperrt den Weg – wer hineingeht, läuft im Kreis.":"A shimmering mirage mist blocks the path – whoever enters walks in circles.","das Trugbild mit Blitzen zerreißen":"tear the mirage apart with lightning","Grelle Blitze zerreißen das Trugbild":"Bright lightning tears the mirage apart",
+"Riesige Felsbrocken versperren den Weg.":"Huge boulders block the path.","die Felsen mit Wurzeln sprengen":"break the rocks with roots","Kräftige Wurzeln sprengen die Felsbrocken auseinander":"Strong roots break the boulders apart",
+"Ein tosender Strudel spült über die Brücke.":"A roaring whirlpool washes over the bridge.","den Strudel fortblasen":"blow the whirlpool away","Ein Sturmwind bläst den Strudel fort":"A gale blows the whirlpool away",
+"Eine lodernde Glutwand versperrt den Pfad.":"A blazing wall of embers blocks the path.","die Glut löschen":"put out the embers","Zischend erlischt die Glutwand":"The ember wall goes out with a hiss",
+"Ein uraltes Drachensiegel versperrt die Brücke.":"An ancient dragon seal blocks the bridge.","das Siegel mit Geisteskraft brechen":"break the seal with mind power","Mit reiner Geisteskraft zerbricht das Drachensiegel":"The dragon seal shatters under pure mind power",
+"Der Stromzaun der Gilde ist viel zu stark – er bekommt Strom aus der Schattenhöhle. Befreie zuerst Cassias Monster!":"The guild's electric fence is far too strong – it draws power from the Shadow Cave. Free Cassia's monsters first!",
+"Ein seltsam verstärkter Stromzaun mit einem roten „K“ … Vielleicht weiß die Arenaleiterin der Hafenstadt mehr.":"A strangely reinforced electric fence with a red “K” … Maybe the gym leader of Hafenstadt knows more.",
+"{0} Ein {1} {2}-Monster an erster Stelle im Team könnte {3}.":"{0} A {1} {2} monster in the first team slot could {3}.","Tipp: Stell {0} im Team-Menü nach vorne!":"Tip: Move {0} to the front in the team menu!",
+"{0} setzt {1} ein!":"{0} uses {1}!","{0} … Der Weg ist jetzt frei!":"{0} … The path is clear now!","✨ Feldaktion":"✨ Field action",
+"Deine Monster sind erschöpft – heile sie zuerst.":"Your monsters are exhausted – heal them first.","Das legendäre {0} (Lv.{1}) stellt sich dir entgegen!":"The legendary {0} (Lv.{1}) confronts you!",
+"des Fängers":"of the Catcher","des Entdeckers":"of the Explorer","des Lernenden":"of the Learner","des Händlers":"of the Merchant","des Heilers":"of the Healer","der Stärke":"of Strength","des Schutzes":"of Protection","Chance auf seltene Monster":"Rare monster chance",
+"{0}-Amulett {1}":"{0} Amulet {1}","{0} {1}-Monster im Team: {2}":"{0} {1} monsters in team: {2}","+{0}% Schaden":"+{0}% damage","−{0}% erlittener Schaden":"−{0}% damage taken","erlittener Schaden":"damage taken",
+"Ausrüsten":"Equip","In die Tasche":"Into the bag","✅ {0} ausgerüstet!":"✅ {0} equipped!","🛡️ Ausgerüstet":"🛡️ Equipped","🎒 Ausrüstungs-Tasche ({0})":"🎒 Gear bag ({0})","◀ Zurück":"◀ Back","Zurück":"Back","– leer –":"– empty –","Ablegen":"Unequip","Tauschen":"Swap",
+"Noch keine Ausrüstung angelegt.":"No gear equipped yet.","Verkaufen ({0}💰)":"Sell ({0}💰)","Keine Ausrüstung{0}. Du findest sie in versteckten Truhen oder als Beute nach Kämpfen.":"No gear{0}. You find it in hidden chests or as loot after battles."," für diesen Platz":" for this slot","für diesen Platz":"for this slot",
+"🧍 Trainer":"🧍 Trainer","{0} · 🏅 {1}/{2} Medaillen · 💰 {3}":"{0} · 🏅 {1}/{2} medals · 💰 {3}","Boni:":"Bonuses:","Aktuell: {0} – {1}":"Current: {0} – {1}","Sicher? Nochmal tippen":"Sure? Tap again","Alle":"All",
+"Die Truhe ist leer.":"The chest is empty.","🎁 Versteckte Truhe":"🎁 Hidden chest","{0}x 🔴 Fangkapsel":"{0}x 🔴 Capsule","{0}x 💊 Heiltrank":"{0}x 💊 Potion","💰 {0} Gold":"💰 {0} gold","✨ Gefunden: {0}!":"✨ Found: {0}!","Sie wirkt besonders gut bei {0}-Monstern.":"It works especially well on {0} monsters.",
+"{0}: „Du bist also der Störenfried … Komm nur her!“":"{0}: “So you're the troublemaker … Come here!”","{0}: „Ein Schnüffler! Die Gilde lässt niemanden durch!“":"{0}: “A snoop! The guild lets no one through!”","{0}: „Hey, du da! Komm her, wenn du dich traust!“":"{0}: “Hey, you there! Come here if you dare!”",
+"{0} schickt {1} ins Feld!":"{0} sends out {1}!","{0} fordert dich zum Kampf heraus!":"{0} challenges you to a battle!",
+"🌀 Teleporter":"🌀 Teleporter","Reise sofort in jede Stadt, die du schon besucht hast.":"Travel instantly to any town you have already visited.","Arena: {0} · Ass Lv.{1}{2}":"Gym: {0} · Ace Lv.{1}{2}"," · ✔ Medaille":" · ✔ Medal","· ✔ Medaille":"· ✔ Medal","Noch nicht entdeckt":"Not discovered yet","Du bist hier":"You are here","Reisen":"Travel","🌀 Willkommen in {0}!":"🌀 Welcome to {0}!",
+"Fange eine Wasser-Kreatur":"Catch a Water creature","Besiege den Trainer im Grasfeld":"Defeat the trainer in the grass field","Wie heißt du, Trainer?":"What's your name, trainer?",
+"{0} Punkte zu verteilen – zum Team":"{0} points to assign – to the team","Keine Punkte zu verteilen – zum Team":"No points to assign – to the team","Werte verteilen":"Assign stats","Angeln":"Fishing",
+"· Team {0}/6":"· Team {0}/6","Fangkapseln: {0} · 💰 {1} · 🏅 {2}/{3}{4}":"Capsules: {0} · 💰 {1} · 🏅 {2}/{3}{4}","🟢 {0} weitere online":"🟢 {0} more online","{0}/{1} HP":"{0}/{1} HP",
+"Du holst die Angel ein.":"You reel in the line.","🏙️ Willkommen in {0}! Hier gibt es ein Heilzentrum, einen Markt, einen Teleporter und die Arena von {1}.":"🏙️ Welcome to {0}! There is a healing center, a market, a teleporter and the gym of {1}.",
+"Mama: „Da bist du ja, {0}! Ruh dich kurz aus … So, dein Team ist wieder fit. Pass gut auf dich auf!“":"Mom: “There you are, {0}! Rest a moment … There, your team is fit again. Take good care of yourself!”",
+"Hier wohnt jemand, aber gerade ist niemand zu Hause.":"Someone lives here, but nobody is home right now.","Bewohner:":"Resident:","mein Sohn":"my son",
+"Mutter von {0}: „Ach, du bist das! {1} redet von nichts anderem mehr als von eurem Kampf. Er trainiert jetzt jeden Tag!“":"{0}'s mother: “Oh, it's you! {1} talks about nothing but your battle. He trains every day now!”",
+"Mutter von {0}: „{1} ist schon früh losgezogen – er wollte unbedingt zum Markt. Vielleicht triffst du ihn dort!“":"{0}'s mother: “{1} left early – he really wanted to go to the market. Maybe you'll meet him there!”",
+"Nachbar Henrik: „Du gehst auf Reisen? Hier, nimm diese 3 Fangkapseln mit!“":"Neighbor Henrik: “You're going on a journey? Here, take these 3 capsules!”","Nachbar Henrik: „Im Gras östlich der Stadt wimmelt es von Kreaturen. Viel Glück!“":"Neighbor Henrik: “The grass east of town is teeming with creatures. Good luck!”",
+"Schwester Mira: „So, alle deine Kreaturen sind wieder vollständig aufgeladen!“":"Nurse Mira: “There, all your creatures are fully recharged!”",
+"Zum Fangen wilder Kreaturen":"For catching wild creatures","Heilt 20 HP im Kampf":"Heals 20 HP in battle","Heilt im Kampf Gift, Verbrennung, Schlaf, Benommenheit & Verwirrung":"Cures poison, burn, sleep, stun & confusion in battle",
+"🛒 Kaufen":"🛒 Buy","💰 Verkaufen":"💰 Sell","Kaufen ({0}💰)":"Buy ({0}💰)","🎒 Gegenstände":"🎒 Items","Verkaufen (+{0}💰)":"Sell (+{0}💰)","Du hast: {0}":"You have: {0}","🛡️ Ausrüstung aus der Tasche ({0})":"🛡️ Gear from the bag ({0})",
+"Keine Ausrüstung in der Tasche. Angelegte Teile musst du erst im Trainer-Menü ablegen.":"No gear in the bag. Equipped items must first be removed in the trainer menu.","🛒 Markt":"🛒 Market","💰 {0} Gold":"💰 {0} gold",
+"{0}: „Also los, zeig mir deine Monster!“":"{0}: “Alright, show me your monsters!”",
+"Dorfältester: „Willkommen in Eichendorff, junger Trainer! Im hohen Gras leben wilde Kreaturen – sei vorsichtig.“":"Village elder: “Welcome to Eichendorff, young trainer! Wild creatures live in the tall grass – be careful.”",
+"Du hast eine Schatztruhe geöffnet: 1x Heiltrank erhalten!":"You opened a treasure chest: got 1x potion!","Trainer Jonas: „Du hast starke Kreaturen. Viel Erfolg weiterhin!“":"Trainer Jonas: “You have strong creatures. Good luck!”","Trainer Jonas: „Zeig mir, was deine Kreatur kann!“":"Trainer Jonas: “Show me what your creature can do!”",
+"Mila: „Drück B für dein Team, die Karte und Quests! Und im hohen Gras östlich von Eichendorff leben wilde Kreaturen.“":"Mila: “Press B for your team, the map and quests! And wild creatures live in the tall grass east of Eichendorff.”",
+"📜 {0} – {1}. Arena: {2} ({3}).":"📜 {0} – {1}. Gym: {2} ({3}).","📜 Eichendorff – Hier beginnt jede große Reise. Heilzentrum oben rechts · Markt unten rechts.":"📜 Eichendorff – Every great journey begins here. Healing center top right · Market bottom right.",
+"Der Höhleneingang ist mit Brettern vernagelt. Ein rotes „K“ ist darauf gemalt … das Zeichen der Jäger-Gilde?":"The cave entrance is boarded up. A red “K” is painted on it … the sign of the Hunters' Guild?",
+"Ein schweres Tor mit dem Zeichen der Jäger-Gilde. Es ist fest verschlossen.":"A heavy gate with the sign of the Hunters' Guild. It is locked tight.","Ein Käfig der Gilde. Darin kauert {0} und schaut dich traurig an …":"A guild cage. {0} cowers inside and looks at you sadly …","Ein leerer, geöffneter Käfig.":"An empty, opened cage.",
+"„Schönes Wetter heute!“":"“Nice weather today!”","{0}: „Du hast dir die {1} {2} bereits verdient. Weiter so!“":"{0}: “You have already earned the {1} {2}. Keep it up!”","{0}: „Willkommen in der Arena von {1}! Besiege mich und du erhältst die {2} {3}!“":"{0}: “Welcome to the {1} Gym! Beat me and you will receive the {2} {3}!”",
+"Ein plätschernder Brunnen. Das Wasser glitzert in der Sonne.":"A splashing fountain. The water sparkles in the sun.","Eine alte Straßenlaterne. Sie leuchtet auch am Tag ein bisschen.":"An old street lamp. It glows a little even during the day.","Hübsche Blumen – jemand pflegt sie mit viel Liebe.":"Pretty flowers – someone looks after them with lots of love.",
+"Dein Zuhause":"Your home","Das Heilzentrum":"The healing center","Das Haus von Nachbar Henrik":"Neighbor Henrik's house","Der Markt":"The market","Eine Hauswand.":"A house wall.",
+"{0}. Sprich mit der Arenaleitung vor dem Eingang!":"{0}. Talk to the gym leader in front of the entrance!","{0}. Der Eingang ist die Tür unten in der Mitte.":"{0}. The entrance is the door at the bottom in the middle.",
+"{0}: „Das war ein starker Kampf. Komm jederzeit wieder vorbei!“":"{0}: “That was a strong battle. Come back anytime!”","{0}: „Willkommen in der Arena! Zeig mir, was du drauf hast!“":"{0}: “Welcome to the gym! Show me what you've got!”",
+"Zum Surfen brauchst du ein Wasser-Monster im Team. (Angeln: 🎣-Knopf bzw. Taste F)":"You need a Water monster in your team to surf. (Fishing: 🎣 button or key F)","Zum Surfen brauchst du ein Wasser-Monster im Team.":"You need a Water monster in your team to surf.",
+"Das Wasser glitzert. Mit einer Angel könnte man hier bestimmt etwas fangen …":"The water sparkles. With a fishing rod you could surely catch something here …","Hier ist nichts Interessantes.":"Nothing interesting here.",
+"⭐ Legendär":"⭐ Legendary","🥚 Ei-Monster · entwickelt":"🥚 Egg monster · evolved","🥚 Ei-Monster · Baby":"🥚 Egg monster · baby","Einzelform":"Single form","Grundform":"Base form","1. Entwicklung":"1st evolution","2. Entwicklung":"2nd evolution","3. Entwicklung":"3rd evolution","Entwicklung":"Evolution",
+"🐾 Team":"🐾 Team","Tippe ein Monster an für Werte, Attacken und mehr.":"Tap a monster for stats, moves and more.","🥚 Eier im Team":"🥚 Eggs in team","Ungewöhnliches Ei":"Unusual Egg","👣 {0}/{1} Schritte · {2}":"👣 {0}/{1} steps · {2}",
+"📦 Zur Monsterbox ({0} Monster)":"📦 To the Monster Box ({0} monsters)","◀ Zur Team-Übersicht":"◀ Back to team overview","⭐ aktiv im Kampf":"⭐ active in battle","✨ {0} Punkte verfügbar":"✨ {0} points available","✨ {0}/{1} EP":"✨ {0}/{1} XP",
+"{0} Passiv „{1}“: {2}":"{0} Passive “{1}”: {2}","📊 Werte{0}":"📊 Stats{0}","⚔️ Attacken ({0}/4)":"⚔️ Moves ({0}/4)","⭐ Nach vorne stellen":"⭐ Move to front","✨ Entwickeln":"✨ Evolve",
+"⚔️ {0} – Attacken":"⚔️ {0} – Moves","Aktive Attacken":"Active moves","Bekannte Attacken":"Known moves","Entfernen":"Remove","Aktivieren":"Activate","Keine weiteren bekannten Attacken.":"No other known moves.",
+"Aktiv: {0}/4 · Entferne zuerst eine aktive Attacke, um Platz für eine andere zu schaffen.":"Active: {0}/4 · Remove an active move first to make room for another.","stark gegen {0}":"strong vs {0}"," · stark gegen {0}":" · strong vs {0}",
+"📊 {0} – Werte":"📊 {0} – Stats","✨ {0} Punkte übrig":"✨ {0} points left","Angriff":"Attack","Verteidigung":"Defense","Tempo":"Speed","Spezial":"Special","KP":"HP",
+"🏆 Meisterschaft (+{0}% Fangchance)":"🏆 Mastery (+{0}% catch rate)","{0}/{1} besiegt für Meisterschaft":"{0}/{1} defeated for mastery","– noch nicht gefangen":"– not caught yet","{0}x im Bestand · {1}":"{0}x owned · {1}","({0}) – Seltenheit {1}":"({0}) – Rarity {1}",
+"🌀 Mystisch – taucht nur nach langer Zeit beim Surfen aus der Tiefe auf":"🌀 Mythical – only rises from the deep after a long time surfing","⭐ Legendär – gibt es nur an einem einzigen Ort":"⭐ Legendary – found in only one single place",
+"🥚 Schlüpft aus dem Ungewöhnlichen Ei · ab Lv.15 Entwicklung mit frei wählbarem Element":"🥚 Hatches from the Unusual Egg · evolves from Lv.15 with an element of your choice","✨ Entwickelt sich ab Lv.{0} zu {1}":"✨ Evolves at Lv.{0} into {1}","Entwicklung von {0}":"Evolution of {0}","Entwickelt sich nicht":"Does not evolve",
+"📖 Dex":"📖 Dex","📦 Gefangene Monster verwalten: Monsterbox ({0})":"📦 Manage caught monsters: Monster Box ({0})",
+"📦 Monsterbox":"📦 Monster Box","Monsterbox":"Monster Box","(Lv.{0}) ausgewählt – tippe ein Team-Monster an, mit dem getauscht werden soll{1}.":"(Lv.{0}) selected – tap a team monster to swap with{1}.",", oder hole es direkt ins Team":", or add it straight to your team","in die Box legen?":"put into the box?",
+"Tippe ein Monster in der Box an, um es ins Team zu holen. Ein Team-Monster antippen = in die Box legen.":"Tap a monster in the box to add it to your team. Tap a team monster = put it into the box.",
+"🐾 Team ({0}/6)":"🐾 Team ({0}/6)","➕ Ins Team holen":"➕ Add to team","Abbrechen":"Cancel","📦 In die Box legen":"📦 Put into box","Mindestens ein Monster muss im Team bleiben.":"At least one monster must stay in the team.","📦 Box ({0})":"📦 Box ({0})",
+"Neueste":"Newest","Element":"Element","Die Box ist leer. Fängst du Monster, wenn dein Team voll ist, landen sie hier.":"The box is empty. Monsters you catch while your team is full end up here.","⇄ tauschen":"⇄ swap",
+"✅ {0} ist jetzt in deinem Team!":"✅ {0} is now in your team!","📦 {0} wurde in die Box gelegt.":"📦 {0} was put into the box.","🔄 Getauscht: {0} ist im Team, {1} ist jetzt in der Box.":"🔄 Swapped: {0} is in the team, {1} is now in the box.",
+"🎒 Inventar":"🎒 Inventory","Heilt 20 HP · außerhalb und im Kampf einsetzbar":"Heals 20 HP · usable in and out of battle","Im Kampf: heilt alle Statuseffekte":"In battle: cures all status effects","Vor Wasser benutzen · fängt Wasser- und Drachen-Monster":"Use facing water · catches Water and Dragon monsters",
+"Nur als Fundstück · x{0} Fangchance bei {1}-Monstern":"Only found in the world · x{0} catch rate on {1} monsters","Benutzen":"Use","Verwenden":"Use","🏅 Medaillen ({0}/{1})":"🏅 Medals ({0}/{1})",
+"💊 Heiltrank einsetzen":"💊 Use potion","Wähle eine Kreatur, die geheilt werden soll:":"Choose a creature to heal:","Heiltrank benutzen":"Use potion",
+"🗺️ Karte":"🗺️ Map","📍 Du · 🟠 Stadt (besucht) · ⚪ Stadt (unbekannt) · 🏅 Medaille geholt · ⚫ NPC/Trainer":"📍 You · 🟠 Town (visited) · ⚪ Town (unknown) · 🏅 Medal earned · ⚫ NPC/Trainer",
+"🔄 Typen-Kreislauf":"🔄 Type cycle","Pfeil = doppelter Schaden (x2). In Gegenrichtung nur halber Schaden (x0,5).":"Arrow = double damage (x2). In the opposite direction only half damage (x0.5).","▲ stark gegen {0}":"▲ strong vs {0}","▼ schwach gegen {0}":"▼ weak vs {0}",
+"gegenüber: {0} – lernt auch {1}-Attacken":"opposite: {0} – also learns {1} moves","Angriffe vom eigenen Typ des Monsters richten 20 % mehr Schaden an.":"Moves of the monster's own type deal 20% more damage.","Gestrichelte Linie durch die Mitte":"Dashed line through the middle",
+"= genau gegenüberliegendes Element: Ab Level 8, 15, 20 und 28 lernt jedes Monster zusätzlich dessen Attacken.":"= exactly opposite element: from level 8, 15, 20 and 28 every monster also learns its moves.",
+"✅ Gespeichert!":"✅ Saved!","Was soll {0} tun?":"What will {0} do?",
+"Waldsegen":"Forest Blessing","Gezeitenschild":"Tide Shield","Zeitverzerrung":"Time Warp","Drachenmut":"Dragon Courage","Drachenherz":"Dragon Heart","Heiliger Schein":"Holy Glow","Schutzengel":"Guardian Angel","Ruf der Tiefe":"Call of the Deep",
+"heilt am Ende jeder Runde 1/10 seiner max. KP":"heals 1/10 of its max HP at the end of every round","erleidet 25 % weniger Schaden":"takes 25% less damage","handelt in jeder Runde immer zuerst":"always acts first every round","verursacht 15 % mehr Schaden":"deals 15% more damage","verursacht 25 % mehr Schaden":"deals 25% more damage",
+"ist immun gegen Gift, Verbrennung, Schlaf, Benommenheit und Verwirrung":"is immune to poison, burn, sleep, stun and confusion","ist immun gegen Statuseffekte und heilt am Ende jeder Runde 1/16 seiner max. KP":"is immune to status effects and heals 1/16 of its max HP at the end of every round",
+"erleidet 20 % weniger Schaden und heilt am Ende jeder Runde 1/12 seiner max. KP":"takes 20% less damage and heals 1/12 of its max HP at the end of every round",
+"{0} Passiv aktiv: „{1}“ – {2} {3}!":"{0} Passive active: “{1}” – {2} {3}!","💨 {0}s Passiv „{1}“ erlischt.":"💨 {0}'s passive “{1}” fades.","Passiv: {0} – {1}":"Passive: {0} – {1}",
+"Verteidigung gesenkt":"Defense lowered","Stärke {0}":"Power {0}","Status-Attacke":"Status move","GIF":"PSN","BRA":"BRN","SLF":"SLP","BEN":"STN","VRW":"CNF","VER↓":"DEF↓","VER↓↓":"DEF↓↓","VER↓↓↓":"DEF↓↓↓",
+"{0} {1} ist durch „{2}“ geschützt – keine Wirkung!":"{0} {1} is protected by “{2}” – no effect!","{0} ist bereits verwirrt!":"{0} is already confused!","{0} wird verwirrt! ❓":"{0} became confused! ❓","{0} ist als {1}-Monster immun!":"{0} is immune as a {1} monster!",
+"Es hat keine Wirkung … {0} ist bereits {1}.":"It has no effect … {0} is already {1}.","{0} ist eingeschlafen! 💤":"{0} fell asleep! 💤","{0} wurde vergiftet! ☠️":"{0} was poisoned! ☠️","{0} hat Verbrennungen erlitten! 🔥":"{0} was burned! 🔥","{0} ist benommen! Es kann sich manchmal nicht bewegen. 💫":"{0} is stunned! It may be unable to move. 💫",
+"{0} (Rivale)":"{0} (Rival)","Die Neue":"the new girl","Der Neue":"the new boy",
+"Hey, pass doch auf! … Moment mal – du bist {0}, oder? {1} von Professorin Linde!":"Hey, watch out! … Wait a moment – you're {0}, right? {1} from Professor Linde!","Ich bin {0}. Ich habe mir auch ein Monster bei der Professorin geholt – mein {1}!":"I'm {0}. I got a monster from the professor too – my {1}!",
+"Mal sehen, wer von uns der bessere Trainer ist. Los, zeig mir, was du drauf hast!":"Let's see which of us is the better trainer. Come on, show me what you've got!",
+"Du hast noch keine Angel. Arenaleiter Bruno in Eichendorff soll eine verschenken …":"You don't have a fishing rod yet. Gym Leader Bruno in Eichendorff is said to give one away …","🎣 Stell dich ans Ufer und schau aufs Wasser, um die Angel auszuwerfen.":"🎣 Stand on the shore and face the water to cast your line.",
+"🎣 Du wirfst die Angel aus … Warte, bis etwas anbeißt!":"🎣 You cast your line … Wait until something bites!","❗ Etwas hat angebissen! Schnell A drücken!":"❗ Something is biting! Quick, press A!","Zu langsam … es ist wieder entwischt.":"Too slow … it got away.",
+"Du holst die Angel ein … Nichts hat angebissen. Hab etwas Geduld!":"You reel in … Nothing bit. Be patient!","Ein wildes {0} hängt an der Angel!":"A wild {0} is on the hook!","Ein wildes {0} erscheint!":"A wild {0} appears!",
+"🌊 Eine starke Strömung treibt dich zurück – hier kannst du noch nicht an Land gehen.":"🌊 A strong current pushes you back – you can't go ashore here yet.","🌊 {0} trägt dich übers Wasser! Geh an Land, um abzusteigen.":"🌊 {0} carries you across the water! Go ashore to get off.","Du gehst wieder an Land.":"You go back ashore.",
+"🌀 Das Wasser unter dir wird plötzlich dunkel und kalt … Etwas Großes bewegt sich in der Tiefe.":"🌀 The water beneath you suddenly turns dark and cold … Something big moves in the deep.","Ein wildes {0} taucht aus dem Wasser auf!":"A wild {0} emerges from the water!",
+"Das Meer wird schwarz … Aus der Tiefe steigt das mystische {0} (Lv.50) empor!":"The sea turns black … The mythical {0} (Lv.50) rises from the deep!",
+"Dein Rivale":"Your rival","{0} lässt beim Weggehen etwas liegen … Du findest ein 🥚 Ungewöhnliches Ei! Nach {1} Schritten mit dem Ei im Team schlüpft etwas.":"{0} leaves something behind … You find a 🥚 Unusual Egg! After {1} steps with the egg in your team, something will hatch.",
+"Es ist ganz still.":"It is completely still.","Manchmal wackelt es ein bisschen.":"Sometimes it wobbles a little.","Es knackt schon! Bald schlüpft etwas.":"It's cracking! Something will hatch soon.","🥚 Ungewöhnliches Ei":"🥚 Unusual Egg",
+"✨ Ein {0} ist geschlüpft! Es ist Level 1 und kann sich ab Level 15 entwickeln – das Element darfst du dann selbst wählen.":"✨ A {0} hatched! It is level 1 and can evolve from level 15 – you get to choose the element yourself.","Dein Team ist voll, deshalb wartet es im Lager.":"Your team is full, so it waits in the box.",
+"Oh? Das Ungewöhnliche Ei bewegt sich …":"Oh? The Unusual Egg is moving …","✨ Entwicklung":"✨ Evolution","{0} ist bereit, sich zu entwickeln! Wähle":"{0} is ready to evolve! Choose","einmalig":"once","ein Element – die Wahl gilt für immer.":"an element – the choice is permanent.","Später entscheiden":"Decide later",
+"Du kannst {0} jederzeit im Team-Menü entwickeln („✨ Entwickeln“).":"You can evolve {0} any time in the team menu (“✨ Evolve”).","✨ {0} hat sich zu {1} ({2} {3}) entwickelt!":"✨ {0} evolved into {1} ({2} {3})!",
+"Hahaha! Danke für die Vorarbeit – jetzt sind Cassias Monster schön erschöpft!":"Hahaha! Thanks for the groundwork – now Cassia's monsters are nice and exhausted!","Was …?! Wer seid ihr?":"What …?! Who are you?","Gilden-Jäger":"Guild Hunter",
+"Wir sind die Jäger-Gilde „Schwarzer Käfig“! Wir fangen Monster, sperren sie ein und verkaufen sie an den Meistbietenden.":"We are the Hunters' Guild “Black Cage”! We catch monsters, lock them up and sell them to the highest bidder.",
+"Deine Monster bringen auf dem Schwarzmarkt ein Vermögen. Die nehmen wir mit!":"Your monsters are worth a fortune on the black market. We're taking them!","Nein! Meine Monster! Sie haben sie in Käfige gesperrt …":"No! My monsters! They've locked them in cages …",
+"{0}, bitte hilf mir! Sie fliehen nach Süden – in die Schattenhöhle unter dem Wald südlich der Hafenstadt.":"{0}, please help me! They're fleeing south – into the Shadow Cave under the forest south of Hafenstadt.",
+"Aber Vorsicht: Die Gilde hat die Gänge mit Ranken, Felsen und Stromzäunen versperrt. Und auch der Weg nach Nebelhain ist durch ihren Stromzaun blockiert.":"But careful: the guild has blocked the tunnels with vines, rocks and electric fences. And the path to Nebelhain is blocked by their electric fence too.",
+"Befreie Cassias Monster aus der Schattenhöhle":"Free Cassia's monsters from the Shadow Cave","📜 Neue Aufgabe: Befreie Cassias Monster aus der Schattenhöhle (Eingang südlich der Hafenstadt).":"📜 New task: Free Cassia's monsters from the Shadow Cave (entrance south of Hafenstadt).",
+"Grrr … Das wird die Meisterin erfahren! Die Gilde vergisst nicht!":"Grrr … The master will hear about this! The guild never forgets!","Da bist du ja! Ich bin dir gefolgt … Meine Monster – sie sind frei! Danke, danke, danke!":"There you are! I followed you … My monsters – they're free! Thank you, thank you, thank you!",
+"Nimm das als Dank. Und pass auf dich auf – die Gilde ist größer, als wir dachten …":"Take this as thanks. And take care – the guild is bigger than we thought …","Ihr Stromzaun am Weg nach Nebelhain hat jetzt keinen Strom mehr aus der Höhle. Mit einem Erd-Monster kommst du hindurch!":"Their electric fence on the way to Nebelhain no longer gets power from the cave. With an Earth monster you can get through!",
+"🎁 Geschenk von {0}":"🎁 Gift from {0}","Belohnung: 💰 800, 4x Heiltrank, 5x Fangkapsel!":"Reward: 💰 800, 4x potion, 5x capsule!",
+"Beeindruckend … Du hast sogar den Champion besiegt. Und dabei alle ihre Monster schön müde gemacht.":"Impressive … You even beat the Champion. And tired out all her monsters nicely in the process.","Ich bin Vesper, Meisterin der Jäger-Gilde. Novas Drachen sind die wertvollste Beute, die wir je hatten!":"I am Vesper, master of the Hunters' Guild. Nova's dragons are the most valuable loot we've ever had!",
+"Lass meine Monster los!":"Let my monsters go!","Zu spät! Wenn du sie willst, komm in unseren Gildenturm südlich der Sternensteppe. Zehn meiner besten Jäger warten dort auf dich … und ich.":"Too late! If you want them, come to our guild tower south of the Star Steppe. Ten of my best hunters are waiting for you there … and me.",
+"{0} … ich zähle auf dich. Du bist die letzte Hoffnung für unsere Monster!":"{0} … I'm counting on you. You are the last hope for our monsters!","Stürme den Gildenturm und befreie Novas Monster":"Storm the guild tower and free Nova's monsters","📜 Neue Aufgabe: Stürme den Gildenturm südlich der Sternensteppe!":"📜 New task: Storm the guild tower south of the Star Steppe!",
+"Unmöglich … Ein Kind hat die ganze Gilde besiegt?":"Impossible … A kid defeated the whole guild?","… Du hast gewonnen. Die Jäger-Gilde löst sich auf. Die Monster gehören dir – äh, sich selbst.":"… You win. The Hunters' Guild is disbanding. The monsters belong to you – er, to themselves.",
+"Du hast es wirklich geschafft! Meine Drachen sind frei!":"You really did it! My dragons are free!","{0}, du hast nicht nur alle Arenen gemeistert – du hast die Monster dieser Welt gerettet.":"{0}, you didn't just master every gym – you saved the monsters of this world.","Von heute an bist du eine echte Legende!":"From today on you are a true legend!",
+"🏆 GESCHAFFT! 🏆":"🏆 YOU DID IT! 🏆","Herzlichen Glückwunsch, {0}!":"Congratulations, {0}!","Du hast die Arenen gemeistert, die Jäger-Gilde zerschlagen und die gestohlenen Monster befreit.":"You mastered the gyms, smashed the Hunters' Guild and freed the stolen monsters.","Du hast Monsterwelt durchgespielt!":"You have completed Monsterwelt!",
+"📖 {0} verschiedene Monster · 🏅 {1}/{2} Medaillen · Belohnung: 💰 5000 + legendäres Amulett":"📖 {0} different monsters · 🏅 {1}/{2} medals · Reward: 💰 5000 + legendary amulet","Weiterspielen ▶":"Keep playing ▶",
+"Angriff":"Attack","Attacken einsetzen":"Use moves","Wechseln":"Switch","Kreatur austauschen":"Swap creature","Gegenstand":"Item","Item verwenden":"Use an item","Fangen":"Catch","Wildes Monster fangen":"Catch the wild monster","Flucht":"Run","Kampf verlassen":"Leave battle","Nicht möglich":"Not possible",
+"{0} schläft tief und fest … 💤":"{0} is fast asleep … 💤","{0} ist aufgewacht!":"{0} woke up!","{0} ist benommen und kann sich nicht bewegen! 💫":"{0} is stunned and can't move! 💫","{0} ist nicht mehr verwirrt!":"{0} is no longer confused!","{0} ist verwirrt … ❓":"{0} is confused … ❓","Es hat sich vor Verwirrung selbst verletzt!":"It hurt itself in its confusion!",
+"{0} setzt {1} ein! Doch der Angriff geht daneben!":"{0} uses {1}! But the attack missed!","{0} setzt {1} ein!{2} ({3} Schaden)":"{0} uses {1}!{2} ({3} damage)","✨ {0} wird vom Licht gestärkt und heilt {1} KP!":"✨ {0} is strengthened by the light and heals {1} HP!",
+"🛡️ Die Verteidigung von {0} sinkt!":"🛡️ {0}'s defense fell!","Die Verteidigung von {0} kann nicht weiter sinken.":"{0}'s defense can't go any lower.","{0} {1}: {2} erholt sich um {3} KP.":"{0} {1}: {2} recovers {3} HP.",
+"{0} leidet unter der Vergiftung! ☠️ (−{1} KP)":"{0} is hurt by poison! ☠️ (−{1} HP)","{0} leidet unter seiner Verbrennung! 🔥 (−{1} KP)":"{0} is hurt by its burn! 🔥 (−{1} HP)","{0} wurde besiegt!":"{0} was defeated!","{0} kann nicht mehr kämpfen!":"{0} can't fight anymore!","Komm zurück, {0}!":"Come back, {0}!","Los, {0}!":"Go, {0}!",
+"💊 Heiltrank":"💊 Potion","Heilt 20 HP · {0}x übrig":"Heals 20 HP · {0}x left","🌿 Heilkraut":"🌿 Healing Herb","Heilt Gift, Verbrennung, Schlaf, Benommenheit & Verwirrung · {0}x":"Cures poison, burn, sleep, stun & confusion · {0}x",
+"Du benutzt einen Heiltrank! {0} erholt sich um {1} KP.":"You use a potion! {0} recovers {1} HP.","{0} hat keinen Statuseffekt – das Heilkraut hätte keine Wirkung.":"{0} has no status effect – the healing herb would have no effect.","Du benutzt ein Heilkraut! {0} ist wieder ganz bei sich. 🌿":"You use a healing herb! {0} is back to normal. 🌿",
+"🛡️↓ senkt Verteidigung":"🛡️↓ lowers defense","💚 heilt {0}% des Schadens":"💚 heals {0}% of the damage","{0} · {1} · +20%":"{0} · {1} · +20%",
+"🔴 Fangkapsel":"🔴 Capsule","{0}x · normale Chance":"{0}x · normal chance","▲ x{0} Chance gegen {1}":"▲ x{0} chance vs {1}","normale Chance":"normal chance","{0} {1}kapsel":"{0} {1} capsule",
+"Keine Fangkapseln mehr übrig!":"No capsules left!","Keine solche Kapsel mehr übrig!":"No such capsule left!","Du wirfst eine Fangkapsel!":"You throw a capsule!","Du wirfst eine {0} {1}fangkapsel!":"You throw a {0} {1} capsule!",
+"Geschafft! Du hast {0} gefangen!":"Gotcha! You caught {0}!","Dein Team ist voll – {0} wurde ins Lager geschickt.":"Your team is full – {0} was sent to the box.","Die {0} {1}fangkapsel hat besonders gut gewirkt!":"The {0} {1} capsule worked especially well!","⭐ Du hast das legendäre {0} gefangen!":"⭐ You caught the legendary {0}!","Quest erfüllt: 2x Fangkapsel erhalten!":"Quest complete: got 2x capsule!",
+"Oh nein! Die Kreatur hat sich befreit!":"Oh no! The creature broke free!","Fast! Die Kreatur ist wieder ausgebrochen!":"Almost! The creature broke out again!","🏃 Möchtest du wirklich vor {0} fliehen?":"🏃 Do you really want to run from {0}?","Ja, fliehen":"Yes, run","Weiterkämpfen":"Keep fighting",
+"Aus einem Trainerkampf kannst du nicht fliehen!":"You can't run from a trainer battle!","Du bist sicher entkommen.":"You got away safely.","🏆 Meisterschaft erreicht: {0} wird nun {1}% leichter gefangen!":"🏆 Mastery reached: {0} is now {1}% easier to catch!",
+"Sieg! Du erhältst 💰 {0} Gold.":"Victory! You receive 💰 {0} gold.","{0} erhält {1} EP.":"{0} gains {1} XP.","{0} erreicht Level {1}!{2}":"{0} reached level {1}!{2}"," (+{0} Punkte zu verteilen)":" (+{0} points to assign)","(+{0} Punkte zu verteilen)":"(+{0} points to assign)"," (keine Punkte mehr – Höchststufe)":" (no more points – max stage)","(keine Punkte mehr – Höchststufe)":"(no more points – max stage)",
+"Lernt {0}!":"Learns {0}!"," Lernt {0}!":" Learns {0}!","Merkt sich außerdem {0} (im Attacken-Menü aktivierbar).":"Also remembers {0} (can be activated in the moves menu)."," Merkt sich außerdem {0} (im Attacken-Menü aktivierbar).":" Also remembers {0} (can be activated in the moves menu).",
+"✨ {0} kann sich jetzt entwickeln – du darfst gleich ein Element wählen!":"✨ {0} can evolve now – you'll get to pick an element in a moment!","✨ Was? {0} entwickelt sich … zu {1}!":"✨ What? {0} is evolving … into {1}!",
+"{0}: „Was?! Ich habe verloren? … Na warte, beim nächsten Mal bin ich stärker!“":"{0}: “What?! I lost? … Just wait, next time I'll be stronger!”","Trainer besiegt! Quest erfüllt: 2x Heiltrank erhalten!":"Trainer defeated! Quest complete: got 2x potion!","{0}: „Argh! Das wird die Gilde nicht vergessen!“":"{0}: “Argh! The guild won't forget this!”","Der Trainer zieht sich geschlagen zurück.":"The trainer retreats in defeat.",
+"{0} taucht zurück in die Tiefe … Surfe weiter – vielleicht begegnest du ihm noch einmal.":"{0} dives back into the deep … Keep surfing – maybe you'll meet it again.","{0} zieht sich zurück … Es wartet weiter an seinem Ort – nur wer es fängt, gewinnt es für sich.":"{0} retreats … It keeps waiting at its place – only whoever catches it wins it.",
+"🌐 Du hast das Team von {0} besiegt!":"🌐 You defeated {0}'s team!","🏅 Du erhältst die {0} {1}! ({2}/{3}) Belohnung: 💰 {4}, {5}x Fangkapsel, {6}x Heiltrank!":"🏅 You receive the {0} {1}! ({2}/{3}) Reward: 💰 {4}, {5}x capsule, {6}x potion!",
+"🌊 {0}: „Nimm diese Surf-Lizenz! Ab jetzt kann dich ein Wasser-Monster aus deinem Team übers Meer tragen. Stell dich ans Ufer, schau aufs Wasser und drück A.“":"🌊 {0}: “Take this surf license! From now on a Water monster from your team can carry you across the sea. Stand on the shore, face the water and press A.”",
+"🌊 Auf dem Meer lauern wilde Wasser-, Drachen- und Wind-Monster. Und man erzählt sich, dass nach sehr langer Zeit auf See etwas Uraltes aus der Tiefe auftaucht …":"🌊 Wild Water, Dragon and Wind monsters lurk at sea. And they say that after a very long time at sea, something ancient rises from the deep …",
+"🎣 {0}: „Hier, nimm meine alte Angel! Stell dich ans Wasser und wirf sie aus – dort beißen Wasser- und Drachen-Monster an.“":"🎣 {0}: “Here, take my old fishing rod! Stand by the water and cast it – Water and Dragon monsters bite there.”","🏆 Du hast alle Medaillen – du bist eine Legende!":"🏆 You have all the medals – you are a legend!",
+"🎁 Beute: {0} – {1}. Ausrüsten kannst du sie im Menü unter „🧍 Trainer“.":"🎁 Loot: {0} – {1}. You can equip it in the menu under “🧍 Trainer”.","Alle deine Monster sind kampfunfähig! Dir wird schwarz vor Augen …":"All your monsters are unable to fight! Everything goes black …","Das Team von {0} war stärker. Alle deine Monster sind kampfunfähig …":"{0}'s team was stronger. All your monsters are unable to fight …",
+"{0}: „Ha! Ich wusste doch, dass ich besser bin. Trainier mal ein bisschen!“":"{0}: “Ha! I knew I was better. Go train a bit!”","Schwester Mira: „Da bist du ja wieder! Ich habe deine Monster vollständig geheilt. Pass beim nächsten Mal besser auf!“":"Nurse Mira: “There you are again! I've fully healed your monsters. Be more careful next time!”",
+"🐾 Wähle deinen Partner":"🐾 Choose your partner","Dein erstes Monster startet auf Level 5 mit 5 freien Punkten zum Verteilen.":"Your first monster starts at level 5 with 5 free points to assign.","Auswählen":"Choose","⭐ Sylvarion · legendär":"⭐ Sylvarion · legendary","Überspringen ⏭":"Skip ⏭","Professorin Linde":"Professor Linde",
+"Hallo, hallo! Schön, dass du da bist!":"Hello, hello! So nice that you're here!","Willkommen in der Monsterwelt! Ich bin Professorin Linde und erforsche hier in Eichendorff die Monster.":"Welcome to the Monsterwelt! I'm Professor Linde and I study monsters here in Eichendorff.",
+"Das ist Funki, meine kleine Funkmaus. Monster wie sie leben überall – im hohen Gras, am Meer, in der Wüste und im Nebelmoor.":"This is Funki, my little Funkmaus. Monsters like her live everywhere – in tall grass, by the sea, in the desert and in the Mist Moor.",
+"Manche Menschen kämpfen mit ihnen, andere sammeln sie. Und manche werden die besten Freunde ihrer Monster.":"Some people battle with them, others collect them. And some become their monsters' best friends.","Und dann gibt es noch die Legenden … Schau mal, das hier ist Sylvarion!":"And then there are the legends … Look, this is Sylvarion!",
+"Sylvarion ist ein uralter, leuchtender Hirsch-Geist vom Element Natur. Es heißt, er zeigt sich nur in einem versteckten Hain nördlich der Felsroute.":"Sylvarion is an ancient, glowing stag spirit of the Nature element. They say it only appears in a hidden grove north of the Rock Route.",
+"Es gibt nur ein einziges Sylvarion auf der ganzen Welt – und irgendwo warten noch zwei weitere Legenden. Wer weiß, vielleicht fängst du eines Tages eine davon!":"There is only one single Sylvarion in the whole world – and somewhere two more legends are waiting. Who knows, maybe one day you'll catch one of them!",
+"Aber genug von mir! Erzähl mir etwas über dich: Bist du ein Junge oder ein Mädchen?":"But enough about me! Tell me about yourself: are you a boy or a girl?","Ein Mädchen – wunderbar! Und wie heißt du?":"A girl – wonderful! And what's your name?","Ein Junge – prima! Und wie heißt du?":"A boy – great! And what's your name?",
+"{0}! Was für ein schöner Name.":"{0}! What a lovely name.","Also, {0}: Heute beginnt deine eigene Reise. Aber allein ist es da draußen gefährlich …":"So, {0}: today your own journey begins. But it's dangerous out there alone …","Deshalb darfst du dir eines meiner Monster als Partner aussuchen. Wähle weise!":"That's why you may pick one of my monsters as your partner. Choose wisely!",
+"Dein Name":"Your name","Bitte gib deinen Namen ein!":"Please enter your name!","✏️ Ohne Namen geht es nicht los – bitte gib deinen Namen ein.":"✏️ You can't start without a name – please enter your name.","Junge":"Boy","Mädchen":"Girl",
+"Vor langer Zeit … lebten Menschen und Monster Seite an Seite in einer Welt voller Wunder.":"Long ago … people and monsters lived side by side in a world full of wonders.","In Wäldern, Meeren und Bergen streifen unzählige Monster umher – manche klein und frech, manche gewaltig.":"Countless monsters roam forests, seas and mountains – some small and cheeky, some enormous.",
+"Und irgendwo, tief verborgen, warten drei Legenden auf jemanden, der ihrer würdig ist …":"And somewhere, deeply hidden, three legends wait for someone worthy of them …","In einem kleinen Dorf namens Eichendorff beginnt heute eine neue Geschichte – deine!":"In a small village called Eichendorff a new story begins today – yours!",
+"Professorin Linde: „{0} – eine tolle Wahl, {1}! Besucht mich jederzeit. Und jetzt: Auf ins Abenteuer!“":"Professor Linde: “{0} – a great choice, {1}! Visit me any time. And now: off to adventure!”",
+"👋 Hallo!":"👋 Hello!","⚔️ Lust auf einen Kampf?":"⚔️ Up for a battle?","🔄 Magst du tauschen?":"🔄 Want to trade?","🎉 Gut gemacht!":"🎉 Well done!","😄 Viel Spaß beim Spielen!":"😄 Have fun playing!","💬 Gruß gesendet: {0}":"💬 Greeting sent: {0}","💬 Gruß gesendet:":"💬 Greeting sent:","💬 {0}: {1}":"💬 {0}: {1}",
+"Grüßen ist für dich hier nicht freigeschaltet.":"Greeting is not enabled for you here.","Der Gruß konnte gerade nicht gesendet werden.":"The greeting couldn't be sent right now.","🔄 Tausch abgeschlossen! {0} hat dein {1} genommen – du bekommst {2} Lv.{3}.":"🔄 Trade complete! {0} took your {1} – you get {2} Lv.{3}.",
+"Du hast schon 3 offene Angebote. Zieh eins zurück, bevor du ein neues erstellst.":"You already have 3 open offers. Withdraw one before creating a new one.","Du brauchst mindestens ein Monster im Team.":"You need at least one monster in your team.","🔄 {0} steht jetzt in der Tauschbörse. Du bekommst Bescheid, sobald jemand tauscht.":"🔄 {0} is now on the trading board. You'll be notified as soon as someone trades.",
+"Die Tauschbörse ist gerade voll.":"The trading board is full right now.","Das Angebot konnte nicht erstellt werden.":"The offer couldn't be created.","Dieses Angebot ist fehlerhaft.":"This offer is invalid.","Jemand anderes tauscht gerade – versuch es gleich nochmal.":"Someone else is trading right now – try again in a moment.",
+"Dieses Angebot ist leider nicht mehr verfügbar.":"Sorry, this offer is no longer available.","🔄 Tausch geklappt! Du gibst {0} und bekommst {1} Lv.{2}.":"🔄 Trade done! You give {0} and get {1} Lv.{2}.","Der Tausch hat nicht geklappt. Versuch es nochmal.":"The trade didn't work. Try again.","Das Angebot wird gerade getauscht – einen Moment.":"The offer is being traded right now – one moment.",
+"{0} ist zurück bei dir.":"{0} is back with you.","Angebot zurückgezogen.":"Offer withdrawn.","Das Angebot konnte nicht zurückgezogen werden.":"The offer couldn't be withdrawn.","Dieses Team kann gerade nicht antreten.":"This team can't compete right now.","Das Team von {0} tritt an! {1} kommt heraus!":"{0}'s team steps up! {1} comes out!",
+"💬 Gruß an {0}":"💬 Greeting to {0}","🔄 Neues Tauschangebot":"🔄 New trade offer","1. Welches Monster bietest du an?":"1. Which monster do you offer?","✔ Gewählt":"✔ Chosen","Wählen":"Choose","2. Was möchtest du dafür?":"2. What do you want for it?","Beliebig":"Any","Angebot einstellen":"Post offer",
+"🔄 Tauschen mit {0}":"🔄 Trade with {0}","Du bekommst: {0} Lv.{1}":"You get: {0} Lv.{1}","Was gibst du dafür? {0}":"What do you give for it? {0}","(beliebiges Monster)":"(any monster)","(gewünscht: {0})":"(wanted: {0})","Du hast kein passendes Monster.":"You don't have a matching monster.","Geben":"Give","Team":"Team","Lager":"Box",
+"Wer das Spiel gerade geöffnet hat. Du kannst Grüße schicken oder das Team herausfordern.":"Who has the game open right now. You can send greetings or challenge their team.","Die Online-Anzeige ist hier gerade nicht verfügbar.":"The online list isn't available here right now.","Gerade ist niemand sonst online.":"Nobody else is online right now.",
+"Teile das Spiel mit Freunden, dann seht ihr euch hier.":"Share the game with friends and you'll see each other here.","💬 Grüßen":"💬 Greet","⚔️ Kampf":"⚔️ Battle","💬 Alle grüßen":"💬 Greet everyone","Gast":"Guest","📖 Dex":"📖 Dex","🏅 Orden":"🏅 Medals","⭐ Level":"⭐ Level","⚔️ Siege":"⚔️ Wins",
+"{0} Monster · {1} Siege / {2} Niederlagen":"{0} monsters · {1} wins / {2} losses","(du)":"(you)","Noch keine Einträge.":"No entries yet.","🏆 = Arena gemeistert · Dein Eintrag aktualisiert sich automatisch beim Spielen.":"🏆 = gym mastered · Your entry updates automatically as you play.","Arten":"species","Siege":"wins",
+"Kämpfe gegen das zuletzt gespeicherte Team anderer Spieler – der Computer steuert es, der andere muss nicht online sein.":"Battle the last saved team of other players – the computer controls it, the other player doesn't need to be online.","Team {0} · bis Lv.{1} · {2} Siege":"Team {0} · up to Lv.{1} · {2} wins","⚔️ Herausfordern":"⚔️ Challenge",
+"Noch keine anderen Teams vorhanden.":"No other teams yet.","Sobald Freunde spielen, erscheinen ihre Teams hier.":"As soon as friends play, their teams will appear here.","von {0} · wünscht: {1}":"from {0} · wants: {1}","beliebig":"any","➕ Eigenes Monster anbieten":"➕ Offer your own monster","Angebote anderer":"Offers from others","Deine Angebote":"Your offers",
+"Gerade keine Angebote.":"No offers right now.","Du hast nichts angeboten.":"You haven't offered anything.","Zurückziehen":"Withdraw","🟢 Online":"🟢 Online","🏆 Rangliste":"🏆 Leaderboard","⚔️ Kämpfe":"⚔️ Battles","🔄 Tausch":"🔄 Trade","🌐 Mehrspieler{0}":"🌐 Multiplayer{0}","· {0} online":"· {0} online",
+"🌐 Mehrspieler ist hier gerade nicht verfügbar.":"🌐 Multiplayer isn't available here right now.","Er funktioniert im veröffentlichten Spiel auf claude.ai, wenn du angemeldet bist und das Spiel mit dir geteilt wurde.":"It works in the published game on claude.ai when you're signed in and the game has been shared with you.",
+"⚙️ Optionen":"⚙️ Options","💬 Textgeschwindigkeit":"💬 Text speed","Langsam":"Slow","Normal":"Normal","Schnell":"Fast","🏃 Laufgeschwindigkeit":"🏃 Walking speed","🎮 Steuerung":"🎮 Controls","Joystick links":"Joystick left","Joystick rechts":"Joystick right","🎨 Monster-Grafik":"🎨 Monster graphics","Pixel-Sprites":"Pixel sprites","Glatt (Vektor)":"Smooth (vector)",
+"🔊 Sound":"🔊 Sound","Musik + Effekte":"Music + effects","Nur Effekte":"Effects only","Aus":"Off","🔈 Lautstärke":"🔈 Volume","Leise":"Quiet","Mittel":"Medium","Laut":"Loud","🗑️ Spielstand":"🗑️ Save data","Spielstand löschen":"Delete save data","Wirklich löschen? Nochmal tippen zum Bestätigen":"Really delete? Tap again to confirm",
+"{0} · {1} Lv.{2} · Team {3}/6":"{0} · {1} Lv.{2} · Team {3}/6","Das große Monster-Abenteuer":"The great monster adventure","Lade Monsterwelt …":"Loading Monsterwelt …","▶ Spiel fortsetzen":"▶ Continue","✨ Neues Spiel":"✨ New game","Kein Spielstand vorhanden":"No save data","✨ Neues Spiel":"✨ New game",
+"Dein bisheriger Spielstand":"Your current save","wird dabei überschrieben.":"will be overwritten.","Ja, neu beginnen":"Yes, start over",
+"⌨️ WASD/Pfeile laufen · Leertaste/Enter = A · Esc = B/zurück · M = Menü · F = Angeln · A vor Wasser = Surfen (ab 5. Orden) · 1–6 = Auswahl im Kampf · 🖱️ Maus gedrückt halten = laufen · H = Hilfe aus/an":"⌨️ WASD/arrows walk · Space/Enter = A · Esc = B/back · M = menu · F = fishing · A facing water = surf (from 5th medal) · 1–6 = battle choice · 🖱️ hold mouse = walk · H = help on/off",
+"Bitte drehe dein Smartphone ins Querformat.":"Please rotate your phone to landscape.","💾 Speichern":"💾 Save","🏠 Titelbildschirm":"🏠 Title screen","☰ START":"☰ START","⚔️ Monsterwelt":"⚔️ Monsterwelt","Trainer":"Trainer","Dex":"Dex","Inventar":"Inventory","Quests":"Quests","Karte":"Map","Typen":"Types","Mehrspieler":"Multiplayer","Quests":"Quests",
+"MARKT":"MARKET","ARENA":"GYM","Monsterwelt – Prototyp":"Monsterwelt","Bereits gefangen":"Already caught","bereits gefangen":"already caught","Keine Einträge":"No entries",
+"Wanderin Selin":"Hiker Selin","Jäger Timo":"Hunter Timo","Späher Boris":"Scout Boris","Trainer Jonas schickt {0} ins Feld!":"Trainer Jonas sends out {0}!","Du bist hier":"You are here","Kampf":"Battle","Gewählt":"Chosen","🌐 Sprache / Language":"🌐 Sprache / Language","Deutsch":"Deutsch","English":"English"
+};
+// Einzelwörter (Typen, Titel, Gegenstände …) – ersetzt als ganze Wörter in übrigen Texten
+const I18N_TERMS={
+"Wasser":"Water","Feuer":"Fire","Natur":"Nature","Erde":"Earth","Blitz":"Lightning","Psycho":"Psychic","Drache":"Dragon","Wind":"Wind","Neutral":"Neutral","Gemischt":"Mixed",
+"vergiftet":"poisoned","verbrannt":"burned","eingeschlafen":"asleep","benommen":"stunned","verwirrt":"confused",
+"Stärke":"Power","Status-Attacke":"Status move","KP":"HP","EP":"XP","Seltenheit":"Rarity","Episch":"Epic","Legendär":"Legendary","legendär":"legendary",
+"Fangchance":"Catch rate","Heiltrank-Wirkung":"Potion strength","Gold":"Gold",
+"Mütze":"Hat","Hose":"Pants","Schuhe":"Shoes","Amulett":"Amulet","Wollmütze":"Wool Beanie","Schirmmütze":"Baseball Cap","Bommelmütze":"Bobble Hat","Stirnband":"Headband","Sonnenhut":"Sun Hat","Baumwollshirt":"Cotton Shirt","Trainershirt":"Trainer Shirt","Ringelshirt":"Striped Shirt","Sportshirt":"Sports Shirt","Wanderhemd":"Hiking Shirt","Cargohose":"Cargo Pants","Wanderhose":"Hiking Pants","Trainingshose":"Track Pants","Turnschuhe":"Sneakers","Wanderstiefel":"Hiking Boots","Sandalen":"Sandals","Laufschuhe":"Running Shoes","Gummistiefel":"Rubber Boots",
+"Fangkapsel":"Capsule","Fangkapseln":"Capsules","Heiltrank":"Potion","Heilkraut":"Healing Herb","Angel":"Fishing Rod",
+"Dornenranke":"Thorn Vine","Stromzaun":"Electric Fence","Trugbild-Nebel":"Mirage Mist","Felsbrocken":"Boulders","Wasserstrudel":"Whirlpool","Glutwand":"Ember Wall","Drachensiegel":"Dragon Seal",
+"Blattmedaille":"Leaf Medal","Hafenmedaille":"Harbor Medal","Nebelmedaille":"Mist Medal","Felsmedaille":"Rock Medal","Sturmmedaille":"Storm Medal","Donnermedaille":"Thunder Medal","Glutmedaille":"Ember Medal","Sternenmedaille":"Star Medal",
+"Arenaleiterin":"Gym Leader","Arenaleiter":"Gym Leader","Taucher":"Diver","Pilzsammlerin":"Mushroom Picker","Käferjäger":"Bug Hunter","Waldläuferin":"Ranger","Wüstenläufer":"Desert Runner","Nebelgänger":"Mist Walker","Moorhexe":"Bog Witch","Bergsteiger":"Climber","Kristallsucherin":"Crystal Seeker","Seglerin":"Sailor","Windreiter":"Wind Rider","Elektriker":"Electrician","Sturmjägerin":"Storm Chaser","Feuertänzer":"Fire Dancer","Drachenhüterin":"Dragon Keeper","Sternenseher":"Stargazer","Drachenmeister":"Dragon Master",
+"Gilden-Jäger":"Guild Hunter","Gilden-Jägerin":"Guild Hunter","Gildenhauptmann":"Guild Captain","Gilden-Elite":"Guild Elite","Gildenmeisterin":"Guild Master","Jäger":"Hunter","Wanderin":"Hiker","Späher":"Scout","Schwester":"Nurse","Nachbar":"Neighbor","Professorin":"Professor","Dorfältester":"Village Elder","Mutter":"Mother",
+"Waldsegen":"Forest Blessing","Gezeitenschild":"Tide Shield","Zeitverzerrung":"Time Warp","Drachenmut":"Dragon Courage","Drachenherz":"Dragon Heart","Schutzengel":"Guardian Angel",
+"Grundform":"Base form","Einzelform":"Single form","Lager":"Box","Schritte":"steps","Medaillen":"medals","Medaille":"medal","Arena":"Gym","Kreatur":"creature","Kreaturen":"creatures"
+};
+// Attacken: Name und Beschreibung
+const MOVE_EN={stoss:["Tackle","Simple body attack"],flammenstoss:["Flame Burst","Fire attack that scorches the foe"],wasserstrahl:["Water Jet","Powerful jet of water"],blattklinge:["Leaf Blade","Sharp leaves used as blades"],windschnitt:["Wind Cut","Slicing gust of wind"],erdstoss:["Earth Strike","Shakes the ground"],
+feuersturm:["Firestorm","Mighty whirl of flames"],flutwelle:["Flood Wave","Raging masses of water"],dornwirbel:["Thorn Whirl","Whirl of thorny vines"],sturmboe:["Storm Gust","Fierce storm attack"],steinlawine:["Rock Avalanche","Falling boulders"],
+feuerbiss:["Fire Fang","Bite with blazing teeth"],aschewolke:["Ash Cloud","Burning clouds of ash"],magmastoss:["Magma Blast","Hurls glowing lava"],infernorage:["Inferno Rage","Unleashed wave of fire"],vulkanausbruch:["Eruption","Explosive burst of fire"],phoenixflamme:["Phoenix Flame","Legendary, rekindling flame"],sonnenglut:["Solar Blaze","Ultimate scorching heat wave"],
+blubberstrahl:["Bubble Jet","Bubbling blast of water"],gischtschlag:["Spray Strike","Strike of whipping spray"],strudelsog:["Maelstrom Pull","Pulls the foe into a whirlpool"],tsunamiwelle:["Tsunami","Overwhelming tidal wave"],tiefseedruck:["Deep Pressure","Crushing pressure of the deep"],perlenkaskade:["Pearl Cascade","Shimmering waterfall of pearls"],ozeanzorn:["Ocean Wrath","Ultimate primal force of the ocean"],
+dornenpeitsche:["Thorn Whip","Lashing thorny vine strike"],sporenwolke:["Spore Cloud","Irritating cloud of spores"],wurzelgriff:["Root Grip","Clutching roots"],blaettersturm:["Leaf Storm","Swirling storm of leaves"],urwaldzorn:["Jungle Wrath","Wrath of the deep jungle"],lebensdorn:["Life Thorn","Piercing thorn of life"],weltenbaumschlag:["World Tree Strike","Ultimate strike of the world tree"],
+boeenschlag:["Gust Strike","Sudden gust of wind"],wirbelwind:["Whirlwind","Circling whirl of air"],sturmschneide:["Storm Edge","Slicing storm gust"],orkanstoss:["Hurricane Blow","Heavy hurricane strike"],zyklonschlag:["Cyclone Strike","Devastating cyclone"],himmelssturm:["Sky Storm","Unleashed sky storm"],tornadofurie:["Tornado Fury","Ultimate tornado force"],
+steinwurf:["Rock Throw","Thrown boulder"],schlammstoss:["Mud Shove","Sticky push of mud"],erdbebenschlag:["Quake Strike","Shaking quake strike"],felsgrollen:["Rock Rumble","Rumbling rock masses"],kraterschlag:["Crater Strike","Strike with crater-making force"],tiefengrollen:["Deep Rumble","Rumble from deep in the earth"],kontinentalbeben:["Continental Quake","Ultimate continent-wide quake"],
+funke:["Spark","Crackling electric jolt"],funkenschlag:["Spark Strike","Strike with flying sparks"],statikfeld:["Static Field","Crackling field of tension"],donnerkeil:["Thunderbolt","Striking thunderbolt"],voltschock:["Volt Shock","Paralyzing high-voltage shock"],gewitterzorn:["Storm Wrath","Raging thunderstorm"],plasmastrahl:["Plasma Beam","Blazing plasma beam"],kugelblitz:["Ball Lightning","Floating, exploding ball of lightning"],himmelsdonner:["Sky Thunder","Ultimate thunderclap of the sky"],
+gedankenstoss:["Mind Push","Invisible push of thought power"],traumblick:["Dream Gaze","Confusing gaze from the dream world"],gedankenwelle:["Mind Wave","Pulsing wave of thought"],psychowirbel:["Psycho Swirl","Swirl of pure mind power"],mentalschlag:["Mental Strike","Hard blow to the mind"],illusionssturm:["Illusion Storm","Storm of deceptive illusions"],astralstrahl:["Astral Beam","Beam from the astral plane"],geistesblitz:["Brainstorm","Overwhelming inspiration"],kosmosgeist:["Cosmic Mind","Ultimate power of the cosmos"],
+drachenklaue:["Dragon Claw","Slash with sharp dragon claws"],schuppenhieb:["Scale Strike","Strike with armored scales"],drachenodem:["Dragon Breath","Glowing breath of a dragon"],drachenwut:["Dragon Rage","Raging dragon attack"],schwingenschlag:["Wing Strike","Heavy blow with the wings"],drachengebruell:["Dragon Roar","Deafening roar"],urdrachenzorn:["Elder Dragon Wrath","Wrath of the first dragons"],drachenkomet:["Dragon Comet","Falling dragon comet"],
+giftstachel:["Poison Sting","Sting with a poisonous thorn – often poisons"],giftnebel:["Poison Mist","Wraps the foe in poison mist (up to 9 HP per round)"],irrlicht:["Will-o'-Wisp","Dancing flame – burns the foe (up to 9 HP per round)"],glutfunke:["Ember Spark","Small, hot spark – often burns"],schlummerwelle:["Slumber Wave","Gentle murmur – makes the foe fall asleep"],verwirrstrahl:["Confuse Ray","Flickering ray – confuses the foe"],schlafgesang:["Lullaby","Soothing melody – makes the foe fall asleep"],donnerwelle:["Thunder Wave","Weak electric jolt – stuns"],sandwirbel:["Sand Whirl","Sand in the eyes – confuses the foe"],pollenbrise:["Pollen Breeze","Sleep-inducing pollen in the wind"],drachenblick:["Dragon Glare","Paralyzing gaze of a dragon – stuns"],
+urgewalt:["Primal Force","Unique (dragon from the egg): heavy blow, lowers the foe's defense"],himmelslicht:["Heavenly Light","Unique (angel from the egg): dazzling light, heals 50% of the damage dealt"],weltendrache:["World Dragon","Ultimate primal force of dragons"]};
+if(LANG==="en")Object.keys(MOVE_EN).forEach(k=>{if(MOVES[k]){MOVES[k].name=MOVE_EN[k][0];MOVES[k].desc=MOVE_EN[k][1]}});
+// Übersetzungs-Engine
+const I18N_RULES=[],I18N_CACHE=new Map();let I18N_SUB=null,I18N_TERM_RE=null;
+(function(){
+ if(LANG!=="en")return;
+ const esc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+ Object.keys(I18N).forEach(k=>{if(/\{\d\}/.test(k)){const parts=k.split(/\{(\d)\}/);let re="^",order=[];for(let i=0;i<parts.length;i++){if(i%2)(re+="([\\s\\S]*?)",order.push(+parts[i]));else re+=esc(parts[i])}I18N_RULES.push({re:new RegExp(re+"$"),en:I18N[k],order,len:k.length})}});
+ I18N_RULES.sort((a,b)=>b.len-a.len);
+ const L="A-Za-zÄÖÜäöüß";
+ const subs=Object.keys(I18N).filter(k=>!/\{\d\}/.test(k)&&k.length>=6&&/ /.test(k)).sort((a,b)=>b.length-a.length);
+ if(subs.length)I18N_SUB=new RegExp(subs.map(esc).join("|"),"g");
+ const terms=Object.keys(I18N_TERMS).sort((a,b)=>b.length-a.length);
+ I18N_TERM_RE=new RegExp(`(?<![${L}])(${terms.map(esc).join("|")})(?![${L}])`,"g");
+})();
+function i18nFallback(s){
+ let r=s;
+ if(I18N_SUB)r=r.replace(I18N_SUB,m=>I18N[m]);
+ return r.replace(I18N_TERM_RE,m=>I18N_TERMS[m]);
+}
+function i18nCore(core,depth){
+ if(I18N[core]!==undefined)return I18N[core];
+ if(I18N_TERMS[core]!==undefined)return I18N_TERMS[core];
+ if(depth<3)for(const r of I18N_RULES){const m=r.re.exec(core);if(m){const g=m.slice(1);return r.en.replace(/\{(\d)\}/g,(x,i)=>{const pos=r.order.indexOf(+i);const v=pos>=0?g[pos]:"";return i18nPart(v,depth+1)})}}
+ return null;
+}
+function i18nPart(v,depth){
+ if(!v||!/[A-Za-zÄÖÜäöüß]/.test(v))return v;
+ const m=/^(\s*)([\s\S]*?)(\s*)$/.exec(v),t=i18nCore(m[2],depth);
+ return m[1]+(t!=null?t:i18nFallback(m[2]))+m[3];
+}
+function T(s){
+ if(LANG!=="en"||typeof s!=="string"||!/[A-Za-zÄÖÜäöüß]/.test(s))return s;
+ let r=I18N_CACHE.get(s);if(r!==undefined)return r;
+ const n=s.replace(/\s+/g," ");
+ const m=/^(\s*)([\s\S]*?)(\s*)$/.exec(n),t=i18nCore(m[2],0);
+ r=m[1]+(t!=null?t:i18nFallback(m[2]))+m[3];
+ if(n===s&&r===n)r=s;
+ if(I18N_CACHE.size>6000)I18N_CACHE.clear();
+ I18N_CACHE.set(s,r);I18N_CACHE.set(r,r);
+ return r;
+}
+// Alles, was im Dokument angezeigt wird, automatisch übersetzen
+function i18nNode(n){
+ if(n.nodeType===3){const p=n.parentNode;if(!p||p.nodeName==="SCRIPT"||p.nodeName==="STYLE")return;const v=n.nodeValue,t=T(v);if(t!==v)n.nodeValue=t;return}
+ if(n.nodeType!==1||n.nodeName==="SCRIPT"||n.nodeName==="STYLE")return;
+ ["title","placeholder","aria-label"].forEach(a=>{const v=n.getAttribute&&n.getAttribute(a);if(v){const t=T(v);if(t!==v)n.setAttribute(a,t)}});
+ for(let c=n.firstChild;c;c=c.nextSibling)i18nNode(c);
+}
+if(LANG==="en"){
+ document.documentElement.lang="en";document.title=T(document.title);
+ new MutationObserver(ms=>{for(const m of ms){if(m.type==="characterData")i18nNode(m.target);else if(m.type==="attributes")i18nNode(m.target);else m.addedNodes.forEach(i18nNode)}})
+  .observe(document.documentElement,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:["title","placeholder","aria-label"]});
+ i18nNode(document.body);
+ const P=CanvasRenderingContext2D.prototype;["fillText","strokeText","measureText"].forEach(fn=>{const o=P[fn];P[fn]=function(t,...a){return o.call(this,T(String(t)),...a)}});
+}
+
 const SPECIES={
  // Feuer
  lohwolf:{name:"Lohwolf",type:"Feuer",rarity:1,base:{hp:38,atk:14,def:9,spd:12,spec:11},moves:["stoss","flammenstoss"]},
@@ -539,6 +828,8 @@ const SPECIES={
  leviaqua:{name:"Leviaqua",type:"Wasser",rarity:3,legendary:true,base:{hp:72,atk:26,def:24,spd:20,spec:28},moves:["stoss","wasserstrahl"]},
  chronodrak:{name:"Chronodrak",type:"Drache",rarity:3,legendary:true,base:{hp:78,atk:30,def:26,spd:24,spec:30},moves:["stoss","drachenklaue"]},
 };
+// Mystisches Unterwasser-Monster: erscheint nur beim Surfen (nach 5000 Schritten auf dem Wasser)
+SPECIES.abyssaron={name:"Abyssaron",type:"Wasser",rarity:3,legendary:true,mystic:true,base:{hp:74,atk:27,def:27,spd:22,spec:31},moves:["stoss","wasserstrahl"]};
 // ---------- ENTWICKLUNGEN (ab Level 15) ----------
 const EVO_LEVEL=15;
 const EVOLUTIONS=[
@@ -1217,7 +1508,8 @@ const DESIGN={
  jadewyrm:{t:"lizard",c1:"#2f9a6a",c2:"#e8f4c8",c3:"#8fe0b0",wings:"small",horns:"small",tailSpikes:true,iris:"#ffd84a"},
  sylvarion:{t:"quad",c1:"#eef4e0",c2:"#ffffff",c3:"#3f9a2f",ears:"calf",horns:"wood",tail:"leaf",mane:"leaf",crest:"gem",sparkle:true,orbs:true,nose:"#5a4a3a",iris:"#3fc88a",big:true},
  leviaqua:{t:"serpent",c1:"#1a4a9a",c2:"#cfefff",c3:"#9ff0ff",big:true},
- chronodrak:{t:"lizard",c1:"#1a1440",c2:"#e8d8ff",c3:"#ffd84a",wings:"big",horns:"big",tailSpikes:true,iris:"#9ef3ff",big:true}
+ chronodrak:{t:"lizard",c1:"#1a1440",c2:"#e8d8ff",c3:"#ffd84a",wings:"big",horns:"big",tailSpikes:true,iris:"#9ef3ff",big:true},
+ abyssaron:{t:"serpent",c1:"#0b2446",c2:"#7ff0ff",c3:"#b07aff",big:true}
 };
 // Späte Entwicklungen: Aussehen der Vorstufe + neue Farben/Merkmale, dazu eine Aura (Stufe 3 farbig, Stufe 4 golden)
 const LATE_DESIGN={
@@ -1416,7 +1708,7 @@ function ensureCreatureFields(c){
 // . Weg  g Gras(Begegnung)  v Dorfboden  w Baum(blockiert)  ~ Wasser(blockiert)
 // r Fels(blockiert)  s Sandboden  p Sandweg (Verbindungsweg)  n NPC  c Truhe  t Trainer  h Heilhaus  m Markt
 // = Holzbrücke  T Teleporter  G Arenaleitung  N Stadtbewohner
-const WORLD_W=140, WORLD_H=96;
+let WORLD_W=140, WORLD_H=96;
 // ---------- STÄDTE (8 Arenen, Level steigt pro Stadt um ca. 10–12) ----------
 // ox/oy = linke obere Ecke der Stadt-Vorlage (17×12). Eichendorff hat ein eigenes, kleineres Layout.
 const TOWN_TEMPLATE=[
@@ -1655,6 +1947,9 @@ function buildMap(){
  m[66][104]="=";m[67][104]="s";m[68][104]="s";fill(102,69,106,71,"s");m[70][104]="X";
  // Chronodrak: Sternenschrein nördlich der Sternenstadt
  fill(64,67,76,69,"o");m[67][65]="L";m[67][75]="L";m[68][64]="F";m[68][76]="F";m[67][70]="X";
+ // Flüsse mit Holzbrücken: Felsroute (senkrecht) und Sturmroute (waagrecht)
+ fill(84,8,85,14,"~");m[11][84]="=";m[11][85]="=";
+ fill(100,25,108,26,"~");m[25][104]="=";m[26][104]="=";
  // Plätze der Routen-Trainer freiräumen
  EXTRA_TRAINERS.forEach(n=>{m[n.y][n.x]="."});
  // ---- Schattenhöhle der Gilde (südlich der Hafenstadt, x24–52 / y33–46) ----
@@ -1693,7 +1988,7 @@ function buildMap(){
 
  return m;
 }
-const MAP=buildMap();
+let MAP=buildMap();
 function tileAt(x,y){return MAP[y]&&MAP[y][x]}
 // ---------- WEGSPERREN & FELDAKTIONEN ----------
 // Auf halbem Weg zu jeder neuen Stadt versperrt ein Hindernis den Weg. Es lässt sich nur öffnen,
@@ -1720,6 +2015,36 @@ const OBSTACLES=[
  {id:"gkg2",kind:"fels",toTown:null,tiles:[[47,40]],cave:true},
  {id:"gkg3",kind:"strom",toTown:null,tiles:[[29,44]],cave:true}
 ];
+// ---- Welt strecken: ausgewählte Spalten/Zeilen aus reiner Natur (Wald, Wasser, Wiese, Wege, Brücken)
+// werden mehrfach eingefügt. So werden die Wege zwischen den Städten länger, Gebiete größer und Brücken länger.
+const STRETCH={cols:[],rows:[]};
+function RX(x){let d=0;for(const [c,n] of STRETCH.cols)if(c<x)d+=n;return x+d}
+function RY(y){let d=0;for(const [c,n] of STRETCH.rows)if(c<y)d+=n;return y+d}
+function RXe(x){let d=0;for(const [c,n] of STRETCH.cols)if(c<=x)d+=n;return x+d}
+function RYe(y){let d=0;for(const [c,n] of STRETCH.rows)if(c<=y)d+=n;return y+d}
+(function applyStretch(){
+ const m=MAP,H=m.length,W=m[0].length,OK=new Set([".","g","w","~","r","s","p","=","F"]);
+ const spec=new Set(),mark=(x,y)=>spec.add(x+","+y),rect=(x,y,w,h)=>{for(let j=0;j<h;j++)for(let i=0;i<w;i++)mark(x+i,y+j)};
+ TOWNS.forEach(t=>rect(t.x-1,t.y-1,t.w+2,t.h+2));
+ LEGENDS.forEach(L=>rect(L.x-1,L.y-1,3,3));
+ EXTRA_TRAINERS.forEach(n=>mark(n.x,n.y));EXTRA_BUILDINGS.forEach(b=>rect(b.x,b.y,b.w,b.h));
+ OBSTACLES.forEach(o=>o.tiles.concat(o.gate||[]).forEach(([x,y])=>rect(x-1,y-1,3,3)));
+ const colOK=x=>{for(let y=0;y<H;y++)if(!OK.has(m[y][x])||spec.has(x+","+y))return false;return true};
+ const rowOK=y=>{for(let x=0;x<W;x++)if(!OK.has(m[y][x])||spec.has(x+","+y))return false;return true};
+ const pick=(a,b,ok)=>{const mid=(a+b)/2,c=[];for(let v=a;v<=b;v++)if(ok(v))c.push(v);c.sort((p,q)=>Math.abs(p-mid)-Math.abs(q-mid));return c[0]};
+ [[19,20,3],[55,57,6],[93,95,5],[113,115,5]].forEach(([a,b,n])=>{const c=pick(a,b,colOK);if(c!=null)STRETCH.cols.push([c,n])});
+ [[54,57,5],[62,64,5]].forEach(([a,b,n])=>{const r=pick(a,b,rowOK);if(r!=null)STRETCH.rows.push([r,n])});
+ const nm=[];
+ for(let y=0;y<H;y++){
+  const row=[];for(let x=0;x<W;x++){row.push(m[y][x]);const sc=STRETCH.cols.find(c=>c[0]===x);if(sc)for(let k=0;k<sc[1];k++)row.push(m[y][x])}
+  nm.push(row);const sr=STRETCH.rows.find(r=>r[0]===y);if(sr)for(let k=0;k<sr[1];k++)nm.push(row.slice());
+ }
+ MAP=nm;WORLD_W=nm[0].length;WORLD_H=nm.length;
+ const P=o=>{if(o){o.x=RX(o.x);o.y=RY(o.y)}};
+ TOWNS.forEach(t=>{P(t);if(t.ox!==undefined){t.ox=RX(t.ox);t.oy=RY(t.oy)}P(t.tele);P(t.dest);P(t.leaderPos)});
+ LEGENDS.forEach(P);EXTRA_TRAINERS.forEach(P);EXTRA_BUILDINGS.forEach(b=>{P(b);P(b.door)});
+ OBSTACLES.forEach(o=>{o.tiles=o.tiles.map(([x,y])=>[RX(x),RY(y)]);if(o.gate)o.gate=o.gate.map(([x,y])=>[RX(x),RY(y)])});
+})();
 const OBST_AT={};OBSTACLES.forEach(o=>o.tiles.forEach(([x,y])=>OBST_AT[x+","+y]=o));
 const OBST_FADE={};
 function obstacleActive(o){try{return !(state&&state.cleared&&state.cleared[o.id])}catch(e){return true}}
@@ -1816,6 +2141,7 @@ function onObstacleBump(o,fromButton){
 function fieldMoveOpen(){return !!document.getElementById("fieldMove")}
 function showFieldMove(o,c){
  if(fieldMoveOpen())return;
+ sfx("field");
  const T=OBSTACLE_TYPES[o.kind],mv=fieldMoveName(c,T);
  {const d=document.getElementById("dialog");d.style.display="none";clearTimeout(showDialog._t)}
  const el=document.createElement("div");el.id="fieldMove";
@@ -1824,7 +2150,7 @@ function showFieldMove(o,c){
   <div class="fmText"></div><div class="fmNext">▼</div></div>`;
  document.body.appendChild(el);
  const txt=el.querySelector(".fmText"),next=el.querySelector(".fmNext");
- const lines=[`${c.name} setzt ${mv} ein!`,`${T.done} … Der Weg ist jetzt frei!`];
+ const lines=[`${c.name} setzt ${mv} ein!`,`${T.done} … Der Weg ist jetzt frei!`].map(l=>window.T(l));
  let li=-1,typing=false,timer=null,full="";
  const typeLine=i=>{
   li=i;full=lines[i];let p=0;typing=true;next.style.visibility="hidden";txt.textContent="";clearInterval(timer);
@@ -1877,6 +2203,8 @@ const ENCOUNTER_ZONES=[
  {x1:121,y1:53,x2:134,y2:69,lv:[65,71],pool:["glutechse","lohwolf","schuppling","glutpanther","flammkugel","glimmkaefer","russfuchs","glutqualle","jadewyrm"]},  // Drachenpfad
  {x1:79,y1:64,x2:99,y2:86,lv:[73,78],pool:["schuppling","drakonis","geistfuchs","mystikatze","flussdrache","jadewyrm","traumqualle","nebelkarpfen","orakelfrosch"]}   // Sternensteppe
 ];
+ENCOUNTER_ZONES.forEach(z=>{z.x1=RX(z.x1);z.y1=RY(z.y1);z.x2=RXe(z.x2);z.y2=RYe(z.y2)});
+// Surfen: auf dem Meer (Wasser-, Drachen- und Wind-Monster)
 const WANDER_TRAINERS_POS=[{x:13,y:3},{x:17,y:3},{x:15,y:5}].concat(EXTRA_TRAINERS.map(n=>({x:n.x,y:n.y})));
 function zoneForTile(x,y){return ENCOUNTER_ZONES.find(z=>x>=z.x1&&x<=z.x2&&y>=z.y1&&y<=z.y2)||null}
 function poolForTile(x,y){
@@ -1899,9 +2227,9 @@ const ITEM_SPOTS=[],ITEM_AT={};
  const tierOfLv=lv=>Math.max(0,Math.min(7,Math.round((lv-5)/11)));
  ENCOUNTER_ZONES.forEach(z=>areas.push({x1:z.x1,y1:z.y1,x2:z.x2,y2:z.y2,tier:tierOfLv(z.lv[0]),types:[...new Set(z.pool.map(sid=>SPECIES[sid].type))],count:2+Math.floor(rng()*2)}));
  TOWNS.forEach((t,i)=>areas.push({x1:t.x,y1:t.y,x2:t.x+t.w-1,y2:t.y+t.h-1,tier:i,types:[TYPE_CYCLE.includes(t.leader.type)?t.leader.type:TYPE_CYCLE[i%TYPE_CYCLE.length]],count:1}));
- areas.push({x1:100,y1:67,x2:108,y2:72,tier:5,types:["Wasser"],count:1});   // Sandinsel (Leviaqua)
- areas.push({x1:83,y1:2,x2:89,y2:5,tier:3,types:["Natur"],count:1});       // Sylvarion-Hain
- areas.push({x1:64,y1:67,x2:76,y2:69,tier:7,types:["Drache"],count:1});     // Sternenschrein
+ areas.push({x1:RX(100),y1:RY(67),x2:RXe(108),y2:RYe(72),tier:5,types:["Wasser"],count:1});   // Sandinsel (Leviaqua)
+ areas.push({x1:RX(83),y1:RY(2),x2:RXe(89),y2:RYe(5),tier:3,types:["Natur"],count:1});       // Sylvarion-Hain
+ areas.push({x1:RX(64),y1:RY(67),x2:RXe(76),y2:RYe(69),tier:7,types:["Drache"],count:1});     // Sternenschrein
  areas.forEach(A=>{
   const cand=[];
   for(let y=A.y1;y<=A.y2;y++)for(let x=A.x1;x<=A.x2;x++){
@@ -1994,6 +2322,7 @@ function rollBattleLoot(){
 // Fund-/Beute-Fenster mit „Ausrüsten“
 function showGearFound(it,title){
  if(fieldMoveOpen())return;
+ sfx("chest");
  const R=RARITY[it.rar];
  const el=document.createElement("div");el.id="fieldMove";
  el.innerHTML=`<div class="fmCard"><div class="fmHead">${title}</div>
@@ -2128,6 +2457,7 @@ function itemTaken(it){return !!(state.itemsTaken&&state.itemsTaken[it.key])}
 function pickUpItemAt(x,y){
  const it=ITEM_AT[x+","+y];
  if(!it||itemTaken(it))return false;
+ sfx("item");
  if(!state.itemsTaken)state.itemsTaken={};
  state.itemsTaken[it.key]=true;
  if(it.kind==="elem"){if(!state.inv.elem)state.inv.elem={};state.inv.elem[it.type]=(state.inv.elem[it.type]||0)+it.qty}
@@ -2152,8 +2482,8 @@ function updateWanderers(dt){
  WANDER_TRAINERS.forEach(n=>{
   if(state.wanderBeaten[n.id]||n.mode==="battling")return;
   if(n.gilde){ // Gilden-Jäger reagieren erst, wenn man in ihrer Höhle bzw. ihrem Turm ist
-   if(n.y>=86&&(state.py<87||!story().novaAttack))return;
-   if(n.y>=33&&n.y<=46&&n.x<60&&(state.py<33||!story().hafenAttack))return;
+   if(n.id.startsWith("gt")&&(state.py<RY(87)||!story().novaAttack))return;
+   if(n.id.startsWith("gk")&&(state.py<RY(33)||!story().hafenAttack))return;
   }
   if(Math.abs(state.px-n.x)>12||Math.abs(state.py-n.y)>12){if(n.mode==="spotted")n.mode="wander";return}
   const dist=Math.max(Math.abs(state.px-n.x),Math.abs(state.py-n.y));
@@ -2247,21 +2577,188 @@ let state={
  defeatedCount:{},
  wanderBeaten:{},
  cleared:{},
+ mapVer:2,
  quests:{
   qWasser:{title:"Fange eine Wasser-Kreatur",done:false},
   qTrainer:{title:"Besiege den Trainer im Grasfeld",done:false}
  }
 };
-function save(){localStorage.setItem("monsterwelt_save",JSON.stringify(state));if(typeof mpScheduleSync==="function")mpScheduleSync()}
-function load(){const r=localStorage.getItem("monsterwelt_save");if(r){state=JSON.parse(r);if(state.inv.gold===undefined)state.inv.gold=100;if(!state.caughtCount)state.caughtCount={};if(!state.defeatedCount)state.defeatedCount={};if(!state.wanderBeaten)state.wanderBeaten={};if(state.arenaBeaten===undefined)state.arenaBeaten=false;if(!state.medals)state.medals={};if(!state.legends)state.legends={};if(!state.inv.elem)state.inv.elem={};if(state.inv.heilkraut===undefined)state.inv.heilkraut=1;if(!state.itemsTaken)state.itemsTaken={};if(state.arenaBeaten)state.medals.hafen=true;if(!state.visited)state.visited={lindorf:true};state.visited.lindorf=true;if(state.rivalMet&&!state.gotRivalEgg){state.gotRivalEgg=true;state.eggs=(state.eggs||[]).concat([{kind:Math.random()<0.5?"babydrache":"babyengel",steps:0}])}if(!state.cleared)state.cleared={};if(state.medals&&state.medals.lindorf)state.hasRod=true;OBSTACLES.forEach(o=>{if((state.visited&&state.visited[o.toTown])||o.tiles.some(([x,y])=>x===state.px&&y===state.py))state.cleared[o.id]=true});if(!state.playerName)state.playerName="Trainer";if(state.gender!=="w")state.gender="m";if(blocked(state.px,state.py)){state.px=2;state.py=3;state.dir="down"}state.team.forEach(ensureCreatureFields);state.storage.forEach(ensureCreatureFields);return true}return false}
+// Erst speichern, wenn wirklich gespielt wird – sonst würde der Titelbildschirm (Standardwerte) den echten Spielstand überschreiben
+let GAME_ON=false;
+function save(){if(!GAME_ON)return;try{localStorage.setItem("monsterwelt_save",JSON.stringify(state))}catch(e){}if(typeof mpScheduleSync==="function")mpScheduleSync()}
+function load(){const r=localStorage.getItem("monsterwelt_save");if(r){state=JSON.parse(r);if(state.inv.gold===undefined)state.inv.gold=100;if(!state.caughtCount)state.caughtCount={};if(!state.defeatedCount)state.defeatedCount={};if(!state.wanderBeaten)state.wanderBeaten={};if(state.arenaBeaten===undefined)state.arenaBeaten=false;if(!state.medals)state.medals={};if(!state.legends)state.legends={};if(!state.inv.elem)state.inv.elem={};if(state.inv.heilkraut===undefined)state.inv.heilkraut=1;if(!state.itemsTaken)state.itemsTaken={};if(state.arenaBeaten)state.medals.hafen=true;if(!state.visited)state.visited={lindorf:true};state.visited.lindorf=true;if(state.rivalMet&&!state.gotRivalEgg){state.gotRivalEgg=true;state.eggs=(state.eggs||[]).concat([{kind:Math.random()<0.5?"babydrache":"babyengel",steps:0}])}if(!state.cleared)state.cleared={};if(state.medals&&state.medals.lindorf)state.hasRod=true;OBSTACLES.forEach(o=>{if((state.visited&&state.visited[o.toTown])||o.tiles.some(([x,y])=>x===state.px&&y===state.py))state.cleared[o.id]=true});if((state.mapVer||1)<2){state.px=RX(state.px);state.py=RY(state.py);if(state.lastHeal)state.lastHeal={x:RX(state.lastHeal.x),y:RY(state.lastHeal.y)};state.mapVer=2}if(state.medals&&state.medals.sturmhafen)state.canSurf=true;if(state.surfing&&tileAt(state.px,state.py)!=="~")state.surfing=false;if(!state.playerName)state.playerName="Trainer";if(state.gender!=="w")state.gender="m";if(!state.surfing&&blocked(state.px,state.py)){state.px=2;state.py=3;state.dir="down"}state.team.forEach(ensureCreatureFields);state.storage.forEach(ensureCreatureFields);return true}return false}
 // Einstellungen (nur auf diesem Gerät gespeichert)
-let OPTS={text:"normal",walk:"normal",controls:"std",gfx:"pixel"};
+let OPTS={text:"normal",walk:"normal",controls:"std",gfx:"pixel",sound:"all",vol:"mid",lang:LANG};
 try{const o=JSON.parse(localStorage.getItem("monsterwelt_opts")||"null");if(o)OPTS=Object.assign(OPTS,o)}catch(e){}
 function saveOpts(){try{localStorage.setItem("monsterwelt_opts",JSON.stringify(OPTS))}catch(e){}}
-function applyOpts(){document.body.classList.toggle("lefty",OPTS.controls==="swap")}
+function applyOpts(){document.body.classList.toggle("lefty",OPTS.controls==="swap");try{sndApplyOpts()}catch(e){}}
 function textMs(){return OPTS.text==="slow"?42:OPTS.text==="fast"?9:24}
 function dialogMs(){return OPTS.text==="slow"?4800:OPTS.text==="fast"?2300:3200}
 function walkSpeed(){return OPTS.walk==="fast"?5.2:3.6}
+// ---------- SOUND (Web Audio, komplett synthetisch – keine Dateien) ----------
+const SND={ctx:null,master:null,musicBus:null,sfxBus:null,track:null,want:null,timer:null,step:0,next:0,trackGain:null,lastTap:0};
+function sndMode(){return (typeof OPTS!=="undefined"&&OPTS.sound)||"all"}
+function sndMusicOn(){return sndMode()==="all"}
+function sndVolume(){const v=(typeof OPTS!=="undefined"&&OPTS.vol)||"mid";return v==="low"?0.45:v==="high"?1.35:0.9}
+function sndSfxOn(){return sndMode()!=="off"}
+function sndInit(){
+ if(SND.ctx)return SND.ctx;
+ const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;
+ try{
+  try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){} // iPhone: Ton auch bei Stumm-Schalter
+  const c=new AC();SND.ctx=c;
+  SND.master=c.createGain();SND.master.gain.value=sndVolume();
+  const comp=c.createDynamicsCompressor();comp.threshold.value=-18;comp.ratio.value=4;
+  SND.master.connect(comp);comp.connect(c.destination);
+  SND.musicBus=c.createGain();SND.musicBus.gain.value=0.42;SND.musicBus.connect(SND.master);
+  SND.sfxBus=c.createGain();SND.sfxBus.gain.value=0.8;SND.sfxBus.connect(SND.master);
+  const nb=c.createBuffer(1,c.sampleRate,c.sampleRate),d=nb.getChannelData(0);
+  for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+  SND.noise=nb;
+ }catch(e){SND.ctx=null}
+ return SND.ctx;
+}
+function sndUnlock(){
+ const c=sndInit();if(!c)return;
+ const go=()=>{if(SND.want&&!SND.track)setMusic(SND.want,true)};
+ if(c.state!=="running")c.resume().then(go).catch(()=>{});else go();
+}
+["pointerdown","touchend","keydown"].forEach(ev=>window.addEventListener(ev,sndUnlock,{passive:true,capture:true}));
+document.addEventListener("visibilitychange",()=>{if(!SND.ctx)return;if(document.hidden)SND.ctx.suspend().catch(()=>{});else SND.ctx.resume().catch(()=>{})});
+const NOTE_IDX={C:0,"C#":1,D:2,"D#":3,E:4,F:5,"F#":6,G:7,"G#":8,A:9,"A#":10,B:11};
+function nfreq(n){const m=/^([A-G]#?)(\d)$/.exec(n);if(!m)return 0;return 440*Math.pow(2,(NOTE_IDX[m[1]]+(+m[2]+1)*12-69)/12)}
+// Ein Ton mit Hüllkurve
+function tone(dest,f,t,dur,o){
+ o=o||{};const c=SND.ctx;
+ const osc=c.createOscillator(),g=c.createGain();
+ osc.type=o.type||"square";osc.frequency.setValueAtTime(f,t);
+ if(o.slide)osc.frequency.exponentialRampToValueAtTime(Math.max(30,o.slide),t+dur);
+ if(o.vib){const l=c.createOscillator(),lg=c.createGain();l.frequency.value=5.5;lg.gain.value=o.vib;l.connect(lg);lg.connect(osc.frequency);l.start(t);l.stop(t+dur+0.1)}
+ const v=o.vol||0.2,a=o.a||0.008,r=o.r||0.08;
+ g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(v,t+a);
+ g.gain.setValueAtTime(v*(o.sus||0.7),t+Math.max(a,dur-r));
+ g.gain.exponentialRampToValueAtTime(0.0001,t+dur+r);
+ let out=g;
+ if(o.lp){const fl=c.createBiquadFilter();fl.type="lowpass";fl.frequency.value=o.lp;g.connect(fl);out=fl}
+ osc.connect(g);out.connect(dest);osc.start(t);osc.stop(t+dur+r+0.05);
+}
+function noiseHit(dest,t,dur,o){
+ o=o||{};const c=SND.ctx;
+ const s=c.createBufferSource();s.buffer=SND.noise;
+ const f=c.createBiquadFilter();f.type=o.ft||"bandpass";f.frequency.setValueAtTime(o.f||2000,t);
+ if(o.fEnd)f.frequency.exponentialRampToValueAtTime(o.fEnd,t+dur);
+ f.Q.value=o.q||1;
+ const g=c.createGain();g.gain.setValueAtTime(o.vol||0.2,t);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+ s.connect(f);f.connect(g);g.connect(dest);s.start(t,Math.random()*0.5);s.stop(t+dur+0.02);
+}
+// ---- Musikstücke: Schritte = Achtelnoten, "-" hält, "." Pause ----
+const TRACKS={
+ world:{bpm:100,
+  lead:"E5 - G5 - C6 - B5 A5 G5 - E5 - C5 - D5 E5 F5 - A5 - C6 - A5 F5 G5 - - - D5 - . . E5 - G5 - C6 - D6 E6 D6 - C6 - A5 - G5 E5 F5 - A5 G5 - - B5 D6 C6 - - - . . . .",
+  bass:"C3 . G3 . E3 . G3 . A2 . E3 . C3 . E3 . F2 . C3 . A2 . C3 . G2 . D3 . B2 . D3 . C3 . G3 . E3 . G3 . A2 . E3 . C3 . E3 . F2 . C3 . G2 . D3 . C3 . G3 . C3 . . .",
+  leadO:{type:"triangle",vol:0.16,sus:0.6,vib:3},bassO:{type:"triangle",vol:0.2,sus:0.8},
+  bell:"C5 . . . . . . . A4 . . . . . . . A4 . . . . . . . B4 . . . . . . . C5 . . . . . . . A4 . . . . . . . A4 . . . B4 . . . C5 . . . . . . .",
+  hat:"x . . . x . . . "},
+ battle:{bpm:152,
+  lead:"A4 - C5 - E5 - A5 - G5 - E5 - C5 D5 E5 - F5 - A5 - C6 - A5 F5 G5 - - D5 G5 - B5 - A5 - E5 - C5 - E5 A5 B5 - A5 G5 E5 - G5 - F5 E5 F5 A5 C6 - B5 A5 G#5 - - - E5 - - -",
+  bass:"A2 A2 A3 A2 A2 A2 A3 A2 A2 A2 A3 A2 A2 A2 A3 A2 F2 F2 F3 F2 F2 F2 F3 F2 G2 G2 G3 G2 G2 G2 G3 G2 A2 A2 A3 A2 A2 A2 A3 A2 A2 A2 A3 A2 A2 A2 A3 A2 F2 F2 F3 F2 F2 F2 F3 F2 E2 E2 E3 E2 E2 E2 E3 E2",
+  leadO:{type:"square",vol:0.075,sus:0.6,lp:2600},bassO:{type:"square",vol:0.085,sus:0.5,lp:900,r:0.04},
+  drums:"k h s h k k s h"}
+};
+function parseTrack(t){
+ if(t._p)return t._p;
+ const sp=s=>s?s.trim().split(/\s+/):null;
+ t._p={lead:sp(t.lead),bass:sp(t.bass),bell:sp(t.bell),hat:sp(t.hat),drums:sp(t.drums)};
+ return t._p;
+}
+function noteLen(arr,i){let n=1;while(arr[(i+n)%arr.length]==="-"&&n<16)n++;return n}
+function scheduleStep(t,i){
+ const tr=TRACKS[SND.track],p=parseTrack(tr),st=60/tr.bpm/2,dest=SND.trackGain;
+ const play=(arr,o,len)=>{if(!arr)return;const k=i%arr.length,n=arr[k];if(n==="."||n==="-")return;tone(dest,nfreq(n),t,st*noteLen(arr,k)*(len||0.92),o)};
+ play(p.lead,tr.leadO);play(p.bass,tr.bassO,0.85);
+ if(p.bell)play(p.bell,{type:"sine",vol:0.06,a:0.004,sus:0.3,r:0.6},0.5);
+ if(p.hat){const h=p.hat[i%p.hat.length];if(h==="x")noiseHit(dest,t,0.03,{ft:"highpass",f:7000,vol:0.025})}
+ if(p.drums){const d=p.drums[i%p.drums.length];
+  if(d==="k")tone(dest,120,t,0.1,{type:"sine",vol:0.3,slide:45,a:0.002,r:0.06});
+  if(d==="s")noiseHit(dest,t,0.12,{f:1800,q:0.7,vol:0.14});
+  if(d==="h")noiseHit(dest,t,0.03,{ft:"highpass",f:8000,vol:0.04});}
+}
+function musicTick(){
+ const c=SND.ctx;if(!c||!SND.track)return;
+ const st=60/TRACKS[SND.track].bpm/2;
+ while(SND.next<c.currentTime+0.25){scheduleStep(SND.next,SND.step);SND.step++;SND.next+=st}
+}
+function stopMusic(fade){
+ clearInterval(SND.timer);SND.timer=null;
+ if(SND.trackGain&&SND.ctx){const g=SND.trackGain,t=SND.ctx.currentTime;g.gain.cancelScheduledValues(t);g.gain.setValueAtTime(g.gain.value,t);g.gain.linearRampToValueAtTime(0.0001,t+(fade||0.4));setTimeout(()=>{try{g.disconnect()}catch(e){}},(fade||0.4)*1000+200)}
+ SND.trackGain=null;SND.track=null;
+}
+function setMusic(name,force){
+ SND.want=name;
+ if(!force&&SND.track===name)return;
+ stopMusic(0.5);
+ const c=SND.ctx;if(!name||!c||c.state!=="running"||!sndMusicOn())return;
+ SND.track=name;SND.step=0;SND.next=c.currentTime+0.15;
+ SND.trackGain=c.createGain();SND.trackGain.gain.value=1;SND.trackGain.connect(SND.musicBus);
+ musicTick();SND.timer=setInterval(musicTick,60);
+}
+function sndApplyOpts(){if(!SND.ctx)return;try{SND.master.gain.setTargetAtTime(sndVolume(),SND.ctx.currentTime,0.05)}catch(e){}if(sndMusicOn()){if(SND.want&&!SND.track)setMusic(SND.want,true)}else stopMusic(0.2)}
+// Gesamte Musik kurz leiser (für Jingles)
+function duckMusic(sec){if(!SND.trackGain||!SND.ctx)return;const g=SND.trackGain.gain,t=SND.ctx.currentTime;g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.linearRampToValueAtTime(0.15,t+0.08);g.setValueAtTime(0.15,t+sec);g.linearRampToValueAtTime(1,t+sec+0.6)}
+function arp(notes,t,step,o){notes.forEach((n,i)=>tone(SND.sfxBus,nfreq(n),t+i*step,o.dur||step*0.9,o))}
+// ---- Soundeffekte ----
+function sfx(name,arg){
+ if(!sndSfxOn())return;
+ const c=SND.ctx;if(!c||c.state!=="running")return;
+ const t=c.currentTime+0.01,B=SND.sfxBus;
+ switch(name){
+  case"tap":{if(t-SND.lastTap<0.05)return;SND.lastTap=t;tone(B,1320,t,0.03,{type:"square",vol:0.05,a:0.002,r:0.03,lp:3500});break}
+  case"step":tone(B,180,t,0.03,{type:"triangle",vol:0.05,r:0.03});break;
+  case"encounter":noiseHit(B,t,0.35,{f:600,fEnd:5000,vol:0.18,q:0.8});arp(["A4","C5","E5","A5"],t+0.05,0.06,{type:"square",vol:0.09,lp:3000});break;
+  case"attack":noiseHit(B,t,0.18,{f:900,fEnd:3500,vol:0.12,q:0.6});break;
+  case"hit":{const fx=arg==null?1:arg;
+   if(fx>1){noiseHit(B,t,0.25,{f:1400,fEnd:300,vol:0.32,q:0.6});tone(B,300,t,0.18,{type:"square",vol:0.16,slide:60,lp:1800});tone(B,900,t+0.04,0.12,{type:"square",vol:0.08,slide:300})}
+   else if(fx<1){noiseHit(B,t,0.12,{f:500,vol:0.14,q:0.8});tone(B,160,t,0.1,{type:"triangle",vol:0.15,slide:90})}
+   else{noiseHit(B,t,0.16,{f:1000,fEnd:400,vol:0.22,q:0.7});tone(B,220,t,0.12,{type:"square",vol:0.12,slide:70,lp:1500})}
+   break}
+  case"miss":tone(B,700,t,0.18,{type:"sine",vol:0.1,slide:350});break;
+  case"status":tone(B,500,t,0.35,{type:"triangle",vol:0.12,vib:40});tone(B,380,t+0.12,0.35,{type:"triangle",vol:0.1,vib:40});break;
+  case"heal":arp(["C5","E5","G5","C6","E6"],t,0.07,{type:"sine",vol:0.12,r:0.2});break;
+  case"buff":arp(["E5","A5","E6"],t,0.06,{type:"triangle",vol:0.12});break;
+  case"faint":tone(B,520,t,0.6,{type:"square",vol:0.09,slide:70,lp:1600});break;
+  case"throw":noiseHit(B,t,0.3,{f:500,fEnd:4000,vol:0.12,q:1.2});tone(B,400,t,0.28,{type:"sine",vol:0.08,slide:1200});break;
+  case"wobble":tone(B,300,t,0.05,{type:"square",vol:0.08,lp:1200});tone(B,300,t+0.42,0.05,{type:"square",vol:0.08,lp:1200});tone(B,300,t+0.84,0.05,{type:"square",vol:0.08,lp:1200});break;
+  case"escape":noiseHit(B,t,0.15,{f:3000,vol:0.14});tone(B,900,t,0.2,{type:"square",vol:0.07,slide:200,lp:2500});break;
+  case"catch":duckMusic(1.2);arp(["C5","E5","G5"],t,0.09,{type:"square",vol:0.09,lp:3000});tone(B,nfreq("C6"),t+0.3,0.5,{type:"square",vol:0.1,lp:3000,vib:6});arp(["G6","C7"],t+0.3,0.08,{type:"sine",vol:0.05});break;
+  case"levelup":duckMusic(0.9);arp(["C5","E5","G5","C6"],t,0.07,{type:"square",vol:0.08,lp:3200});tone(B,nfreq("E6"),t+0.3,0.3,{type:"square",vol:0.08,lp:3200});tone(B,nfreq("G6"),t+0.3,0.3,{type:"sine",vol:0.05});break;
+  case"evolve":duckMusic(1.8);arp(["C5","G5","C6","E5","B5","E6","G5","D6","G6"],t,0.09,{type:"triangle",vol:0.12});tone(B,nfreq("C7"),t+0.85,0.8,{type:"sine",vol:0.08,vib:8});break;
+  case"victory":{const n=["G4","C5","E5","G5","-","E5","G5","C6"];n.forEach((x,i)=>{if(x!=="-")tone(B,nfreq(x),t+i*0.11,i===7?0.7:0.1,{type:"square",vol:0.09,lp:3200})});
+   ["C3","G3","C4"].forEach((x,i)=>tone(B,nfreq(x),t+0.66+i*0.02,0.7,{type:"triangle",vol:0.13}));break}
+  case"defeat":arp(["E5","D5","C5","B4"],t,0.2,{type:"triangle",vol:0.12,dur:0.22});tone(B,nfreq("A4"),t+0.8,0.8,{type:"triangle",vol:0.12});break;
+  case"field":noiseHit(B,t,0.5,{f:300,fEnd:3000,vol:0.14,q:0.7});arp(["G4","C5","E5","G5"],t+0.25,0.07,{type:"triangle",vol:0.12});tone(B,nfreq("C6"),t+0.55,0.35,{type:"sine",vol:0.08});break;
+  case"chest":arp(["G5","C6","E6","G6","C7"],t,0.06,{type:"sine",vol:0.09,r:0.25});noiseHit(B,t+0.3,0.3,{ft:"highpass",f:6000,vol:0.04});break;
+  case"item":arp(["E5","G5","C6"],t,0.07,{type:"triangle",vol:0.1});break;
+  case"coin":tone(B,nfreq("B5"),t,0.06,{type:"square",vol:0.07,lp:4000});tone(B,nfreq("E6"),t+0.07,0.22,{type:"square",vol:0.07,lp:4000});break;
+  case"bite":tone(B,900,t,0.06,{type:"square",vol:0.1,lp:3000});tone(B,1200,t+0.09,0.08,{type:"square",vol:0.1,lp:3000});break;
+  case"splash":noiseHit(B,t,0.35,{f:1200,fEnd:400,vol:0.14,q:0.5});break;
+  case"deny":tone(B,200,t,0.12,{type:"square",vol:0.08,lp:1000});tone(B,160,t+0.13,0.16,{type:"square",vol:0.08,lp:1000});break;
+  case"hatch":duckMusic(1.6);noiseHit(B,t,0.1,{f:2500,vol:0.12});noiseHit(B,t+0.25,0.1,{f:2500,vol:0.12});arp(["C5","E5","G5","C6","E6","G6"],t+0.55,0.08,{type:"triangle",vol:0.11});break;
+ }
+}
+// Kampftexte automatisch mit passenden Sounds untermalen
+function sfxForText(tx){
+ if(!tx)return;
+ if(/entwickelt sich/.test(tx))sfx("evolve");
+ else if(/erreicht Level/.test(tx))sfx("levelup");
+ else if(/wurde besiegt!|kann nicht mehr kämpfen/.test(tx))sfx("faint");
+ else if(/wird verwirrt!|eingeschlafen!|vergiftet!|Verbrennungen erlitten|ist benommen!/.test(tx))sfx("status");
+ else if(/heilt|geheilt|erholt sich|gestärkt|ganz bei sich/.test(tx))sfx("heal");
+ else if(/sinkt|steigt|Passiv|passiv/.test(tx))sfx("buff");
+ else if(/daneben/.test(tx))sfx("miss");
+}
+// Kleiner Klick bei allen Buttons
+document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("button"))sfx("tap")},true);
+
 function askPlayerName(){
  try{
   const nm=prompt("Wie heißt du, Trainer?","Trainer");
@@ -2271,7 +2768,8 @@ function askPlayerName(){
 
 // ---------- RENDER (isometrisch) ----------
 const cv=document.getElementById("cv"),ctx=cv.getContext("2d");
-function resize(){cv.width=innerWidth;cv.height=innerHeight}
+let DPR=1,VW=innerWidth,VH=innerHeight;
+function resize(){DPR=Math.min(2,window.devicePixelRatio||1);VW=innerWidth;VH=innerHeight;cv.width=Math.round(VW*DPR);cv.height=Math.round(VH*DPR)}
 addEventListener("resize",resize);resize();
 const COLORS={".":"#6ec766","v":"#c9a86a","g":"#4a9850","w":"#4a9850","~":"#3fa0c8",
  "r":"#948a76","s":"#e8cf8e","p":"#d1a85f","n":"#6ec766","c":"#6ec766","t":"#6ec766","h":"#c9a86a","m":"#c9a86a",
@@ -2801,11 +3299,12 @@ function drawBuilding(b,camX,camY){
  }
 }
 function draw(){
- ctx.fillStyle="#132318";ctx.fillRect(0,0,cv.width,cv.height);
+ ctx.setTransform(DPR,0,0,DPR,0,0);ctx.imageSmoothingQuality="high";
+ ctx.fillStyle="#132318";ctx.fillRect(0,0,VW,VH);
  const rp=renderPos();
- const p=isoPos(rp.x,rp.y),camX=Math.round(p.sx-cv.width/2),camY=Math.round(p.sy-cv.height/2);
- const vx0=Math.max(0,Math.floor(camX/ISO_W)-5),vx1=Math.min(WORLD_W-1,Math.ceil((camX+cv.width)/ISO_W)+5);
- const vy0=Math.max(0,Math.floor(camY/ISO_H)-3),vy1=Math.min(WORLD_H-1,Math.ceil((camY+cv.height)/ISO_H)+6);
+ const p=isoPos(rp.x,rp.y),camX=Math.round((p.sx-VW/2)*DPR)/DPR,camY=Math.round((p.sy-VH/2)*DPR)/DPR;
+ const vx0=Math.max(0,Math.floor(camX/ISO_W)-5),vx1=Math.min(WORLD_W-1,Math.ceil((camX+VW)/ISO_W)+5);
+ const vy0=Math.max(0,Math.floor(camY/ISO_H)-3),vy1=Math.min(WORLD_H-1,Math.ceil((camY+VH)/ISO_H)+6);
  for(let y=vy0;y<=vy1;y++)for(let x=vx0;x<=vx1;x++){
   const t=MAP[y][x],pos=isoPos(x,y),dx=pos.sx-camX,dy=pos.sy-camY;
   if(t==="w"){drawTreeTile(dx,dy,x,y)}
@@ -2882,7 +3381,7 @@ function draw(){
   n.rx+=(n.x-n.rx)*k;n.ry+=(n.y-n.ry)*k;
   if(Math.abs(n.x-n.rx)>3||Math.abs(n.y-n.ry)>3){n.rx=n.x;n.ry=n.y}
   const pos=isoPos(n.rx,n.ry),dx=Math.round(pos.sx-camX),dy=Math.round(pos.sy-camY);
-  if(dx<-ISO_W*2||dy<-ISO_H*6||dx>cv.width+ISO_W*2||dy>cv.height+ISO_H*6)return;
+  if(dx<-ISO_W*2||dy<-ISO_H*6||dx>VW+ISO_W*2||dy>VH+ISO_H*6)return;
   drawBlockPerson(dx,dy,"#f0c090",n.shirt,n.pants,0,"npc"+n.id,Object.assign(n.gilde?Object.assign({},GILDE_LOOK,{female:!!n.female,hairStyle:n.female?"long":"short",hatCol:n.boss?"#1a1a1a":"#b01a1a",capFront:n.boss?"#b01a1a":"#1a1a1a"}):{},{dir:n.mode==="spotted"?(Math.abs(state.px-n.x)>Math.abs(state.py-n.y)?(state.px>n.x?"right":"left"):(state.py>n.y?"down":"up")):"down"}));
   if(n.mode==="spotted"){
    ctx.fillStyle="#fff";ctx.font="bold 18px sans-serif";ctx.textAlign="center";
@@ -2893,7 +3392,13 @@ function draw(){
  drawStoryNpcs(camX,camY);
  // Spieler (immer Bildschirmmitte, da Kamera auf ihn zentriert ist)
  const cx=cv.width/2,cy=cv.height/2;
- drawPerson(ctx,cx,cy,Object.assign({},playerLook(),{phase:walkPhase,dir:state.dir}));
+ if(state.surfing){
+  const bob=Math.sin(worldTime*3)*2,im=legendImg(state.surfSid||"tropfling");
+  ctx.strokeStyle="rgba(255,255,255,.55)";ctx.lineWidth=1.6;const rr=(worldTime*1.2)%1;
+  ctx.beginPath();ctx.ellipse(cx,cy+6,18+rr*14,6+rr*4,0,0,Math.PI*2);ctx.stroke();
+  if(im.complete&&im.naturalWidth){const sm=ctx.imageSmoothingEnabled;ctx.imageSmoothingEnabled=false;ctx.drawImage(im,cx-24,cy-30+bob,48,48);ctx.imageSmoothingEnabled=sm}
+  drawPerson(ctx,cx,cy-16+bob,Object.assign({},playerLook(),{phase:0,dir:state.dir}));
+ }else drawPerson(ctx,cx,cy,Object.assign({},playerLook(),{phase:walkPhase,dir:state.dir}));
  drawFishing(camX,camY);
 }
 function hpFillStyle(hp,maxhp){
@@ -2987,13 +3492,13 @@ function tryMove(dt){
  let nx=state.px,ny=state.py;
  if(Math.abs(joyVec.x)>Math.abs(joyVec.y)){nx+=mx;state.dir=mx>0?"right":"left"}
  else{ny+=my;state.dir=my>0?"down":"up"}
- if(!blocked(nx,ny)&&!wanderTrainerAt(nx,ny)){
+ if(moveAllowed(nx,ny)){
   // Restfortschritt der vorherigen Animation übernehmen, damit das Gleiten nahtlos weiterläuft
   const rp=renderPos();
   animFromX=rp.x;animFromY=rp.y;animT=0;
   state.px=nx;state.py=ny;
   saveDirty=true;
-  checkTile();
+  if(state.surfing)surfStep();else checkTile();
   eggStep();
   if(saveTimer>2){save();saveDirty=false;saveTimer=0}
  }else{
@@ -3046,6 +3551,7 @@ function rememberHealSpot(x,y){
 function healTeam(){
  rememberHealSpot(state.px,state.py);
  const wasHurt=state.team.some(c=>c.hp<c.maxhp);
+ if(wasHurt)sfx("heal");
  state.team.forEach(c=>c.hp=c.maxhp);save();
  if(wasHurt)showDialog("Schwester Mira: „So, alle deine Kreaturen sind wieder vollständig aufgeladen!“");
 }
@@ -3091,11 +3597,11 @@ function openMarket(){
  subContent.onclick=e=>{
   const b=e.target.closest("button");if(!b||b.disabled)return;
   if(b.dataset.mtab){marketTab=b.dataset.mtab;subContent.scrollTop=0;openMarket();return}
-  if(b.dataset.buy){const item=SHOP_ITEMS.find(i=>i.key===b.dataset.buy);if(item&&state.inv.gold>=item.price){state.inv.gold-=item.price;state.inv[item.key]=(state.inv[item.key]||0)+1;save();openMarket()}return}
-  if(b.dataset.sellitem){const k=b.dataset.sellitem;if((state.inv[k]||0)>0){state.inv[k]--;state.inv.gold+=SELL_PRICES[k];save();openMarket()}return}
+  if(b.dataset.buy){const item=SHOP_ITEMS.find(i=>i.key===b.dataset.buy);if(item&&state.inv.gold>=item.price){state.inv.gold-=item.price;state.inv[item.key]=(state.inv[item.key]||0)+1;save();sfx("coin");openMarket()}return}
+  if(b.dataset.sellitem){const k=b.dataset.sellitem;if((state.inv[k]||0)>0){state.inv[k]--;state.inv.gold+=SELL_PRICES[k];save();sfx("coin");openMarket()}return}
   if(b.dataset.sellgear){
    if(!b.dataset.confirm){b.dataset.confirm="1";b.textContent="Sicher? Nochmal tippen";return}
-   sellGear(b.dataset.sellgear);openMarket();return;
+   sellGear(b.dataset.sellgear);sfx("coin");openMarket();return;
   }
  };
 }
@@ -3118,7 +3624,7 @@ function interact(){
  const wt=wanderTrainerAt(tx,ty);
  if(wt){showDialog(`${wt.name}: „Also los, zeig mir deine Monster!“`);setTimeout(()=>{if(!state.inBattle)startWanderBattle(wt)},900);return}
  if(t==="n"){showDialog("Dorfältester: „Willkommen in Eichendorff, junger Trainer! Im hohen Gras leben wilde Kreaturen – sei vorsichtig.“")}
- else if(t==="c"&&!state.chestOpen){state.chestOpen=true;state.inv.heiltrank+=1;showDialog("Du hast eine Schatztruhe geöffnet: 1x Heiltrank erhalten!");save()}
+ else if(t==="c"&&!state.chestOpen){sfx("chest");state.chestOpen=true;state.inv.heiltrank+=1;showDialog("Du hast eine Schatztruhe geöffnet: 1x Heiltrank erhalten!");save()}
  else if(t==="t"){
   if(state.trainerBeaten){showDialog("Trainer Jonas: „Du hast starke Kreaturen. Viel Erfolg weiterhin!“")}
   else{showDialog("Trainer Jonas: „Zeig mir, was deine Kreatur kann!“");setTimeout(()=>startTrainerBattle(),1200)}
@@ -3161,7 +3667,9 @@ function interact(){
   if(state.arenaBeaten){showDialog(`${ARENA_CHAMPION.name}: „Das war ein starker Kampf. Komm jederzeit wieder vorbei!“`)}
   else{showDialog(`${ARENA_CHAMPION.name}: „Willkommen in der Arena! Zeig mir, was du drauf hast!“`);setTimeout(()=>startArenaBattle(),1200)}
  }
- else if(t==="~"){if(state.hasRod)tryFish();else showDialog("Das Wasser glitzert. Mit einer Angel könnte man hier bestimmt etwas fangen …")}
+ else if(t==="~"){
+  if(state.canSurf){const sm=surfMon();if(sm){startSurf(tx,ty,sm);return}showDialog(state.hasRod?"Zum Surfen brauchst du ein Wasser-Monster im Team. (Angeln: 🎣-Knopf bzw. Taste F)":"Zum Surfen brauchst du ein Wasser-Monster im Team.");return}
+  if(state.hasRod)tryFish();else showDialog("Das Wasser glitzert. Mit einer Angel könnte man hier bestimmt etwas fangen …")}
  else showDialog("Hier ist nichts Interessantes.");
 }
 function showDialog(txt){
@@ -3183,7 +3691,7 @@ function goBack(e){
  if(sub.style.display==="flex"){
   const closeBtn=document.getElementById("subClose");
   if(closeBtn.style.display==="none")return; // Pflicht-Auswahl (z. B. Starter-Monster)
-  const inner=subContent.querySelector("#moveManagerBack,#statAllocBack,#teamDetailBack,#gearBack,#invHealBack,[data-mpback],#optBack");
+  const inner=subContent.querySelector("#boxCancel,#moveManagerBack,#statAllocBack,#teamDetailBack,#gearBack,#invHealBack,[data-mpback],#optBack,#boxBack");
   if(inner){inner.click();return}
   closeBtn.click();return;
  }
@@ -3193,7 +3701,7 @@ function goBack(e){
  if(state.inBattle&&battle){
   if(battleDialogActive()){advanceDialog();return}
   const moves=document.getElementById("actMoves");
-  if(moves.style.display==="flex"||moves.style.display==="block"){
+  if(moves.style.display==="flex"||moves.style.display==="block"||moves.style.display==="grid"){
    const back=moves.querySelector('button[data-m="back"],button[data-s="back"],button[data-i="back"],button[data-c="back"],button[data-f="back"]');
    if(back)back.click();
   }
@@ -3259,12 +3767,9 @@ function renderTeam(){
   <div style="font-size:12.5px;text-align:center;opacity:.8;margin:-6px 0 8px">Tippe ein Monster an für Werte, Attacken und mehr.</div>
   <div class="teamGrid">${tiles}</div>`+
   (state.eggs&&state.eggs.length?'<h4>🥚 Eier im Team</h4>'+state.eggs.map(e=>`<div class="subCard"><div class="miniSprite" style="width:44px;height:52px">${EGG_SVG}</div><div style="flex:1"><b>Ungewöhnliches Ei</b><div class="expbar" style="height:8px;margin-top:6px"><div class="expfill" style="width:${Math.min(100,100*e.steps/EGG_STEPS)}%;background:#e8b020"></div></div><div style="font-size:12px;margin-top:2px">👣 ${e.steps}/${EGG_STEPS} Schritte · ${eggHint(e)}</div></div></div>`).join(""):"")+
-  (state.storage.length?'<h4>📦 Lager</h4><div class="subGrid">'+state.storage.map(c=>
-   `<div class="itemCard">
-    <div class="miniSprite" style="width:44px;height:44px">${creatureSVG(c.sid)}</div>
-    <b>${c.name}</b><small>Lv.${c.level} · ${TYPE_ICONS[c.type]||""} ${c.type}</small>
-   </div>`).join("")+'</div>':''));
+  `<button id="teamToBox" style="width:100%;margin-top:10px">📦 Zur Monsterbox (${state.storage.length} Monster)</button>`);
  subContent.onclick=e=>{
+  if(e.target.closest("#teamToBox")){renderBox();return}
   const t=e.target.closest("button[data-detail-i]");if(!t)return;
   renderTeamDetail(+t.dataset.detailI);
  };
@@ -3420,24 +3925,58 @@ document.getElementById("mDex").addEventListener("click",()=>{
   return `<div style="background:#0006;border-radius:8px;padding:8px;margin:4px 0;display:flex;gap:8px;align-items:center">
    <div class="miniSprite">${creatureSVG(sid)}</div>
    <div><b>${s.name}</b> (${s.type}) – Seltenheit ${s.rarity}<br>${count}x im Bestand · ${masteryLine}
-   <br><small style="opacity:.85">${s.legendary?"⭐ Legendär – gibt es nur an einem einzigen Ort":s.evoChoice?"🥚 Schlüpft aus dem Ungewöhnlichen Ei · ab Lv.15 Entwicklung mit frei wählbarem Element":s.evo?`✨ Entwickelt sich ab Lv.${evoLevelOf(sid)} zu ${SPECIES[s.evo].name}`:s.evolvedFrom?`Entwicklung von ${SPECIES[s.evolvedFrom].name}`:"Entwickelt sich nicht"}</small>
+   <br><small style="opacity:.85">${s.mystic?"🌀 Mystisch – taucht nur nach langer Zeit beim Surfen aus der Tiefe auf":s.legendary?"⭐ Legendär – gibt es nur an einem einzigen Ort":s.evoChoice?"🥚 Schlüpft aus dem Ungewöhnlichen Ei · ab Lv.15 Entwicklung mit frei wählbarem Element":s.evo?`✨ Entwickelt sich ab Lv.${evoLevelOf(sid)} zu ${SPECIES[s.evo].name}`:s.evolvedFrom?`Entwicklung von ${SPECIES[s.evolvedFrom].name}`:"Entwickelt sich nicht"}</small>
    </div>
   </div>`;
  }).join("");
- const storageHtml=state.storage.length?"<h4>Lager (tauschen)</h4>"+state.storage.map((c,i)=>
-  `<div style="display:flex;gap:6px;align-items:center;background:#0004;border-radius:8px;padding:6px;margin:4px 0">
-   <div class="miniSprite">${creatureSVG(c.sid)}</div>
-   <div style="flex:1">${c.name} Lv.${c.level}</div>
-   <button data-swap-i="${i}">${state.team.length<6?"Ins Team holen":"Tauschen mit Team-Platz 1"}</button>
-  </div>`).join("") : "<h4>Lager</h4><div>Noch leer.</div>";
- openSub("<h3>Dex</h3>"+dexHtml+storageHtml);
- subContent.onclick=e=>{const si=e.target.dataset.swapI;if(si===undefined)return;
-  const idx=+si,creature=state.storage[idx];
-  if(state.team.length<6){state.team.push(creature);state.storage.splice(idx,1)}
-  else{const tmp=state.team[0];state.team[0]=creature;state.storage[idx]=tmp;}
-  save();document.getElementById("mDex").click();
- };
+ openSub("<h3>📖 Dex</h3>"+dexHtml+`<button id="dexToBox" style="width:100%;margin-top:10px">📦 Gefangene Monster verwalten: Monsterbox (${state.storage.length})</button>`);
+ subContent.onclick=e=>{if(e.target.closest("#dexToBox"))renderBox()};
 });
+// ---------- MONSTERBOX (Lager) ----------
+// Gefangene Monster, die nicht ins Team passen. Box-Monster antippen → Team-Monster zum Tauschen wählen.
+let boxSort="neu";
+function boxTile(c,attr,cls,extra){
+ return `<button class="teamTile ${cls||""}" ${attr} style="--el:${TYPECOLORS[c.type]||"#888"}">
+  <div class="ttImg">${creatureSVG(c.sid)}</div><div class="ttName">${c.name}</div>
+  <div class="ttLv">Lv.${c.level}</div>${elemBadge(c.type)}<div class="ttKind">${extra||speciesKind(c)}</div></button>`;
+}
+function renderBox(sel,dep,msg){
+ const st=state.storage,tm=state.team;
+ if(sel!=null&&!st[sel])sel=null;
+ const order=st.map((c,i)=>i);
+ if(boxSort==="level")order.sort((a,b)=>st[b].level-st[a].level);
+ else if(boxSort==="typ")order.sort((a,b)=>TYPE_CYCLE.indexOf(st[a].type)-TYPE_CYCLE.indexOf(st[b].type)||st[b].level-st[a].level);
+ else order.reverse();
+ const s=sel!=null?st[sel]:null,d=dep!=null?tm[dep]:null;
+ let hint;
+ if(s)hint=`🔄 <b>${s.name}</b> (Lv.${s.level}) ausgewählt – tippe ein Team-Monster an, mit dem getauscht werden soll${tm.length<6?", oder hole es direkt ins Team":""}.`;
+ else if(d)hint=`📦 <b>${d.name}</b> in die Box legen?`;
+ else hint=msg||"Tippe ein Monster in der Box an, um es ins Team zu holen. Ein Team-Monster antippen = in die Box legen.";
+ openSub(`<h3>📦 Monsterbox</h3><div class="boxHint">${hint}</div>
+  <h4>🐾 Team (${tm.length}/6)</h4>
+  <div class="teamGrid">${tm.map((c,i)=>boxTile(c,`data-bt="${i}"`,(s?"boxTarget ":"")+(i===0?"lead":"")+(dep===i?" boxSel":""),s?"⇄ tauschen":null)).join("")}</div>
+  ${s?`<div style="display:flex;gap:6px;margin-top:8px">${tm.length<6?`<button id="boxAdd" style="flex:1">➕ Ins Team holen</button>`:""}<button id="boxCancel" style="flex:1">Abbrechen</button></div>`:""}
+  ${d?`<div style="display:flex;gap:6px;margin-top:8px"><button id="boxDeposit" style="flex:1"${tm.length<=1?" disabled":""}>📦 In die Box legen</button><button id="boxCancel" style="flex:1">Abbrechen</button></div>${tm.length<=1?'<div style="font-size:12px;opacity:.8;text-align:center;margin-top:4px">Mindestens ein Monster muss im Team bleiben.</div>':""}`:""}
+  <h4>📦 Box (${st.length})</h4>
+  <div class="optSeg" style="margin-bottom:8px">${[["neu","Neueste"],["level","Level"],["typ","Element"]].map(([k,l])=>`<button data-boxsort="${k}" class="${boxSort===k?"on":""}">${l}</button>`).join("")}</div>
+  ${st.length?`<div class="teamGrid">${order.map(i=>boxTile(st[i],`data-bs="${i}"`,sel===i?"boxSel":"")).join("")}</div>`:`<div style="opacity:.75;text-align:center;padding:12px">Die Box ist leer. Fängst du Monster, wenn dein Team voll ist, landen sie hier.</div>`}
+  <button id="boxBack" style="width:100%;margin-top:10px">◀ Zurück</button>`);
+ subContent.onclick=e=>{
+  const b=e.target.closest("button");if(!b||b.disabled)return;
+  if(b.id==="boxBack"){subpanel.style.display="none";return}
+  if(b.id==="boxCancel"){renderBox();return}
+  if(b.dataset.boxsort){boxSort=b.dataset.boxsort;renderBox(sel,dep);return}
+  if(b.id==="boxAdd"&&s){st.splice(sel,1);tm.push(s);clearBattleStatus(s);save();renderBox(null,null,`✅ ${s.name} ist jetzt in deinem Team!`);return}
+  if(b.id==="boxDeposit"&&d&&tm.length>1){tm.splice(dep,1);st.push(d);save();renderBox(null,null,`📦 ${d.name} wurde in die Box gelegt.`);return}
+  if(b.dataset.bs!==undefined){const i=+b.dataset.bs;renderBox(sel===i?null:i);return}
+  if(b.dataset.bt!==undefined){
+   const i=+b.dataset.bt;
+   if(s){const old=tm[i];tm[i]=s;st[sel]=old;clearBattleStatus(s);save();renderBox(null,null,`🔄 Getauscht: ${s.name} ist im Team, ${old.name} ist jetzt in der Box.`);return}
+   renderBox(null,dep===i?null:i);return;
+  }
+ };
+}
+document.getElementById("mBox").addEventListener("click",()=>renderBox());
 function medalCaseHtml(){
  return `<h4>🏅 Medaillen (${medalCount()}/${TOWNS.length})</h4><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">`+
   TOWNS.map(t=>{const has=state.medals&&state.medals[t.id];
@@ -3615,10 +4154,13 @@ document.getElementById("mSave").addEventListener("click",()=>{
 const BD={res:null,timer:null,full:"",typing:false};
 function bdEl(){return document.getElementById("battleDialog")}
 function battleDialogActive(){return !!(battle&&bdEl().style.display==="flex")}
-function hideBattleMenus(){document.getElementById("actMain").style.display="none";document.getElementById("actMoves").style.display="none"}
+function hideBattleMenus(){document.getElementById("actMain").style.display="none";document.getElementById("actMoves").style.display="none";layoutBattleSoon()}
+function layoutBattleSoon(){requestAnimationFrame(()=>{try{layoutBattle()}catch(e){}})}
 function say(text){
  return new Promise(res=>{
   if(!battle){res();return}
+  try{sfxForText(text)}catch(e){}
+  text=T(text);
   hideBattleMenus();
   const box=bdEl(),tx=document.getElementById("bdText"),arrow=document.getElementById("bdNext");
   box.style.display="flex";arrow.style.visibility="hidden";
@@ -3630,6 +4172,7 @@ function say(text){
  });
 }
 function advanceDialog(){
+ if(!BD.typing&&BD.res)sfx("tap");
  if(BD.typing){clearInterval(BD.timer);BD.typing=false;document.getElementById("bdText").textContent=BD.full;document.getElementById("bdNext").style.visibility="visible";return}
  const r=BD.res;BD.res=null;
  if(r){bdEl().style.display="none";r()}
@@ -3665,6 +4208,7 @@ const PASSIVES={
  sylvarion:{name:"Waldsegen",icon:"🌿",desc:"heilt am Ende jeder Runde 1/10 seiner max. KP",regen:0.1},
  leviaqua:{name:"Gezeitenschild",icon:"🌊",desc:"erleidet 25 % weniger Schaden",dmgTakenMul:0.75},
  chronodrak:{name:"Zeitverzerrung",icon:"⏳",desc:"handelt in jeder Runde immer zuerst",first:true},
+ abyssaron:{name:"Ruf der Tiefe",icon:"🌀",desc:"erleidet 20 % weniger Schaden und heilt am Ende jeder Runde 1/12 seiner max. KP",dmgTakenMul:0.8,regen:1/12},
  babydrache:{name:"Drachenmut",icon:"🔥",desc:"verursacht 15 % mehr Schaden",dmgMul:1.15},
  drache_evo:{name:"Drachenherz",icon:"🐉",desc:"verursacht 25 % mehr Schaden",dmgMul:1.25},
  babyengel:{name:"Heiliger Schein",icon:"😇",desc:"ist immun gegen Gift, Verbrennung, Schlaf, Benommenheit und Verwirrung",statusImmune:true},
@@ -3741,6 +4285,7 @@ function ensureRival(){
 function isSidSafe(x){return typeof x==="string"&&Object.prototype.hasOwnProperty.call(SPECIES,x)}
 // Sprechblase unten (tippen / A / B zum Weiterblättern)
 function talkSequence(name,lines,onDone){
+ name=T(name);lines=lines.map(l=>T(l));
  const el=document.createElement("div");el.id="talkBox";
  el.innerHTML=`<div class="tbName"></div><div class="tbText"></div><div class="tbNext">▼</div>`;
  el.querySelector(".tbName").textContent=name;
@@ -3827,6 +4372,7 @@ function updateFishing(){
  if(FISH.stage==="wait"&&now>=FISH.biteAt){
   FISH.stage="bite";FISH.biteEnd=now+1400;
   try{if(navigator.vibrate)navigator.vibrate(90)}catch(e){}
+  sfx("bite");
   showDialog("❗ Etwas hat angebissen! Schnell A drücken!");
  }else if(FISH.stage==="bite"&&now>FISH.biteEnd){
   FISH.active=false;showDialog("Zu langsam … es ist wieder entwischt.");
@@ -3892,6 +4438,66 @@ function updateFishButton(){
 }
 function fishButton(e){if(e)e.preventDefault();if(menu.style.display==="flex"||document.getElementById("subpanel").style.display==="flex")return;tryFish()}
 
+// ---------- SURFEN (Belohnung der 5. Arena) ----------
+function surfMon(){return state.team.find(c=>c.type==="Wasser")||null}
+let LAND_CACHE={key:"",set:null};
+// An Land gehen darf man nur dort, wo man auch zu Fuß hinkäme (Hindernisse/Story bleiben gültig)
+function landReachable(x,y){
+ const key=JSON.stringify([state.cleared||{},story()]);
+ if(LAND_CACHE.key!==key){
+  const set=new Set(["2,3"]),q=[[2,3]];
+  while(q.length){const [a,b]=q.pop();for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=a+dx,ny=b+dy,k=nx+","+ny;if(!set.has(k)&&!blocked(nx,ny)){set.add(k);q.push([nx,ny])}}}
+  LAND_CACHE={key,set};
+ }
+ return LAND_CACHE.set.has(x+","+y);
+}
+function moveAllowed(nx,ny){
+ if(!state.surfing)return !blocked(nx,ny)&&!wanderTrainerAt(nx,ny);
+ const t=tileAt(nx,ny);
+ if(t==="~")return true;
+ if(blocked(nx,ny)||wanderTrainerAt(nx,ny))return false;
+ if(!landReachable(nx,ny)){showDialog("🌊 Eine starke Strömung treibt dich zurück – hier kannst du noch nicht an Land gehen.");return false}
+ state.surfing=false;showDialog("Du gehst wieder an Land.");sfx("splash");
+ return true;
+}
+function startSurf(tx,ty,sm){
+ if(activeIdx()<0){showDialog("Deine Monster sind erschöpft – heile sie zuerst.");return}
+ const rp=renderPos();animFromX=rp.x;animFromY=rp.y;animT=0;
+ state.px=tx;state.py=ty;state.surfing=true;state.surfSid=sm.sid;save();
+ sfx("splash");showDialog(`🌊 ${sm.name} trägt dich übers Wasser! Geh an Land, um abzusteigen.`);
+}
+const SURF_POOL=Object.keys(SPECIES).filter(sid=>{const s=SPECIES[sid];return ["Wasser","Drache","Wind"].includes(s.type)&&!s.evolvedFrom&&!s.legendary&&!s.special});
+const ABYSS_STEPS=5000;
+function surfStep(){
+ state.surfSteps=(state.surfSteps||0)+1;
+ const caught=state.legends&&state.legends.abyssaron==="caught";
+ if(!caught){
+  const due=state.abyssNext||ABYSS_STEPS;
+  if(state.surfSteps===due-300)showDialog("🌀 Das Wasser unter dir wird plötzlich dunkel und kalt … Etwas Großes bewegt sich in der Tiefe.");
+  if(state.surfSteps>=due){state.abyssNext=state.surfSteps+1000;startAbyssBattle();return}
+ }
+ if(Math.random()<0.06)startSurfBattle();
+}
+function startSurfBattle(){
+ const idx=activeIdx();if(idx<0)return;
+ const lo=Math.max(12,5+medalCount()*10),lvl=lo+Math.floor(Math.random()*6);
+ const w=makeCreature(pickFromPool(SURF_POOL),lvl);
+ battle={enemy:w,ally:state.team[idx],log:`Ein wildes ${w.name} taucht aus dem Wasser auf!`,trainer:false,surf:true};
+ openBattlePanel();
+}
+function startAbyssBattle(){
+ const idx=activeIdx();if(idx<0)return;
+ if(!state.legends)state.legends={};state.legends.abyssaron=state.legends.abyssaron||"seen";
+ const f=document.createElement("div");f.style.cssText="position:fixed;inset:0;background:radial-gradient(circle,#1a3a6a,#02050c);opacity:0;z-index:55;pointer-events:none;transition:opacity .6s";document.body.appendChild(f);
+ requestAnimationFrame(()=>f.style.opacity=".9");
+ setTimeout(()=>{
+  f.style.opacity="0";setTimeout(()=>f.remove(),700);
+  if(state.inBattle||activeIdx()<0)return;
+  const e=makeCreature("abyssaron",50);
+  battle={enemy:e,ally:state.team[activeIdx()],log:`Das Meer wird schwarz … Aus der Tiefe steigt das mystische ${e.name} (Lv.50) empor!`,trainer:false,legendId:"abyssaron",surf:true};
+  openBattlePanel();
+ },900);
+}
 // ---------- UNGEWÖHNLICHES EI ----------
 const EGG_STEPS=1000;
 const EGG_SVG=`<svg viewBox="0 0 60 70" width="100%" height="100%"><ellipse cx="30" cy="66" rx="16" ry="3" fill="#0003"/><path d="M30,4 C46,4 54,30 54,44 C54,58 44,66 30,66 C16,66 6,58 6,44 C6,30 14,4 30,4 Z" fill="#fbf4e2" stroke="#6a5a3a" stroke-width="2"/><path d="M8,42 C16,36 22,46 30,40 C38,34 44,44 52,40" stroke="#9a6ae0" stroke-width="3.2" fill="none"/><circle cx="21" cy="24" r="4" fill="#ffcc33" stroke="#a8801a" stroke-width=".8"/><circle cx="38" cy="17" r="3" fill="#7fdcff" stroke="#2a6fa8" stroke-width=".8"/><circle cx="40" cy="53" r="4.5" fill="#e87fb4" stroke="#a03a6a" stroke-width=".8"/><circle cx="19" cy="54" r="3" fill="#9fe07a" stroke="#3f7a2a" stroke-width=".8"/><ellipse cx="21" cy="13" rx="3.5" ry="6.5" fill="#fff" opacity=".7" transform="rotate(-20 21 13)"/></svg>`;
@@ -3914,12 +4520,13 @@ function eggStep(){
 function fmTyper(el,onLine){
  const txt=el.querySelector(".fmText"),next=el.querySelector(".fmNext");
  const o={typing:false,full:"",timer:null};
- o.type=t=>{o.full=t;let p=0;o.typing=true;if(next)next.style.visibility="hidden";txt.textContent="";clearInterval(o.timer);
+ o.type=t=>{t=T(t);o.full=t;let p=0;o.typing=true;if(next)next.style.visibility="hidden";txt.textContent="";clearInterval(o.timer);
   o.timer=setInterval(()=>{p+=textMs()<12?3:1;txt.textContent=t.slice(0,p);if(p>=t.length){clearInterval(o.timer);o.typing=false;if(next)next.style.visibility="visible"}},textMs())};
  o.finish=()=>{if(!o.typing)return false;clearInterval(o.timer);o.typing=false;txt.textContent=o.full;if(next)next.style.visibility="visible";return true};
  return o;
 }
 function showHatch(egg){
+ sfx("hatch");
  const c=makeCreature(egg.kind,1);
  const toStorage=state.team.length>=6;
  if(toStorage)state.storage.push(c);else state.team.push(c);
@@ -3964,7 +4571,7 @@ function showEvoChoice(c){
   if(e.target.closest(".evoLater")){el.remove();showDialog(`Du kannst ${c.name} jederzeit im Team-Menü entwickeln („✨ Entwickeln“).`);return}
   const b=e.target.closest("button[data-evo]");if(!b)return;
   const oldName=c.name,to=b.dataset.evo;
-  evolveCreature(c,to);c.evoReady=false;save();done=true;
+  evolveCreature(c,to);c.evoReady=false;save();done=true;sfx("evolve");
   el.querySelector(".fmCard").innerHTML=`<div class="fmHead">✨ Entwicklung</div><div class="fmStage" style="justify-content:center"><div class="fmMon fmGo">${creatureSVG(c.sid)}</div></div><div class="fmText"></div><div class="fmNext">▼</div>`;
   fmTyper(el).type(`✨ ${oldName} hat sich zu ${c.name} (${TYPE_ICONS[c.type]} ${c.type}) entwickelt!`);
  });
@@ -3973,7 +4580,7 @@ function showEvoChoice(c){
 // ---------- STORY: Die Jäger-Gilde „Schwarzer Käfig“ ----------
 // Stiehlt nach der 2. Arena Cassias Monster (Schattenhöhle) und nach der 8. Arena Novas Monster (Gildenturm).
 const GILDE_LOOK={female:false,hairStyle:"short",hair:"#1a1a22",hat:"cap",hatCol:"#b01a1a",capFront:"#1a1a1a",jacket:"#1a1a22"};
-const CAVE_GATE={x:44,y:31},TOWER_GATE={x:76,y:86};
+const CAVE_GATE={x:RX(44),y:RY(31)},TOWER_GATE={x:RX(76),y:RY(86)};
 function story(){return state.story||(state.story={})}
 function storyGateOpen(x,y){
  try{
@@ -3984,8 +4591,8 @@ function storyGateOpen(x,y){
 }
 // Käfige mit den gestohlenen Monstern
 const CAGE_AT={};
-[40,42,44,46,48].forEach((x,i)=>CAGE_AT[x+",46"]={set:"cave",i});
-[63,64,65,66,67].forEach((x,i)=>CAGE_AT[x+",93"]={set:"tower",i});
+[40,42,44,46,48].forEach((x,i)=>CAGE_AT[RX(x)+","+RY(46)]={set:"cave",i});
+[63,64,65,66,67].forEach((x,i)=>CAGE_AT[RX(x)+","+RY(93)]={set:"tower",i});
 function cageSid(c){const t=c.set==="cave"?TOWNS[1]:TOWNS[7];const e=t.leader.team[c.i];return e?e.sid:null}
 function cageFreed(c){return c.set==="cave"?!!story().cassiaRescued:!!story().finished}
 function drawCaveFloor(dx,dy,x,y){
@@ -4015,7 +4622,7 @@ function drawStoryGate(dx,dy,x,y){
 }
 function drawCage(dx,dy,x,y){
  const c=CAGE_AT[x+","+y];
- if(y>80)drawTowerFloor(dx,dy,x,y);else drawCaveFloor(dx,dy,x,y);
+ if(c&&c.set==="tower")drawTowerFloor(dx,dy,x,y);else drawCaveFloor(dx,dy,x,y);
  const freed=c&&cageFreed(c),sid=c&&cageSid(c);
  ctx.fillStyle="rgba(0,0,0,.3)";ctx.beginPath();ctx.ellipse(dx,dy+14,16,5,0,0,Math.PI*2);ctx.fill();
  if(!freed&&sid){const im=legendImg(sid);if(im.complete&&im.naturalWidth){const sm=ctx.imageSmoothingEnabled;ctx.imageSmoothingEnabled=false;ctx.globalAlpha=.85;ctx.drawImage(im,dx-16,dy-22,32,32);ctx.globalAlpha=1;ctx.imageSmoothingEnabled=sm}}
@@ -4086,6 +4693,7 @@ function finaleScene(){
  ],()=>{story().finished=true;if(state.quests.qGilde2)state.quests.qGilde2.done=true;state.inv.gold+=5000;const it=makeGear("amulet","legendaer");addGear(it);save();showEnding()});
 }
 function showEnding(){
+ setMusic("world");sfx("victory");
  const el=document.createElement("div");el.id="opening";el.dataset.scene="3";
  const dex=new Set(state.team.concat(state.storage).map(c=>c.sid)).size;
  el.innerHTML=`<div class="opSky"></div><div class="opSun"></div><div class="opScene" data-s="3" style="opacity:1"><div class="opVillage">${[[4,22,"#b5533a"],[18,30,"#d9534f"],[34,24,"#3a78c9"],[52,34,"#4f9a3f"],[70,26,"#8a5a3a"],[84,20,"#b5533a"]].map(([l,h,c])=>`<div class="opHouse" style="left:${l}%;height:${h}%;--roof:${c}"></div>`).join("")}</div></div>
@@ -4136,6 +4744,7 @@ const CAUGHT_ICON=`<svg viewBox="0 0 14 20" width="11" height="16" style="vertic
 function markParticipant(){if(battle&&battle.ally){if(!battle.parts)battle.parts=new Set();battle.parts.add(battle.ally)}}
 function openBattlePanel(){
  state.inBattle=true;battle.parts=new Set([battle.ally]);
+ setMusic("battle");sfx("encounter");
  state.team.forEach(clearBattleStatus);clearBattleStatus(battle.enemy);
  document.getElementById("battlePanel").style.display="flex";
  hideBattleMenus();
@@ -4188,7 +4797,8 @@ function layoutBattle(){
  pI.style.top=pTop+"px";pI.style.bottom="auto";pI.style.right=Math.round(W*0.03)+"px";
 }
 addEventListener("resize",()=>{try{layoutBattle()}catch(e){}});
-function flashHit(who){
+function flashHit(who,fx){
+ sfx("hit",fx);
  const el=document.getElementById(who==="a"?"allySprite":"enemySprite");
  el.classList.remove("hit");void el.offsetWidth;el.classList.add("hit");
 }
@@ -4210,7 +4820,7 @@ document.getElementById("actMain").addEventListener("click",e=>{
 function closeSubMenu(){
  const box=document.getElementById("actMoves");
  box.onclick=null;box.style.display="none";box.innerHTML="";
- document.getElementById("actMain").style.display="flex";
+ document.getElementById("actMain").style.display="flex";layoutBattleSoon();
 }
 // Eine Aktion eines Monsters (inkl. Schlaf/Benommenheit/Verwirrung) – schreibt alles ins Dialogfenster
 async function act(actor,target,moveKey,side){
@@ -4235,12 +4845,12 @@ async function act(actor,target,moveKey,side){
   }
  }
  const mv=MOVES[moveKey];
- attackAnim(side);
+ attackAnim(side);sfx("attack");
  if(Math.random()>=mv.acc){renderBattle();await say(`${n} setzt ${mv.name} ein! Doch der Angriff geht daneben!`);return}
  if(mv.pow>0){
   const d=dmgCalc(actor,target,mv);
   target.hp=Math.max(0,target.hp-d);
-  flashHit(other);renderBattle();
+  flashHit(other,eff(mv.type,target.type));renderBattle();
   await say(`${n} setzt ${mv.name} ein!${effText(mv.type,target.type)} (${d} Schaden)`);
   if(mv.drain&&actor.hp>0&&actor.hp<actor.maxhp){const h=Math.min(actor.maxhp-actor.hp,Math.max(1,Math.floor(d*mv.drain)));actor.hp+=h;renderBattle();await say(`✨ ${n} wird vom Licht gestärkt und heilt ${h} KP!`)}
   if(mv.defDown&&target.hp>0){if((target.defDown||0)<3){target.defDown=(target.defDown||0)+mv.defDown;renderBattle();await say(`🛡️ Die Verteidigung von ${target.name} sinkt!`)}else await say(`Die Verteidigung von ${target.name} kann nicht weiter sinken.`)}
@@ -4329,7 +4939,7 @@ function enemyFreeTurn(){return runRound(null)}
 function openSwitch(){
  const box=document.getElementById("actMoves");
  box.innerHTML=state.team.map((c,i)=>c.hp>0&&c!==battle.ally?`<button data-s="${i}"><b>${c.name}</b><small>Lv.${c.level} · ${c.hp}/${c.maxhp} HP</small></button>`:"").join("")+`<button data-s="back"><b>Zurück</b></button>`;
- box.style.display="flex";document.getElementById("actMain").style.display="none";
+ box.style.display="grid";document.getElementById("actMain").style.display="none";layoutBattleSoon();
  box.onclick=async e=>{const btn=e.target.closest("button[data-s]");if(!btn)return;const s=btn.dataset.s;
   closeSubMenu();
   if(s==="back"||!battle||battle.busy)return;
@@ -4349,7 +4959,7 @@ function openItems(){
  box.innerHTML=`<button data-i="heiltrank"${state.inv.heiltrank>0?"":" disabled"}><b>💊 Heiltrank</b><small>Heilt 20 HP · ${state.inv.heiltrank}x übrig</small></button>`+
   `<button data-i="heilkraut"${(state.inv.heilkraut||0)>0?"":" disabled"}><b>🌿 Heilkraut</b><small>Heilt Gift, Verbrennung, Schlaf, Benommenheit & Verwirrung · ${state.inv.heilkraut||0}x</small></button>`+
   `<button data-i="back"><b>Zurück</b></button>`;
- box.style.display="flex";document.getElementById("actMain").style.display="none";
+ box.style.display="grid";document.getElementById("actMain").style.display="none";layoutBattleSoon();
  box.onclick=async e=>{const btn=e.target.closest("button[data-i]");if(!btn||btn.disabled)return;const i=btn.dataset.i;
   closeSubMenu();
   if(i==="back"||!battle||battle.busy)return;
@@ -4377,9 +4987,9 @@ function openMoves(){
   const border=mv.pow>0?(f>1?"#7dff8a":f<1?"#ff8a7a":"#ffdd88"):"#c9a8ff";
   const fx=mv.effect?`<small style="color:#ffd0f0">${effectText(mv)}</small>`:mv.drain?`<small style="color:#a8ffb8">💚 heilt ${Math.round(mv.drain*100)}% des Schadens</small>`:mv.defDown?`<small style="color:#c8d4ff">🛡️↓ senkt Verteidigung</small>`:"";
   const eline=mv.pow>0?`<small style="color:${lb.col};font-weight:bold">${lb.txt} gegen ${et}${f!==1?` (x${f})`:""}</small>`:"";
-  return `<button data-m="${m}" style="border-color:${border}"><b>${mv.name}</b><small>${mv.type} · ${powText(mv)}${mv.pow>0&&mv.type===a.type?" · Eigentyp +20%":""}</small>${eline}${fx}</button>`;
+  return `<button data-m="${m}" style="border-color:${border}"><b>${mv.name}</b><small>${mv.type} · ${powText(mv)}${mv.pow>0&&mv.type===a.type?" · +20%":""}</small>${eline}${fx}</button>`;
  }).join("")+`<button data-m="back"><b>Zurück</b></button>`;
- box.style.display="flex";document.getElementById("actMain").style.display="none";
+ box.style.display="grid";document.getElementById("actMain").style.display="none";layoutBattleSoon();
 }
 function moveClickHandler(e){
  const btn=e.target.closest("button[data-m]");if(!btn)return;
@@ -4416,7 +5026,7 @@ function openCapsulePick(){
  box.innerHTML=`<button data-c="normal"${state.inv.fangkapsel>0?"":" disabled"}><b>🔴 Fangkapsel</b><small>${state.inv.fangkapsel}x · normale Chance</small></button>`+
   kinds.map(t=>`<button data-c="${t}" style="${t===et?"border-color:#7dff8a":""}"><b>${TYPE_ICONS[t]} ${t}kapsel</b><small>${elem[t]}x · ${t===et?`<span style="color:#7dff8a;font-weight:bold">▲ x${ELEM_CAPSULE_BONUS} Chance gegen ${et}</span>`:"normale Chance"}</small></button>`).join("")+
   `<button data-c="back"><b>Zurück</b></button>`;
- box.style.display="flex";document.getElementById("actMain").style.display="none";
+ box.style.display="grid";document.getElementById("actMain").style.display="none";layoutBattleSoon();
  box.onclick=e=>{const btn=e.target.closest("button[data-c]");if(!btn||btn.disabled)return;const c=btn.dataset.c;
   closeSubMenu();
   if(c==="back")return;
@@ -4442,8 +5052,8 @@ async function tryCatch(kind){
  const cap=document.getElementById("catchCapsule");
  const capTop=cap.querySelector("rect");if(capTop)capTop.setAttribute("fill",kind==="normal"?"#e8c15a":TYPECOLORS[kind]);
  cap.className="";cap.style.display="block";void cap.offsetWidth;
- cap.classList.add("throwCap");
- setTimeout(()=>{
+ cap.classList.add("throwCap");sfx("throw");
+ setTimeout(()=>{sfx("wobble");
   if(!battle)return;
   cap.classList.remove("throwCap");cap.classList.add("wobbleCap");
   document.getElementById("enemySprite").classList.add("shakeCap");
@@ -4496,7 +5106,7 @@ function resolveCatch(cap){
  chance=Math.min(0.95,Math.max(0.05,chance));
  if(Math.random()<chance){
   cap.classList.add("capSuccess");
-  battle.over=true;
+  battle.over=true;setMusic(null);sfx("catch");
   const msgs=[`Geschafft! Du hast ${e.name} gefangen!`];
   clearBattleStatus(e);
   if(state.team.length<6)state.team.push(e);else{state.storage.push(e);msgs.push(`Dein Team ist voll – ${e.name} wurde ins Lager geschickt.`)}
@@ -4516,7 +5126,7 @@ function resolveCatch(cap){
    closeBattle();
   },550);
  } else {
-  cap.classList.add("capFail");
+  cap.classList.add("capFail");sfx("escape");
   setTimeout(async()=>{
    cap.style.display="none";cap.className="";
    if(!battle)return;
@@ -4530,7 +5140,7 @@ function openFleeConfirm(){
  const box=document.getElementById("actMoves");
  box.innerHTML=`<div style="width:100%;text-align:center;font-weight:bold;font-size:16px;color:#ffe37a;margin:2px 0 4px">🏃 Möchtest du wirklich vor ${battle.enemy.name} fliehen?</div>
   <button data-f="yes"><b>Ja, fliehen</b><small>Kampf verlassen</small></button><button data-f="back"><b>Nein</b><small>Weiterkämpfen</small></button>`;
- box.style.display="flex";document.getElementById("actMain").style.display="none";
+ box.style.display="grid";document.getElementById("actMain").style.display="none";layoutBattleSoon();
  box.onclick=e=>{const b=e.target.closest("button[data-f]");if(!b)return;const f=b.dataset.f;
   closeSubMenu();
   if(f==="yes")fleeBattle();
@@ -4582,7 +5192,7 @@ function wildGoldReward(l){return Math.round(l*1+Math.random()*l*0.5)+2}
 function goldReward(enemyLevel){return Math.round(enemyLevel*4+Math.random()*enemyLevel*2)+5}
 async function endBattle(won){
  if(battle.over)return;
- battle.over=true;
+ battle.over=true;setMusic(null);sfx(won?"victory":"defeat");
  if(won){
   const list=(battle.defeatedList&&battle.defeatedList.length)?battle.defeatedList:[{sid:battle.enemy.sid,level:battle.enemy.level,name:battle.enemy.name}];
   // EP nur für Monster, die gegen das jeweilige Gegner-Monster gekämpft haben und noch stehen
@@ -4625,7 +5235,8 @@ async function endBattle(won){
    state.wanderBeaten[battle.wanderId]=true;
    {const wn=WANDER_TRAINERS.find(n=>n.id===battle.wanderId);msgs.push(wn&&wn.gilde?`${wn.name}: „Argh! Das wird die Gilde nicht vergessen!“`:"Der Trainer zieht sich geschlagen zurück.")}
   }
-  if(battle.legendId)msgs.push(`${battle.enemy.name} zieht sich zurück … Es wartet weiter an seinem Ort – nur wer es fängt, gewinnt es für sich.`);
+  if(battle.legendId==="abyssaron")msgs.push(`${battle.enemy.name} taucht zurück in die Tiefe … Surfe weiter – vielleicht begegnest du ihm noch einmal.`);
+  else if(battle.legendId)msgs.push(`${battle.enemy.name} zieht sich zurück … Es wartet weiter an seinem Ort – nur wer es fängt, gewinnt es für sich.`);
   if(battle.pvp){
    state.pvpWins=(state.pvpWins||0)+1;
    msgs.push(`🌐 Du hast das Team von ${battle.pvp.trainer} besiegt!`);
@@ -4638,6 +5249,7 @@ async function endBattle(won){
    const gold=300+ti*250,caps=3+ti,pots=2+Math.ceil(ti/2);
    state.inv.gold+=gold;state.inv.fangkapsel+=caps;state.inv.heiltrank+=pots;
    msgs.push(`🏅 Du erhältst die ${town.medal.icon} ${town.medal.name}! (${medalCount()}/${TOWNS.length}) Belohnung: 💰 ${gold}, ${caps}x Fangkapsel, ${pots}x Heiltrank!`);
+   if(battle.leaderId==="sturmhafen"&&!state.canSurf){state.canSurf=true;msgs.push(`🌊 ${town.leader.name}: „Nimm diese Surf-Lizenz! Ab jetzt kann dich ein Wasser-Monster aus deinem Team übers Meer tragen. Stell dich ans Ufer, schau aufs Wasser und drück A.“`,"🌊 Auf dem Meer lauern wilde Wasser-, Drachen- und Wind-Monster. Und man erzählt sich, dass nach sehr langer Zeit auf See etwas Uraltes aus der Tiefe auftaucht …")}
    if(battle.leaderId==="lindorf"&&!state.hasRod){state.hasRod=true;msgs.push(`🎣 ${town.leader.name}: „Hier, nimm meine alte Angel! Stell dich ans Wasser und wirf sie aus – dort beißen Wasser- und Drachen-Monster an.“`)}
    if(medalCount()===TOWNS.length)msgs.push("🏆 Du hast alle Medaillen – du bist eine Legende!");
   }
@@ -4655,6 +5267,7 @@ async function endBattle(won){
  closeBattle();
 }
 function closeBattle(){
+ setTimeout(()=>setMusic("world"),battle&&battle.over?300:0);
  const _sb=battle,_lost=!!(battle&&battle.defeat);
  setTimeout(()=>storyAfterBattle(_sb,_lost),0);
  if(battle&&battle.wanderId){
@@ -4674,7 +5287,7 @@ function closeBattle(){
 // Niederlage: zurück zum zuletzt besuchten Heilzentrum, alle Monster geheilt
 function whiteOut(){
  const spot=(state.lastHeal&&!blocked(state.lastHeal.x,state.lastHeal.y))?state.lastHeal:{x:8,y:3}; // Standard: vor dem Heilzentrum in Eichendorff
- state.px=spot.x;state.py=spot.y;state.dir="up";
+ state.px=spot.x;state.py=spot.y;state.dir="up";state.surfing=false;
  animFromX=spot.x;animFromY=spot.y;animT=1;
  state.team.concat(state.storage).forEach(c=>c.hp=c.maxhp);
  WANDER_TRAINERS.forEach(n=>{if(n.mode!=="battling")n.mode="wander"});
@@ -4685,9 +5298,88 @@ function whiteOut(){
  setTimeout(()=>showDialog("Schwester Mira: „Da bist du ja wieder! Ich habe deine Monster vollständig geheilt. Pass beim nächsten Mal besser auf!“"),700);
 }
 
+// ---------- TASTATUR & MAUS (PC / Browser) ----------
+const KEYS=new Set();let MOUSE={held:false,x:0,y:0,t0:0,moved:false};
+const KEY_DIR={ArrowUp:[0,-1],KeyW:[0,-1],ArrowDown:[0,1],KeyS:[0,1],ArrowLeft:[-1,0],KeyA:[-1,0],ArrowRight:[1,0],KeyD:[1,0]};
+function desktopBusy(){return !!(document.getElementById("title")||document.getElementById("opening")||document.getElementById("intro"))}
+function applyDesktopInput(){
+ if(joyActive)return;
+ let x=0,y=0;
+ KEYS.forEach(k=>{const d=KEY_DIR[k];if(d){x+=d[0];y+=d[1]}});
+ if(!x&&!y&&MOUSE.held){
+  const dx=MOUSE.x-VW/2,dy=MOUSE.y-VH/2;
+  if(Math.hypot(dx,dy)>ISO_W*0.6){if(Math.abs(dx)>Math.abs(dy))x=Math.sign(dx);else y=Math.sign(dy)}
+ }
+ joyVec={x:Math.max(-1,Math.min(1,x)),y:Math.max(-1,Math.min(1,y))};
+}
+function pressA(){
+ if(battleDialogActive()){advanceDialog();return}
+ if(state.inBattle)return;
+ if(menu.style.display==="flex"||document.getElementById("subpanel").style.display==="flex")return;
+ interact();
+}
+// Sichtbare Auswahl-Knöpfe im Kampf per Zahl wählen
+function battleChoice(n){
+ if(!state.inBattle||!battle||battleDialogActive())return;
+ const box=["actMoves","actMain"].map(id=>document.getElementById(id)).find(b=>b.style.display&&b.style.display!=="none");
+ if(!box)return;
+ const btns=[...box.querySelectorAll("button")].filter(b=>b.offsetParent!==null&&!b.disabled);
+ if(btns[n-1])btns[n-1].click();
+}
+addEventListener("keydown",e=>{
+ const tg=e.target;if(tg&&(tg.tagName==="INPUT"||tg.tagName==="TEXTAREA"))return;
+ if(e.ctrlKey||e.metaKey||e.altKey)return;
+ const c=e.code;
+ if(KEY_DIR[c]){KEYS.add(c);e.preventDefault();return}
+ const isA=c==="Space"||c==="Enter"||c==="NumpadEnter"||c==="KeyE";
+ // Eröffnung/Intro per Taste weiterblättern
+ if(isA){
+  const op=document.getElementById("opening"),it=document.getElementById("intro");
+  if(op){e.preventDefault();op.dispatchEvent(new MouseEvent("click",{bubbles:true}));return}
+  if(it&&!it.querySelector("#introGender")){e.preventDefault();it.querySelector("#introBox").dispatchEvent(new MouseEvent("click",{bubbles:true}));return}
+ }
+ if(desktopBusy())return;
+ if(document.activeElement&&document.activeElement.tagName==="BUTTON")document.activeElement.blur();
+ if(isA){e.preventDefault();if(e.repeat)return;pressA();return}
+ if(c==="Escape"||c==="Backspace"||c==="KeyQ"){e.preventDefault();goBack();return}
+ if(c==="KeyM"||c==="Tab"){e.preventDefault();if(document.getElementById("subpanel").style.display==="flex"){goBack();return}openMenuStart();return}
+ if(c==="KeyF"){e.preventDefault();fishButton();return}
+ if(c==="KeyH"){document.body.classList.toggle("showKeys");try{localStorage.setItem("monsterwelt_keys",document.body.classList.contains("showKeys")?"1":"0")}catch(err){}return}
+ const m=/^(?:Digit|Numpad)([1-6])$/.exec(c);
+ if(m){e.preventDefault();battleChoice(+m[1])}
+});
+addEventListener("keyup",e=>{KEYS.delete(e.code)});
+addEventListener("blur",()=>{KEYS.clear();MOUSE.held=false});
+try{if(localStorage.getItem("monsterwelt_keys")!=="0")document.body.classList.add("showKeys")}catch(e){document.body.classList.add("showKeys")}
+// Maus: auf die Karte klicken und gedrückt halten = in diese Richtung laufen; kurzer Klick neben die Figur = anschauen/ansprechen
+cv.addEventListener("pointerdown",e=>{
+ if(e.pointerType!=="mouse"||e.button!==0)return;
+ MOUSE={held:true,x:e.clientX,y:e.clientY,t0:performance.now(),moved:false};
+});
+addEventListener("pointermove",e=>{if(e.pointerType==="mouse"&&MOUSE.held){MOUSE.x=e.clientX;MOUSE.y=e.clientY;MOUSE.moved=true}});
+addEventListener("pointerup",e=>{
+ if(e.pointerType!=="mouse"||!MOUSE.held)return;
+ MOUSE.held=false;
+ if(performance.now()-MOUSE.t0>250||state.inBattle||desktopBusy())return;
+ const dx=e.clientX-VW/2,dy=e.clientY-VH/2;
+ if(Math.abs(dx)<ISO_W*1.6&&Math.abs(dy)<ISO_H*1.6&&Math.hypot(dx,dy)>ISO_W*0.4){
+  state.dir=Math.abs(dx)>Math.abs(dy)?(dx>0?"right":"left"):(dy>0?"down":"up");
+  interact();
+ }
+});
+cv.addEventListener("contextmenu",e=>{e.preventDefault();goBack()});
+
 // ---------- LOOP ----------
 let last=performance.now(),worldTime=0,drawDt=0.016;
 addEventListener("pagehide",()=>{try{save()}catch(e){}});
+// Nach einer längeren Pause (App im Hintergrund) startet das Spiel wieder beim Titelbildschirm
+let hiddenAt=0;
+document.addEventListener("visibilitychange",()=>{
+ if(document.hidden){hiddenAt=Date.now();return}
+ if(hiddenAt&&Date.now()-hiddenAt>3*60*1000&&!document.getElementById("title")){try{save()}catch(e){}location.reload()}
+});
+addEventListener("pageshow",e=>{if(e.persisted&&!document.getElementById("title"))location.reload()});
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}catch(e){}
 document.addEventListener("visibilitychange",()=>{if(document.hidden){try{save()}catch(e){}}});
 function loop(now){
  try{
@@ -4695,7 +5387,7 @@ function loop(now){
   const dt=Math.min(0.05,(now-last)/1000);last=now;drawDt=dt;
   worldTime+=dt;
   if(!state.inBattle){
-   tryMove(dt);
+   applyDesktopInput();tryMove(dt);
    updateWanderers(dt);
    updateFishing();
    if(isWalking||animT<1){walkPhase+=dt*9;if(walkPhase>Math.PI*2)walkPhase-=Math.PI*2}
@@ -4740,7 +5432,7 @@ function showStarterPicker(onDone){
   onDone();
  };
 }
-function startGame(){requestAnimationFrame(loop);try{mpInit()}catch(e){}}
+function startGame(){GAME_ON=true;requestAnimationFrame(loop);try{mpInit()}catch(e){}}
 // ---------- BEGRÜSSUNG (Professorin Linde) ----------
 const PROF_SVG=`<svg viewBox="0 0 150 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
  <defs>
@@ -4877,7 +5569,7 @@ function showIntro(onDone){
   if(st.pet){pet.style.opacity="1";pet.classList.add("hop")}
   legendEl.classList.toggle("on",!!st.legend);
   if(st.legend)pet.style.visibility="hidden";else pet.style.visibility="";
-  full=st.t();pos=0;typing=true;textEl.textContent="";nextEl.style.display="none";
+  full=T(st.t());pos=0;typing=true;textEl.textContent="";nextEl.style.display="none";
   clearInterval(timer);
   timer=setInterval(()=>{pos+=1;textEl.textContent=full.slice(0,pos);if(pos>=full.length)finishTyping()},textMs());
  }
@@ -4963,13 +5655,13 @@ function showOpening(onDone){
  const finish=()=>{if(done)return;done=true;clearInterval(timer);clearTimeout(auto);el.classList.add("opOut");setTimeout(()=>{el.remove();onDone()},700)};
  const show=k=>{
   i=k;el.dataset.scene=k;clearInterval(timer);clearTimeout(auto);
-  const t=texts[k];let p=0;typing=true;txt.textContent="";txt.classList.remove("opIn");void txt.offsetWidth;txt.classList.add("opIn");
+  const t=T(texts[k]);let p=0;typing=true;txt.textContent="";txt.classList.remove("opIn");void txt.offsetWidth;txt.classList.add("opIn");
   timer=setInterval(()=>{p++;txt.textContent=t.slice(0,p);if(p>=t.length){clearInterval(timer);typing=false;auto=setTimeout(next,k===texts.length-1?2600:2000)}},Math.max(18,textMs()+10));
  };
  const next=()=>{if(i+1<texts.length)show(i+1);else finish()};
  el.addEventListener("click",e=>{
   if(e.target.closest(".opSkip")){finish();return}
-  if(typing){clearInterval(timer);typing=false;txt.textContent=texts[i];clearTimeout(auto);auto=setTimeout(next,1400);return}
+  if(typing){clearInterval(timer);typing=false;txt.textContent=T(texts[i]);clearTimeout(auto);auto=setTimeout(next,1400);return}
   next();
  });
  show(0);
@@ -5310,10 +6002,13 @@ document.getElementById("mMulti").addEventListener("click",()=>{MP.flow=null;ren
 
 // ---------- OPTIONEN ----------
 const OPT_DEFS=[
+ {key:"lang",label:"🌐 Sprache / Language",choices:[["de","Deutsch"],["en","English"]]},
  {key:"text",label:"💬 Textgeschwindigkeit",choices:[["slow","Langsam"],["normal","Normal"],["fast","Schnell"]]},
  {key:"walk",label:"🏃 Laufgeschwindigkeit",choices:[["normal","Normal"],["fast","Schnell"]]},
  {key:"controls",label:"🎮 Steuerung",choices:[["std","Joystick links"],["swap","Joystick rechts"]]},
- {key:"gfx",label:"🎨 Monster-Grafik",choices:[["pixel","Pixel-Sprites"],["vector","Glatt (Vektor)"]]}
+ {key:"gfx",label:"🎨 Monster-Grafik",choices:[["pixel","Pixel-Sprites"],["vector","Glatt (Vektor)"]]},
+ {key:"sound",label:"🔊 Sound",choices:[["all","Musik + Effekte"],["sfx","Nur Effekte"],["off","Aus"]]},
+ {key:"vol",label:"🔈 Lautstärke",choices:[["low","Leise"],["mid","Mittel"],["high","Laut"]]}
 ];
 function renderOptions(container,onBack,inGame){
  container.innerHTML=`<h3>⚙️ Optionen</h3>`+OPT_DEFS.map(d=>`<div class="optRow"><div class="optLabel">${d.label}</div><div class="optSeg">`+
@@ -5322,7 +6017,8 @@ function renderOptions(container,onBack,inGame){
   `<button id="optBack" style="width:100%;margin-top:10px">◀ Zurück</button>`;
  container.onclick=e=>{
   const b=e.target.closest("button[data-opt]");
-  if(b){OPTS[b.dataset.opt]=b.dataset.val;saveOpts();applyOpts();renderOptions(container,onBack,inGame);return}
+  if(b&&b.dataset.opt==="lang"){if(OPTS.lang!==b.dataset.val){OPTS.lang=b.dataset.val;saveOpts();try{save()}catch(err){}location.reload()}return}
+  if(b){OPTS[b.dataset.opt]=b.dataset.val;saveOpts();applyOpts();if(b.dataset.opt==="vol"||b.dataset.opt==="sound")setTimeout(()=>sfx("item"),60);renderOptions(container,onBack,inGame);return}
   if(e.target.closest("#optBack")){container.onclick=null;onBack();return}
   const del=e.target.closest("#optDelete");
   if(del){
@@ -5347,12 +6043,13 @@ function saveSummary(){
  }catch(e){return ""}
 }
 function showTitle(){
+ setMusic("world");
  const el=document.createElement("div");el.id="title";
  let stars="";for(let i=0;i<28;i++)stars+=`<div class="tStar" style="left:${Math.random()*100}%;top:${Math.random()*55}%;animation-delay:${(Math.random()*2.4).toFixed(2)}s"></div>`;
  el.innerHTML=stars+`<div id="titleInner"><div id="titleLogo">MONSTERWELT</div><div id="titleSub">Das große Monster-Abenteuer</div>
   <div id="titleMons">${STARTER_SIDS.map((sid,i)=>`<div style="animation-delay:${i*0.18}s">${creatureSVG(sid)}</div>`).join("")}</div>
   <div id="titleLoad">Lade Monsterwelt …<div id="titleBar"><div></div></div></div>
-  <div id="titleMenu"></div><div id="titlePanel"></div></div><div id="titleVer">v1.0 · by Franks</div>`;
+  <div id="titleMenu"></div><div id="titlePanel"></div></div><div id="titleVer">v1.5 · by Franks</div>`;
  document.body.appendChild(el);makeTouchScrollable(el);
  const bar=el.querySelector("#titleBar div"),loadBox=el.querySelector("#titleLoad"),menuEl=el.querySelector("#titleMenu"),panel=el.querySelector("#titlePanel"),mons=el.querySelector("#titleMons");
  // Ladebalken: Monster-Grafiken vorbereiten (füllt den Grafik-Speicher), mindestens ~1,2 s anzeigen
