@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<title>Monsterwelt RPG – by Franks</title>
+<title>Monsterworld RPG – by Franks</title>
 <style>
 :root{--bg:#1b2a1f;--ui:#2e4a35;--accent:#e8c15a;--txt:#f2f2e6}
 *{box-sizing:border-box;-webkit-user-select:none;user-select:none;touch-action:none}
@@ -53,7 +53,7 @@ body.lefty #btnB{right:auto;left:22vw}
 #title{position:fixed;inset:0;z-index:70;display:block;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;background:linear-gradient(180deg,#1b2a55 0%,#3a5fa0 45%,#7fc4e8 70%,#6ec766 70.2%,#3f8a42 100%);color:#fff;padding:env(safe-area-inset-top,0px) 16px env(safe-area-inset-bottom,0px)}
 #title .tStar{position:absolute;width:3px;height:3px;border-radius:50%;background:#fff;animation:tTwinkle 2.4s infinite}
 @keyframes tTwinkle{0%,100%{opacity:.25}50%{opacity:1}}
-#titleLogo{font-size:min(11vw,13vh);font-weight:900;letter-spacing:2px;line-height:1;color:#ffe37a;-webkit-text-stroke:2px #7a3a10;text-shadow:0 4px 0 #b3561c,0 8px 18px #000a;transform:rotate(-2deg);text-align:center}
+#titleLogo{font-size:min(9.4vw,13vh);font-weight:900;letter-spacing:2px;line-height:1;color:#ffe37a;-webkit-text-stroke:2px #7a3a10;text-shadow:0 4px 0 #b3561c,0 8px 18px #000a;transform:rotate(-2deg);text-align:center}
 #titleSub{font-size:min(3.6vw,3.6vh);opacity:.9;letter-spacing:3px;text-transform:uppercase;text-shadow:0 2px 4px #0008;margin-top:-.6vh}
 #titleMons{display:flex;gap:1.5vw;align-items:flex-end;height:min(15vw,17vh)}
 #titleMons div{height:100%;aspect-ratio:1;animation:tBob 1.6s ease-in-out infinite}
@@ -296,6 +296,18 @@ body.lefty #btnB{right:auto;left:22vw}
 #actMoves button[data-m="back"],#actMoves button[data-s="back"],#actMoves button[data-i="back"],#actMoves button[data-c="back"]{background:linear-gradient(180deg,#5a5f6a,#3a3e48)}
 @media (max-width:540px){#actMoves{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (min-width:1150px){#battleScene,#battleMenu{width:1100px;margin:0 auto;max-width:100%}#battlePanel{background:radial-gradient(ellipse at 50% 35%,#3a4a5e,#0d1620 75%)}#battleMenu{border-radius:14px 14px 0 0}}
+.evoGrid3{grid-template-columns:repeat(3,1fr)}
+.fmCard.fmWide .fmHead{position:static;display:inline-block;margin-bottom:2px}
+.evoOdds{font-size:12px;text-align:center;margin-top:8px;opacity:.92;line-height:1.35}
+.evoIcon{font-size:28px;line-height:40px;text-align:center}
+.dualGlow{width:100%;height:100%;filter:drop-shadow(0 0 2px var(--g2)) drop-shadow(0 0 5px var(--g2)) drop-shadow(0 0 9px var(--g2))}
+.teamTile .ttPos{position:absolute;top:4px;left:6px;font:bold 12px sans-serif;color:#ffe37a}
+#subContent .teamTile.ttSortable{border-style:dashed}
+#subContent .teamTile.ttSel{box-shadow:0 0 0 3px #7dff8a,0 0 14px #7dff8a99;transform:scale(1.04)}
+.teamTile .ttMoveRow{display:flex;gap:8px;margin-top:3px}
+.teamTile .ttMv{display:inline-block;min-width:30px;padding:3px 0;border-radius:8px;background:#ffffff26;border:1px solid #ffffff55;font-size:13px;text-align:center}
+.teamTile .ttMv[data-off]{opacity:.25}
+.teamTile.ghLocked{opacity:.55}
 </style>
 </head>
 <body>
@@ -310,7 +322,7 @@ body.lefty #btnB{right:auto;left:22vw}
 </div>
 <div id="menu">
  <div class="menuCard">
-  <h2>⚔️ Monsterwelt</h2>
+  <h2>⚔️ Monsterworld</h2>
   <div class="menuGrid">
    <button id="mTeam"><span class="mi">🐾</span>Team</button>
    <button id="mTrainer"><span class="mi">🧍</span>Trainer</button>
@@ -392,6 +404,10 @@ TYPE_CYCLE.forEach((t,i)=>{
  TYPEFX[t]={[strongVs]:2,[weakVs]:.5};
 });
 function eff(a,d){return (TYPEFX[a]&&TYPEFX[a][d])||1}
+// Doppel-Element (nur Ei-Monster nach der 2. Entwicklung): beide Elemente zählen
+function hasType(c,t){return !!(c&&t)&&(c.type===t||c.type2===t)}
+function effC(mt,target){if(!target)return 1;let f=eff(mt,target.type);if(target.type2&&target.type2!==target.type)f*=eff(mt,target.type2);return Math.max(0.25,Math.min(2,f))}
+function typeStr(c){return c&&c.type2?c.type+"/"+c.type2:(c?c.type:"")}
 const NT=TYPE_CYCLE.length;
 function strongAgainst(t){const i=TYPE_CYCLE.indexOf(t);return i<0?null:TYPE_CYCLE[(i+1)%NT]}
 function weakAgainst(t){const i=TYPE_CYCLE.indexOf(t);return i<0?null:TYPE_CYCLE[(i+NT-1)%NT]} // Typ, der t besiegt
@@ -618,14 +634,14 @@ const I18N={
 "Befreie Cassias Monster aus der Schattenhöhle":"Free Cassia's monsters from the Shadow Cave","📜 Neue Aufgabe: Befreie Cassias Monster aus der Schattenhöhle (Eingang südlich der Hafenstadt).":"📜 New task: Free Cassia's monsters from the Shadow Cave (entrance south of Hafenstadt).",
 "Grrr … Das wird die Meisterin erfahren! Die Gilde vergisst nicht!":"Grrr … The master will hear about this! The guild never forgets!","Da bist du ja! Ich bin dir gefolgt … Meine Monster – sie sind frei! Danke, danke, danke!":"There you are! I followed you … My monsters – they're free! Thank you, thank you, thank you!",
 "Nimm das als Dank. Und pass auf dich auf – die Gilde ist größer, als wir dachten …":"Take this as thanks. And take care – the guild is bigger than we thought …","Ihr Stromzaun am Weg nach Nebelhain hat jetzt keinen Strom mehr aus der Höhle. Mit einem Erd-Monster kommst du hindurch!":"Their electric fence on the way to Nebelhain no longer gets power from the cave. With an Earth monster you can get through!",
-"🎁 Geschenk von {0}":"🎁 Gift from {0}","Belohnung: 💰 800, 4x Heiltrank, 5x Fangkapsel!":"Reward: 💰 800, 4x potion, 5x capsule!",
+"🎁 Geschenk von {0}":"🎁 Gift from {0}","Belohnung: 💰 400, 4x Heiltrank, 5x Fangkapsel!":"Reward: 💰 400, 4x potion, 5x capsule!",
 "Beeindruckend … Du hast sogar den Champion besiegt. Und dabei alle ihre Monster schön müde gemacht.":"Impressive … You even beat the Champion. And tired out all her monsters nicely in the process.","Ich bin Vesper, Meisterin der Jäger-Gilde. Novas Drachen sind die wertvollste Beute, die wir je hatten!":"I am Vesper, master of the Hunters' Guild. Nova's dragons are the most valuable loot we've ever had!",
 "Lass meine Monster los!":"Let my monsters go!","Zu spät! Wenn du sie willst, komm in unseren Gildenturm südlich der Sternensteppe. Zehn meiner besten Jäger warten dort auf dich … und ich.":"Too late! If you want them, come to our guild tower south of the Star Steppe. Ten of my best hunters are waiting for you there … and me.",
 "{0} … ich zähle auf dich. Du bist die letzte Hoffnung für unsere Monster!":"{0} … I'm counting on you. You are the last hope for our monsters!","Stürme den Gildenturm und befreie Novas Monster":"Storm the guild tower and free Nova's monsters","📜 Neue Aufgabe: Stürme den Gildenturm südlich der Sternensteppe!":"📜 New task: Storm the guild tower south of the Star Steppe!",
 "Unmöglich … Ein Kind hat die ganze Gilde besiegt?":"Impossible … A kid defeated the whole guild?","… Du hast gewonnen. Die Jäger-Gilde löst sich auf. Die Monster gehören dir – äh, sich selbst.":"… You win. The Hunters' Guild is disbanding. The monsters belong to you – er, to themselves.",
 "Du hast es wirklich geschafft! Meine Drachen sind frei!":"You really did it! My dragons are free!","{0}, du hast nicht nur alle Arenen gemeistert – du hast die Monster dieser Welt gerettet.":"{0}, you didn't just master every gym – you saved the monsters of this world.","Von heute an bist du eine echte Legende!":"From today on you are a true legend!",
-"🏆 GESCHAFFT! 🏆":"🏆 YOU DID IT! 🏆","Herzlichen Glückwunsch, {0}!":"Congratulations, {0}!","Du hast die Arenen gemeistert, die Jäger-Gilde zerschlagen und die gestohlenen Monster befreit.":"You mastered the gyms, smashed the Hunters' Guild and freed the stolen monsters.","Du hast Monsterwelt durchgespielt!":"You have completed Monsterwelt!",
-"📖 {0} verschiedene Monster · 🏅 {1}/{2} Medaillen · Belohnung: 💰 5000 + legendäres Amulett":"📖 {0} different monsters · 🏅 {1}/{2} medals · Reward: 💰 5000 + legendary amulet","Weiterspielen ▶":"Keep playing ▶",
+"🏆 GESCHAFFT! 🏆":"🏆 YOU DID IT! 🏆","Herzlichen Glückwunsch, {0}!":"Congratulations, {0}!","Du hast die Arenen gemeistert, die Jäger-Gilde zerschlagen und die gestohlenen Monster befreit.":"You mastered the gyms, smashed the Hunters' Guild and freed the stolen monsters.","Du hast Monsterworld durchgespielt!":"You have completed Monsterworld!",
+"📖 {0} verschiedene Monster · 🏅 {1}/{2} Medaillen · Belohnung: 💰 2500 + legendäres Amulett":"📖 {0} different monsters · 🏅 {1}/{2} medals · Reward: 💰 2500 + legendary amulet","Weiterspielen ▶":"Keep playing ▶",
 "Angriff":"Attack","Attacken einsetzen":"Use moves","Wechseln":"Switch","Kreatur austauschen":"Swap creature","Gegenstand":"Item","Item verwenden":"Use an item","Fangen":"Catch","Wildes Monster fangen":"Catch the wild monster","Flucht":"Run","Kampf verlassen":"Leave battle","Nicht möglich":"Not possible",
 "{0} schläft tief und fest … 💤":"{0} is fast asleep … 💤","{0} ist aufgewacht!":"{0} woke up!","{0} ist benommen und kann sich nicht bewegen! 💫":"{0} is stunned and can't move! 💫","{0} ist nicht mehr verwirrt!":"{0} is no longer confused!","{0} ist verwirrt … ❓":"{0} is confused … ❓","Es hat sich vor Verwirrung selbst verletzt!":"It hurt itself in its confusion!",
 "{0} setzt {1} ein! Doch der Angriff geht daneben!":"{0} uses {1}! But the attack missed!","{0} setzt {1} ein!{2} ({3} Schaden)":"{0} uses {1}!{2} ({3} damage)","✨ {0} wird vom Licht gestärkt und heilt {1} KP!":"✨ {0} is strengthened by the light and heals {1} HP!",
@@ -650,8 +666,8 @@ const I18N={
 "🎣 {0}: „Hier, nimm meine alte Angel! Stell dich ans Wasser und wirf sie aus – dort beißen Wasser- und Drachen-Monster an.“":"🎣 {0}: “Here, take my old fishing rod! Stand by the water and cast it – Water and Dragon monsters bite there.”","🏆 Du hast alle Medaillen – du bist eine Legende!":"🏆 You have all the medals – you are a legend!",
 "🎁 Beute: {0} – {1}. Ausrüsten kannst du sie im Menü unter „🧍 Trainer“.":"🎁 Loot: {0} – {1}. You can equip it in the menu under “🧍 Trainer”.","Alle deine Monster sind kampfunfähig! Dir wird schwarz vor Augen …":"All your monsters are unable to fight! Everything goes black …","Das Team von {0} war stärker. Alle deine Monster sind kampfunfähig …":"{0}'s team was stronger. All your monsters are unable to fight …",
 "{0}: „Ha! Ich wusste doch, dass ich besser bin. Trainier mal ein bisschen!“":"{0}: “Ha! I knew I was better. Go train a bit!”","Schwester Mira: „Da bist du ja wieder! Ich habe deine Monster vollständig geheilt. Pass beim nächsten Mal besser auf!“":"Nurse Mira: “There you are again! I've fully healed your monsters. Be more careful next time!”",
-"🐾 Wähle deinen Partner":"🐾 Choose your partner","Dein erstes Monster startet auf Level 5 mit 5 freien Punkten zum Verteilen.":"Your first monster starts at level 5 with 5 free points to assign.","Auswählen":"Choose","⭐ Sylvarion · legendär":"⭐ Sylvarion · legendary","Überspringen ⏭":"Skip ⏭","Professorin Linde":"Professor Linde",
-"Hallo, hallo! Schön, dass du da bist!":"Hello, hello! So nice that you're here!","Willkommen in der Monsterwelt! Ich bin Professorin Linde und erforsche hier in Eichendorff die Monster.":"Welcome to the Monsterwelt! I'm Professor Linde and I study monsters here in Eichendorff.",
+"🐾 Wähle deinen Partner":"🐾 Choose your partner","Dein erstes Monster startet auf Level 5. Punkte zum Verteilen gibt es ab Level 10 und dann alle 10 Level.":"Your first monster starts at level 5. You get points to assign at level 10 and then every 10 levels.","📊 Neues Punktesystem: Die Werte aller deiner Monster wurden neu berechnet. Punkte gibt es jetzt nur noch bei Level 10, 20, 30 … 100 – die dir zustehenden Punkte kannst du im Team-Menü neu verteilen.":"📊 New point system: the stats of all your monsters were recalculated. Points are now only given at levels 10, 20, 30 … 100 – you can assign the points you are owed again in the team menu.","Auswählen":"Choose","⭐ Sylvarion · legendär":"⭐ Sylvarion · legendary","Überspringen ⏭":"Skip ⏭","Professorin Linde":"Professor Linde",
+"Hallo, hallo! Schön, dass du da bist!":"Hello, hello! So nice that you're here!","Willkommen in der Monsterworld! Ich bin Professorin Linde und erforsche hier in Eichendorff die Monster.":"Welcome to the Monsterworld! I'm Professor Linde and I study monsters here in Eichendorff.",
 "Das ist Funki, meine kleine Funkmaus. Monster wie sie leben überall – im hohen Gras, am Meer, in der Wüste und im Nebelmoor.":"This is Funki, my little Funkmaus. Monsters like her live everywhere – in tall grass, by the sea, in the desert and in the Mist Moor.",
 "Manche Menschen kämpfen mit ihnen, andere sammeln sie. Und manche werden die besten Freunde ihrer Monster.":"Some people battle with them, others collect them. And some become their monsters' best friends.","Und dann gibt es noch die Legenden … Schau mal, das hier ist Sylvarion!":"And then there are the legends … Look, this is Sylvarion!",
 "Sylvarion ist ein uralter, leuchtender Hirsch-Geist vom Element Natur. Es heißt, er zeigt sich nur in einem versteckten Hain nördlich der Felsroute.":"Sylvarion is an ancient, glowing stag spirit of the Nature element. They say it only appears in a hidden grove north of the Rock Route.",
@@ -679,11 +695,11 @@ const I18N={
 "🌐 Mehrspieler ist hier gerade nicht verfügbar.":"🌐 Multiplayer isn't available here right now.","Er funktioniert im veröffentlichten Spiel auf claude.ai, wenn du angemeldet bist und das Spiel mit dir geteilt wurde.":"It works in the published game on claude.ai when you're signed in and the game has been shared with you.",
 "⚙️ Optionen":"⚙️ Options","💬 Textgeschwindigkeit":"💬 Text speed","Langsam":"Slow","Normal":"Normal","Schnell":"Fast","🏃 Laufgeschwindigkeit":"🏃 Walking speed","🎮 Steuerung":"🎮 Controls","Joystick links":"Joystick left","Joystick rechts":"Joystick right","🎨 Monster-Grafik":"🎨 Monster graphics","Pixel-Sprites":"Pixel sprites","Glatt (Vektor)":"Smooth (vector)",
 "🔊 Sound":"🔊 Sound","Musik + Effekte":"Music + effects","Nur Effekte":"Effects only","Aus":"Off","🔈 Lautstärke":"🔈 Volume","Leise":"Quiet","Mittel":"Medium","Laut":"Loud","🗑️ Spielstand":"🗑️ Save data","Spielstand löschen":"Delete save data","Wirklich löschen? Nochmal tippen zum Bestätigen":"Really delete? Tap again to confirm",
-"{0} · {1} Lv.{2} · Team {3}/6":"{0} · {1} Lv.{2} · Team {3}/6","Das große Monster-Abenteuer":"The great monster adventure","Lade Monsterwelt …":"Loading Monsterwelt …","▶ Spiel fortsetzen":"▶ Continue","✨ Neues Spiel":"✨ New game","Kein Spielstand vorhanden":"No save data","✨ Neues Spiel":"✨ New game",
-"Dein bisheriger Spielstand":"Your current save","wird dabei überschrieben.":"will be overwritten.","Ja, neu beginnen":"Yes, start over",
+"{0} · {1} Lv.{2} · Team {3}/6":"{0} · {1} Lv.{2} · Team {3}/6","Das große Monster-Abenteuer":"The great monster adventure","Lade Monsterworld …":"Loading Monsterworld …","▶ Spiel fortsetzen":"▶ Continue","✨ Neues Spiel":"✨ New game","Kein Spielstand vorhanden":"No save data","✨ Neues Spiel":"✨ New game",
+"Dein bisheriger Spielstand":"Your current save","wird dabei überschrieben.":"will be overwritten.","Ja, neu beginnen":"Yes, start over","🌳 Monstergehege von Felsburg":"🌳 Felsburg Monster Sanctuary","Hier kannst du Monster aus deiner Monsterbox in die Freiheit entlassen. Als Dank lassen sie Geschenke zurück – je nach Element und Seltenheit: Ausrüstung mit zufälligen Effekten, Element-Kapseln und Heilmittel.":"Here you can release monsters from your Monster Box into the wild. As thanks they leave gifts behind – depending on element and rarity: gear with random effects, element capsules and remedies.","🕊️ Freilassen":"🕊️ Release","Wirklich freilassen? Nochmal tippen":"Really release? Tap again","◀ Gehege verlassen":"◀ Leave sanctuary","📦 Monster in der Box ({0})":"📦 Monsters in the box ({0})","Deine Monsterbox ist leer. Nur Monster aus der Box können freigelassen werden – dein Team bleibt immer bei dir.":"Your Monster Box is empty. Only monsters from the box can be released – your team always stays with you.","🔒 {0} ist ein einzigartiges Ei-Monster und bleibt lieber bei dir.":"🔒 {0} is a unique egg monster and would rather stay with you.","🕊️ {0} läuft glücklich in die Freiheit! Als Dank hat es dir dagelassen:":"🕊️ {0} happily runs off into the wild! As thanks it left you:","Das Monstergehege von Felsburg":"The Felsburg Monster Sanctuary","↕️ Reihenfolge ändern":"↕️ Change order","✅ Fertig":"✅ Done","Tippe ein Monster an und dann ein zweites, um die Plätze zu tauschen – oder schiebe es mit ◀ ▶. Platz 1 kämpft zuerst.":"Tap a monster and then a second one to swap places – or move it with ◀ ▶. Slot 1 fights first.","Jetzt das Monster antippen, mit dem die Plätze getauscht werden sollen.":"Now tap the monster to swap places with.","Welches Monster soll als Nächstes kämpfen?":"Which monster should fight next?","🎲 Zufällig verteilt (als es wild war):":"🎲 Randomly assigned (while it was wild):","🎯 Von dir verteilt:":"🎯 Assigned by you:","Superkapsel":"Super Capsule","x{0} Fangchance bei allen Monstern":"x{0} catch rate on all monsters","x{0} Fangchance · x{1} bei {2}-Monstern":"x{0} catch rate · x{1} on {2} monsters","🔒 Superkapseln gibt es hier, sobald eines deiner Monster Level 50 erreicht.":"🔒 Super Capsules are sold here once one of your monsters reaches level 50.","⭐ Eines deiner Monster hat Level 50 erreicht! Im Markt gibt es jetzt Superkapseln.":"⭐ One of your monsters reached level 50! The market now sells Super Capsules.","{0}x · ▲ x{1} Chance":"{0}x · ▲ x{1} chance","Du wirfst eine {0}!":"You throw a {0}!","Die {0} hat besonders gut gewirkt!":"The {0} worked especially well!","✨ Zweite Entwicklung":"✨ Second Evolution","{0} ist bereit für seine zweite Entwicklung! Wähle einmalig ein zweites Element – danach hat es zwei Elemente.":"{0} is ready for its second evolution! Choose a second element once – after that it will have two elements.","🎲 Gestalt per Zufall: {0}":"🎲 Random form: {0}","✨ {0} hat sich zu {1} entwickelt! Gestalt: {2} · Elemente: {3} · Passiv: {4} · Neue Attacke: {5}":"✨ {0} evolved into {1}! Form: {2} · Elements: {3} · Passive: {4} · New move: {5}","✨ {0} kann sich jetzt ein zweites Mal entwickeln – du darfst gleich ein zweites Element wählen!":"✨ {0} can now evolve a second time – you will choose a second element in a moment!","🐉 Drache und 🔮 Psycho sind nicht wählbar. Ab Lv.25 folgt eine zweite Entwicklung mit einem zweiten Element.":"🐉 Dragon and 🔮 Psychic cannot be chosen. At Lv.25 a second evolution with a second element follows.","🥚 Ei-Monster · Endform":"🥚 Egg monster · final form","🥚 Endform von {0} · bekommt ein zweites, frei wählbares Element":"🥚 Final form of {0} · gains a second element of your choice","Entwicklung von {0} · ab Lv.25 zweite Entwicklung mit zweitem Element":"Evolution of {0} · second evolution with a second element from Lv.25","Drachenkönig":"Dragon King","Erzsegen":"Arch Blessing","verursacht 30 % mehr Schaden und erleidet 10 % weniger Schaden":"deals 30% more damage and takes 10% less damage","ist immun gegen Statuseffekte und heilt am Ende jeder Runde 1/10 seiner max. KP":"is immune to status effects and heals 1/10 of its max HP at the end of every round","⚠️ Neues Spiel starten?":"⚠️ Start a new game?","Es ist bereits ein Spielstand vorhanden:":"A saved game already exists:","Dein bisheriger Spielstand wird dabei überschrieben.":"Your current save will be overwritten.","◀ Nein, zurück":"◀ No, go back","⚠️ Wirklich? Nochmal tippen zum Bestätigen":"⚠️ Really? Tap again to confirm",
 "⌨️ WASD/Pfeile laufen · Leertaste/Enter = A · Esc = B/zurück · M = Menü · F = Angeln · A vor Wasser = Surfen (ab 5. Orden) · 1–6 = Auswahl im Kampf · 🖱️ Maus gedrückt halten = laufen · H = Hilfe aus/an":"⌨️ WASD/arrows walk · Space/Enter = A · Esc = B/back · M = menu · F = fishing · A facing water = surf (from 5th medal) · 1–6 = battle choice · 🖱️ hold mouse = walk · H = help on/off",
-"Bitte drehe dein Smartphone ins Querformat.":"Please rotate your phone to landscape.","💾 Speichern":"💾 Save","🏠 Titelbildschirm":"🏠 Title screen","☰ START":"☰ START","⚔️ Monsterwelt":"⚔️ Monsterwelt","Trainer":"Trainer","Dex":"Dex","Inventar":"Inventory","Quests":"Quests","Karte":"Map","Typen":"Types","Mehrspieler":"Multiplayer","Quests":"Quests",
-"MARKT":"MARKET","ARENA":"GYM","Monsterwelt – Prototyp":"Monsterwelt","Bereits gefangen":"Already caught","bereits gefangen":"already caught","Keine Einträge":"No entries",
+"Bitte drehe dein Smartphone ins Querformat.":"Please rotate your phone to landscape.","💾 Speichern":"💾 Save","🏠 Titelbildschirm":"🏠 Title screen","☰ START":"☰ START","⚔️ Monsterworld":"⚔️ Monsterworld","Trainer":"Trainer","Dex":"Dex","Inventar":"Inventory","Quests":"Quests","Karte":"Map","Typen":"Types","Mehrspieler":"Multiplayer","Quests":"Quests",
+"MARKT":"MARKET","ARENA":"GYM","Monsterworld – Prototyp":"Monsterworld","Bereits gefangen":"Already caught","bereits gefangen":"already caught","Keine Einträge":"No entries",
 "Wanderin Selin":"Hiker Selin","Jäger Timo":"Hunter Timo","Späher Boris":"Scout Boris","Trainer Jonas schickt {0} ins Feld!":"Trainer Jonas sends out {0}!","Du bist hier":"You are here","Kampf":"Battle","Gewählt":"Chosen","🌐 Sprache / Language":"🌐 Sprache / Language","Deutsch":"Deutsch","English":"English"
 };
 // Einzelwörter (Typen, Titel, Gegenstände …) – ersetzt als ganze Wörter in übrigen Texten
@@ -698,7 +714,7 @@ const I18N_TERMS={
 "Blattmedaille":"Leaf Medal","Hafenmedaille":"Harbor Medal","Nebelmedaille":"Mist Medal","Felsmedaille":"Rock Medal","Sturmmedaille":"Storm Medal","Donnermedaille":"Thunder Medal","Glutmedaille":"Ember Medal","Sternenmedaille":"Star Medal",
 "Arenaleiterin":"Gym Leader","Arenaleiter":"Gym Leader","Taucher":"Diver","Pilzsammlerin":"Mushroom Picker","Käferjäger":"Bug Hunter","Waldläuferin":"Ranger","Wüstenläufer":"Desert Runner","Nebelgänger":"Mist Walker","Moorhexe":"Bog Witch","Bergsteiger":"Climber","Kristallsucherin":"Crystal Seeker","Seglerin":"Sailor","Windreiter":"Wind Rider","Elektriker":"Electrician","Sturmjägerin":"Storm Chaser","Feuertänzer":"Fire Dancer","Drachenhüterin":"Dragon Keeper","Sternenseher":"Stargazer","Drachenmeister":"Dragon Master",
 "Gilden-Jäger":"Guild Hunter","Gilden-Jägerin":"Guild Hunter","Gildenhauptmann":"Guild Captain","Gilden-Elite":"Guild Elite","Gildenmeisterin":"Guild Master","Jäger":"Hunter","Wanderin":"Hiker","Späher":"Scout","Schwester":"Nurse","Nachbar":"Neighbor","Professorin":"Professor","Dorfältester":"Village Elder","Mutter":"Mother",
-"Waldsegen":"Forest Blessing","Gezeitenschild":"Tide Shield","Zeitverzerrung":"Time Warp","Drachenmut":"Dragon Courage","Drachenherz":"Dragon Heart","Schutzengel":"Guardian Angel",
+"Waldsegen":"Forest Blessing","Gezeitenschild":"Tide Shield","Zeitverzerrung":"Time Warp","Drachenmut":"Dragon Courage","Drachenherz":"Dragon Heart","Schutzengel":"Guardian Angel","Superkapsel":"Super Capsule","Drachenkönig":"Dragon King","Erzsegen":"Arch Blessing",
 "Grundform":"Base form","Einzelform":"Single form","Lager":"Box","Schritte":"steps","Medaillen":"medals","Medaille":"medal","Arena":"Gym","Kreatur":"creature","Kreaturen":"creatures"
 };
 // Attacken: Name und Beschreibung
@@ -915,6 +931,27 @@ SPECIES.babyengel={name:"Babyengel",type:"Psycho",rarity:3,special:true,slowExp:
   B.evoChoice[el]=sid;
  });
 });
+// ---- Zweite Ei-Entwicklung ab Lv.25: zweites Element frei wählbar + Zufallsgestalt (50 % / 25 % / 25 %) ----
+const EGG_DUAL_LEVEL=25,EGG_BLOCKED_FIRST=["Drache","Psycho"];
+const EGG_PREFIX={babydrache:{Feuer:"Glut",Wasser:"Flut",Natur:"Wald",Erde:"Fels",Blitz:"Donner",Psycho:"Astral",Drache:"Königs",Wind:"Sturm"},babyengel:{Feuer:"Glut",Wasser:"Flut",Natur:"Blüten",Erde:"Stein",Blitz:"Donner",Psycho:"Traum",Drache:"Drachen",Wind:"Sturm"}};
+const EGG_VARIANTS={
+ babydrache:[{n:"drakon",label:"Drakon",p:0.5,bias:{}},{n:"lindwurm",label:"Lindwurm",p:0.25,bias:{hp:8,def:6}},{n:"wyvern",label:"Wyvern",p:0.25,bias:{atk:6,spd:6}}],
+ babyengel:[{n:"seraph",label:"Seraph",p:0.5,bias:{}},{n:"cherub",label:"Cherub",p:0.25,bias:{spec:6,spd:6}},{n:"erzengel",label:"Erzengel",p:0.25,bias:{atk:6,def:6}}]
+};
+["babydrache","babyengel"].forEach(bid=>{
+ TYPE_CYCLE.forEach(el=>{
+  const mid=SPECIES[bid].evoChoice[el],M=SPECIES[mid];
+  if(EGG_BLOCKED_FIRST.includes(el))M.eggHidden=true; // ältere Spielstände behalten sie, neu wählbar sind sie nicht mehr
+  M.evoLevel=EGG_DUAL_LEVEL;M.evoDual=[];
+  EGG_VARIANTS[bid].forEach((v,vi)=>{
+   const sid=mid+"_"+v.n,b={};
+   Object.keys(M.base).forEach(k=>b[k]=Math.round(M.base[k]*1.22)+(v.bias[k]||0));
+   SPECIES[sid]={name:EGG_PREFIX[bid][el]+v.n,type:el,rarity:3,special:true,slowExp:true,base:b,moves:M.moves.slice(),evolvedFrom:mid,eggFinal:bid,variant:vi,eggHidden:true};
+   M.evoDual.push(sid);
+  });
+ });
+});
+function rollEggVariant(bid){const r=Math.random();let acc=0;const V=EGG_VARIANTS[bid];for(let i=0;i<V.length;i++){acc+=V[i].p;if(r<acc)return i}return V.length-1}
 // Entwicklungsstufe jeder Art (1 = Grundform … 4 = vierte Entwicklung)
 Object.keys(SPECIES).forEach(sid=>{let st=1,cur=SPECIES[sid];while(cur.evolvedFrom){st++;cur=SPECIES[cur.evolvedFrom]}SPECIES[sid].stage=st});
 function evoLevelOf(sid){return SPECIES[sid].evoLevel||EVO_LEVEL}
@@ -939,7 +976,7 @@ function pickFromPool(pool){
 }
 // Reihenfolge für den Dex: jede Grundform direkt gefolgt von ihrer Entwicklung
 const DEX_ORDER=[];
-Object.keys(SPECIES).forEach(sid=>{if(SPECIES[sid].evolvedFrom)return;let cur=sid;while(cur){DEX_ORDER.push(cur);cur=SPECIES[cur].evo}if(SPECIES[sid].evoChoice)Object.values(SPECIES[sid].evoChoice).forEach(x=>DEX_ORDER.push(x))});
+Object.keys(SPECIES).forEach(sid=>{if(SPECIES[sid].evolvedFrom)return;let cur=sid;while(cur){DEX_ORDER.push(cur);cur=SPECIES[cur].evo}if(SPECIES[sid].evoChoice)Object.values(SPECIES[sid].evoChoice).forEach(x=>{DEX_ORDER.push(x);(SPECIES[x].evoDual||[]).forEach(y=>DEX_ORDER.push(y))})});
 const TYPE_MOVE_PROGRESSION={
  Feuer:{7:"feuerbiss",9:"aschewolke",10:"feuersturm",12:"magmastoss",18:"infernorage",22:"vulkanausbruch",25:"phoenixflamme",30:"sonnenglut"},
  Wasser:{7:"blubberstrahl",9:"gischtschlag",10:"flutwelle",12:"strudelsog",18:"tsunamiwelle",22:"tiefseedruck",25:"perlenkaskade",30:"ozeanzorn"},
@@ -968,12 +1005,16 @@ Object.keys(SPECIES).forEach(sid=>{
  Object.keys(st).forEach(l=>{(table[l]=table[l]||[]).push(st[l])});
  LEARN[sid]=table;
 });
+// Ei-Babys haben den neutralen Typ „Normal“ – ihr Element wählst du erst mit Lv.15
+SPECIES.babydrache.type="Normal";SPECIES.babyengel.type="Normal";
 // Einzigartige Attacke mit Level 15
 (LEARN.babydrache[15]=LEARN.babydrache[15]||[]).push("urgewalt");
 (LEARN.babyengel[15]=LEARN.babyengel[15]||[]).push("himmelslicht");
 // Element-Entwicklungen behalten die Lernliste der Babyform
+Object.keys(SPECIES).forEach(sid=>{const S=SPECIES[sid];if(!S.eggFinal)return;const T=LEARN[sid];Object.keys(LEARN[S.evolvedFrom]||{}).forEach(l=>{T[l]=Array.from(new Set((T[l]||[]).concat(LEARN[S.evolvedFrom][l])))})});
 Object.keys(SPECIES).forEach(bid=>{const B=SPECIES[bid];if(!B.evoChoice)return;Object.values(B.evoChoice).forEach(sid=>{const T=LEARN[sid];Object.keys(LEARN[bid]).forEach(l=>{T[l]=Array.from(new Set((T[l]||[]).concat(LEARN[bid][l])))})})});
-const TYPECOLORS={Feuer:"#e8562c",Wasser:"#2c8ee8",Natur:"#4a9c4a",Wind:"#8fdfe6",Erde:"#a67b3d",Blitz:"#f2c81f",Psycho:"#c45ad6",Drache:"#5b4fc9"};
+Object.keys(SPECIES).forEach(sid=>{const S=SPECIES[sid];if(!S.eggFinal)return;const T=LEARN[sid];Object.keys(LEARN[S.evolvedFrom]||{}).forEach(l=>{T[l]=Array.from(new Set((T[l]||[]).concat(LEARN[S.evolvedFrom][l])))})});
+const TYPECOLORS={Feuer:"#e8562c",Wasser:"#2c8ee8",Natur:"#4a9c4a",Wind:"#8fdfe6",Erde:"#a67b3d",Blitz:"#f2c81f",Psycho:"#c45ad6",Drache:"#5b4fc9",Normal:"#9a948a"};
 // ---------- MONSTER-GRAFIK: Baupläne je Tierart ----------
 // Jede Art = Bauplan (Vierbeiner, Vogel, Frosch, Fisch, Qualle, Echse, Feuerwesen, Kämpfer, Golem, Krabbe, Käfer, Seeschlange)
 // + eigene Farben und Merkmale. Entwicklungen haben „big:true“ und zusätzliche Details.
@@ -1270,7 +1311,7 @@ function svLizard(D,G,ol){
  if(D.tailSpikes)s+=`<path d="M70,74 L74,66 L76,75 Z M80,72 L86,64 L85,73 Z" fill="${c3}" stroke="${ol}" stroke-width="1"/>`;
  // Flügel (Drachen)
  if(D.wings){
-  const k=D.wings==="big"?1.45:1;
+  const k=D.wings==="huge"?1.72:D.wings==="big"?1.45:1;
   const w=`<g transform="translate(36 52) scale(${k}) translate(-36 -52)"><path d="M36,52 C22,32 10,32 5,42 C11,42 14,46 14,52 C18,48 23,50 25,56 C28,53 32,54 33,58 Z" fill="${c3}" stroke="${ol}" stroke-width="1.5"/><path d="M36,52 L14,52 M36,52 L25,56 M36,52 L8,40" stroke="${shade(c3,-60)}" stroke-width="1.2"/></g>`;
   s+=w+`<g ${MIRROR}>${w}</g>`;
  }
@@ -1301,6 +1342,8 @@ function svLizard(D,G,ol){
  s+=`<circle cx="36" cy="44" r="1.3" fill="${c3}"/><circle cx="64" cy="44" r="1.3" fill="${c3}"/><circle cx="38" cy="48" r="1" fill="${c3}"/><circle cx="62" cy="48" r="1" fill="${c3}"/>`;
  s+=svEyes(42,58,36.5,4.6,D.iris||"#ffcc33",ol,true,true);
  if(D.smoke)s+=`<circle cx="70" cy="22" r="4" fill="#bbb" opacity=".6"/><circle cx="77" cy="15" r="5.5" fill="#ccc" opacity=".5"/>`;
+ if(D.frills){const f=`<path d="M35,34 L14,22 L22,34 L8,38 L23,43 L14,52 L34,46 Z" fill="${c3}" stroke="${ol}" stroke-width="1.3"/><path d="M33,38 L16,28 M32,42 L14,40" stroke="${shade(c3,-60)}" stroke-width="1"/>`;s+=f+`<g ${MIRROR}>${f}</g>`}
+ if(D.crown)s+=`<path d="M38,28 L36,13 L43,20 L50,8 L57,20 L64,13 L62,28 Z" fill="#ffd84a" stroke="#8a5a10" stroke-width="1.3"/><circle cx="50" cy="20" r="2.4" fill="#e8452c"/><circle cx="42" cy="24" r="1.6" fill="#3fa0e0"/><circle cx="58" cy="24" r="1.6" fill="#3fa0e0"/>`;
  return s;
 }
 
@@ -1420,6 +1463,7 @@ function svSerpent(D,G,ol){
  s+=`<path d="${path}" stroke="${c2}" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="3 3" transform="translate(0 3)"/>`;
  s+=`<path d="M30,62 L36,52 L40,63 Z M64,76 L72,68 L72,79 Z M86,58 L94,54 L88,64 Z" fill="${c3}" stroke="${ol}" stroke-width="1.2"/>`;
  if(big)s+=`<path d="M12,76 q6,-6 12,0 t12,0" stroke="#bfe9ff" stroke-width="2" fill="none"/>`;
+ if(D.finWings){const w=`<path d="M52,44 C40,26 24,24 16,30 C25,33 27,39 33,42 C28,46 32,52 42,50 Z" fill="${c3}" stroke="${ol}" stroke-width="1.3"/><path d="M50,44 L22,30 M48,46 L32,43" stroke="${shade(c3,-60)}" stroke-width="1"/>`;s+=w+`<g transform="translate(116 0) scale(-1 1)">${w}</g>`}
  // Kopf
  s+=`<path d="M44,24 L34,12 L46,18 Z M70,24 L80,12 L68,18 Z" fill="${c3}" stroke="${ol}" stroke-width="1.3"/>`;
  if(big)s+=`<path d="M48,18 C44,8 46,2 50,0 M66,18 C70,8 68,2 64,0" stroke="#f2e6b0" stroke-width="3" fill="none" stroke-linecap="round"/>`;
@@ -1544,12 +1588,28 @@ TYPE_CYCLE.forEach(el=>{const [a,b,c,i]=ELEM_PAL[el];
  DESIGN["drache_"+el.toLowerCase()]={t:"lizard",c1:a,c2:b,c3:c,wings:"big",horns:"big",tailSpikes:true,tailFlame:el==="Feuer",cracks:el==="Erde",smoke:el==="Feuer",iris:i,big:true};
  DESIGN["engel_"+el.toLowerCase()]={t:"angel",c1:shade(a,70),c2:b,c3:c,accent:a,iris:i,elem:el,big:true};
 });
+// Ei-Monster: Babys als frisch geschlüpfte Kinder-Drachen, Entwicklungen als legendäre Wesen
+DESIGN.babydrache={t:"hatch",c1:"#8a74f0",c2:"#fff0c8",c3:"#c8b8ff",iris:"#ffcc33",shell:"#fbf3df",spot:"#b8a8ff"};
+DESIGN.babyengel={t:"hatch",angel:true,c1:"#ffd98a",c2:"#fffaf0",c3:"#ffe680",iris:"#4a7ad8",shell:"#e6f0ff",spot:"#b8d4ff"};
+TYPE_CYCLE.forEach(el=>{const k=el.toLowerCase(),[a,b,c,i]=ELEM_PAL[el];
+ const d={t:"legend",c1:a,c2:b,c3:c,iris:i,elem:el,glow:c,auraStage:3};
+ const g={t:"celestial",c1:shade(a,78),c2:"#ffffff",c3:c,accent:a,hair:shade(a,10),iris:i,elem:el,glow:c,auraStage:3};
+ DESIGN["drache_"+k]=d;DESIGN["engel_"+k]=g;
+ DESIGN["drache_"+k+"_drakon"]=Object.assign({},d,{t3:true,frills:true,auraStage:4});
+ DESIGN["drache_"+k+"_lindwurm"]={t:"serpent",c1:a,c2:b,c3:c,big:true,finWings:true,auraStage:4};
+ DESIGN["drache_"+k+"_wyvern"]=Object.assign({},d,{t3:true,wings:"huge",noArms:true,crown:true,auraStage:4});
+ DESIGN["engel_"+k+"_seraph"]=Object.assign({},g,{t3:true,wings6:true,auraStage:4});
+ DESIGN["engel_"+k+"_cherub"]=Object.assign({},g,{t3:true,stars:true,auraStage:4});
+ DESIGN["engel_"+k+"_erzengel"]=Object.assign({},g,{t3:true,armor:true,doubleHalo:true,auraStage:4});
+});
 // ---------- Bauplan: Engel ----------
 function svAngel(D,G,ol){
  const {c1,c2,c3,big}=D;let s="";const acc=D.accent||c3;
  const wing=`<g transform="translate(34 54) scale(${big?1.3:1}) translate(-34 -54)"><path d="M36,52 C24,36 10,30 4,36 C10,40 8,46 14,48 C8,52 10,58 18,58 C14,64 22,68 30,62 Z" fill="${c2}" stroke="${shade(c3,-60)}" stroke-width="1.4"/><path d="M30,50 C22,44 14,40 8,40 M28,56 C20,54 16,54 12,52" stroke="${shade(c2,-40)}" stroke-width="1" fill="none"/>${big?`<path d="M4,36 C10,40 8,46 14,48 C9,45 6,41 4,36 Z" fill="${acc}" opacity=".8"/><path d="M14,48 C8,52 10,58 18,58 C12,56 11,52 14,48 Z" fill="${acc}" opacity=".6"/>`:""}</g>`;
+ if(D.wings6){const w2=`<g transform="translate(-2 -26) scale(1.04)">${wing}</g>`,w3=`<g transform="translate(10 30) scale(.7)">${wing}</g>`;s+=w2+`<g ${MIRROR}>${w2}</g>`+w3+`<g ${MIRROR}>${w3}</g>`}
  s+=wing+`<g ${MIRROR}>${wing}</g>`;
  const hy=big?12:16,hr=big?14:11;
+ if(D.doubleHalo)s+=`<ellipse cx="50" cy="${hy-4}" rx="${hr+7}" ry="5.5" fill="none" stroke="#ffd84a" stroke-width="2" opacity=".75"/>`;
  s+=`<ellipse cx="50" cy="${hy}" rx="${hr}" ry="4" fill="none" stroke="#e8b830" stroke-width="3.2"/><ellipse cx="50" cy="${hy}" rx="${hr}" ry="4" fill="none" stroke="#fff8c0" stroke-width="1.1"/>`;
  s+=`<path d="M50,44 C34,46 30,70 28,86 Q34,90 40,86 Q45,91 50,86 Q55,91 60,86 Q66,90 72,86 C70,70 66,46 50,44 Z" fill="url(#${G}a)" stroke="${ol}" stroke-width="1.8"/>`;
  s+=`<path d="M40,58 Q50,64 60,58" stroke="${acc}" stroke-width="2.6" fill="none"/>`;
@@ -1558,9 +1618,11 @@ function svAngel(D,G,ol){
  s+=`<circle cx="50" cy="36" r="${big?15:16}" fill="#fff1e2" stroke="${ol}" stroke-width="1.6"/>`;
  const hc=big?acc:c3;
  s+=[[40,24,6],[47,21,6.5],[54,21,6.5],[61,25,6],[37,31,4.5],[63,31,4.5]].map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${hc}" stroke="${shade(hc,-60)}" stroke-width="1"/>`).join("");
+ if(D.armor)s+=`<path d="M40,50 Q50,45 60,50 L58,66 Q50,71 42,66 Z" fill="#e6e8f2" stroke="${ol}" stroke-width="1.3"/><path d="M42,53 Q50,49 58,53" stroke="#e8b830" stroke-width="2" fill="none"/><path d="M50,54 v12" stroke="#e8b830" stroke-width="1.6"/><path d="M82,92 L82,24" stroke="#8a5a10" stroke-width="2.6"/><path d="M82,12 L86,26 L82,23 L78,26 Z" fill="#dfe6f0" stroke="${ol}" stroke-width="1"/>`;
  s+=svEyes(44,56,38,4.2,D.iris||"#6a8ad8",ol,false,false);
  s+=`<ellipse cx="40" cy="44" rx="3" ry="1.6" fill="#ff9a9a" opacity=".5"/><ellipse cx="60" cy="44" rx="3" ry="1.6" fill="#ff9a9a" opacity=".5"/>`;
  s+=`<path d="M46.5,45.5 Q50,48.5 53.5,45.5" stroke="${ol}" stroke-width="1.4" fill="none" stroke-linecap="round"/>`;
+ if(D.stars)s+=`<ellipse cx="50" cy="64" rx="44" ry="11" transform="rotate(-12 50 64)" fill="none" stroke="${c3}" stroke-width="3" opacity=".9"/><ellipse cx="50" cy="64" rx="44" ry="11" transform="rotate(-12 50 64)" fill="none" stroke="#fff" stroke-width="1" opacity=".8"/>`+svStar(8,74,6,"#fff4a0")+svStar(92,52,6,"#fff4a0")+svStar(50,-2,5,"#ffe066")+svStar(20,18,4,"#fff8c0")+svStar(80,16,4,"#fff8c0");
  if(big&&D.elem){
   const e=D.elem;
   if(e==="Feuer")s+=svFlame(18,84,12,18,-10)+svFlame(82,84,12,18,10);
@@ -1583,7 +1645,194 @@ function svAura(G,D,stage){
  if(stage>=4)s+=`<ellipse cx="50" cy="90" rx="34" ry="7" fill="none" stroke="#ffd84a" stroke-width="1.5" opacity=".7"/>`+svStar(10,40,3.5,"#fff4b0")+svStar(90,34,3,"#fff4b0")+svStar(14,78,2.5,"#fff4b0")+svStar(88,72,2.8,"#fff4b0");
  return s;
 }
-const SV_TEMPLATES={quad:svQuad,bird:svBird,frog:svFrog,fish:svFish,jelly:svJelly,lizard:svLizard,spirit:svSpirit,warrior:svWarrior,golem:svGolem,crab:svCrab,beetle:svBeetle,serpent:svSerpent,angel:svAngel};
+// ---------- Bauplan: Ei-Babys (frisch geschlüpfte Kinder-Drachen in der Eierschale) ----------
+function svHatchling(D,G,ol){
+ const {c1,c2,c3}=D,ang=!!D.angel;let s="";
+ const fillA=`fill="url(#${G}a)" stroke="${ol}" stroke-width="1.6"`;
+ const shell=D.shell||"#fbf3df",sOl=shade(shell,-120);
+ // Glitzern
+ s+=svStar(14,30,3.4,ang?"#ffe680":"#e8dcff")+svStar(88,24,2.8,ang?"#fff4b0":"#d8ccff")+svStar(84,62,2.2,"#ffffff");
+ // Hintere Eierschalenhälfte
+ s+=`<path d="M22,70 C22,90 34,96 50,96 C66,96 78,90 78,70 Z" fill="${shade(shell,-28)}" stroke="${sOl}" stroke-width="1.4"/>`;
+ // Schwanz (ringelt sich über den Schalenrand)
+ s+=`<path d="M62,74 C76,74 84,66 80,58 C78,54 73,55 74,59" stroke="${ol}" stroke-width="6.4" fill="none" stroke-linecap="round"/><path d="M62,74 C76,74 84,66 80,58 C78,54 73,55 74,59" stroke="${c1}" stroke-width="4.4" fill="none" stroke-linecap="round"/>`;
+ s+=ang?`<path d="M74,59 l-4,-4 l6,-1 Z" fill="${c3}" stroke="${ol}" stroke-width=".8"/>`:`<path d="M73,60 l-2,-6 l5,3 Z" fill="${c3}" stroke="${ol}" stroke-width=".8"/>`;
+ // Kleine Flügel
+ if(ang){
+  const w=`<path d="M36,56 C28,46 18,44 12,48 C16,50 15,53 18,55 C14,57 16,61 21,61 C19,64 23,67 28,65 C31,63 34,61 36,60 Z" fill="#ffffff" stroke="${shade(c3,-70)}" stroke-width="1.2"/><path d="M34,57 L18,50 M33,59 L20,57 M33,61 L26,63" stroke="${shade(c3,-30)}" stroke-width=".9"/>`;
+  s+=w+`<g ${MIRROR}>${w}</g>`;
+ }else{
+  const w=`<path d="M37,56 C30,46 21,42 15,45 C18,48 17,51 19,53 C16,55 18,59 22,58 C22,62 27,63 30,61 L36,60 Z" fill="${c3}" stroke="${ol}" stroke-width="1.3"/><path d="M36,57 L15,45 M34,59 L19,53 M33,60 L25,60" stroke="${shade(c3,-55)}" stroke-width=".9"/>`;
+  s+=w+`<g ${MIRROR}>${w}</g>`;
+ }
+ // Körper (rund, klein)
+ s+=`<ellipse cx="50" cy="66" rx="17" ry="16" ${fillA}/>`;
+ s+=`<ellipse cx="50" cy="70" rx="10" ry="11" fill="${c2}"/>`;
+ for(let i=0;i<3;i++)s+=`<path d="M${43+i},${64+i*5} Q50,${66+i*5} ${57-i},${64+i*5}" stroke="${shade(c2,-45)}" stroke-width=".9" fill="none"/>`;
+ // Vordere Eierschalenhälfte mit Zackenrand und Flecken
+ s+=`<path d="M20,72 L27,66 L32,73 L38,67 L44,74 L50,68 L56,74 L62,67 L68,73 L73,66 L80,72 C80,90 67,97 50,97 C33,97 20,90 20,72 Z" fill="${shell}" stroke="${sOl}" stroke-width="1.5" stroke-linejoin="round"/>`;
+ s+=`<ellipse cx="31" cy="84" rx="4" ry="3" fill="${D.spot||c3}" opacity=".85"/><ellipse cx="62" cy="88" rx="5" ry="3.4" fill="${D.spot||c3}" opacity=".85"/><ellipse cx="47" cy="81" rx="2.6" ry="2" fill="${D.spot||c3}" opacity=".85"/>`;
+ s+=`<path d="M26,78 Q30,90 44,94" stroke="#ffffff" stroke-width="2" fill="none" opacity=".6"/>`;
+ if(ang)s+=`<path d="M38,82 l3,5 l-2,4 M60,79 l-3,5 l3,4" stroke="#e8b830" stroke-width="1.3" fill="none"/>`;
+ // Ärmchen auf dem Schalenrand
+ [[37,70],[63,70]].forEach(([x,y])=>{s+=`<ellipse cx="${x}" cy="${y}" rx="4.2" ry="3.2" fill="${c1}" stroke="${ol}" stroke-width="1.2"/><path d="M${x-2},${y+2.2} v1.6 M${x},${y+2.6} v1.6 M${x+2},${y+2.2} v1.6" stroke="#fff" stroke-width="1" stroke-linecap="round"/>`});
+ // Kopf (kleiner als früher)
+ if(!ang)s+=`<path d="M40,30 L37,21 L44,27 Z M60,30 L63,21 L56,27 Z" fill="#f4eac0" stroke="${ol}" stroke-width="1"/>`;
+ s+=`<path d="M44,28 L46,23 L49,27 L51,22 L54,27 L56,24 L57,29 Z" fill="${c3}" stroke="${ol}" stroke-width=".9"/>`;
+ s+=`<ellipse cx="50" cy="40" rx="14.5" ry="12.5" ${fillA}/>`;
+ s+=`<ellipse cx="50" cy="46" rx="8" ry="5.2" fill="${shade(c1,28)}" stroke="${ol}" stroke-width=".9"/>`;
+ s+=`<circle cx="47.6" cy="45" r=".8" fill="${ol}"/><circle cx="52.4" cy="45" r=".8" fill="${ol}"/>`;
+ s+=`<path d="M47,48.5 Q50,50.5 53,48.5" stroke="${ol}" stroke-width="1.1" fill="none" stroke-linecap="round"/>`;
+ s+=svEyes(44.2,55.8,38.2,4.2,D.iris||"#ffcc33",ol,false,false);
+ s+=`<ellipse cx="40.5" cy="44" rx="2.4" ry="1.4" fill="#ff8aa8" opacity=".55"/><ellipse cx="59.5" cy="44" rx="2.4" ry="1.4" fill="#ff8aa8" opacity=".55"/>`;
+ // Kopfschmuck: Babydrache trägt ein Stück Eierschale, Babyengel einen kleinen Heiligenschein
+ if(ang)s+=`<ellipse cx="50" cy="22" rx="10" ry="2.8" fill="none" stroke="#e8b830" stroke-width="2.6"/><ellipse cx="50" cy="22" rx="10" ry="2.8" fill="none" stroke="#fff8c0" stroke-width=".9"/>`;
+ else s+=`<path d="M40,31 L44,26 L47,30 L51,25 L55,30 L59,27 L61,31 C57,24 43,24 40,31 Z" fill="${shell}" stroke="${sOl}" stroke-width="1.1" transform="rotate(-14 50 28)"/><ellipse cx="46" cy="27" rx="1.6" ry="1.1" fill="${D.spot||c3}" transform="rotate(-14 50 28)"/>`;
+ return s;
+}
+
+// Element-Effekte rund um legendäre Ei-Entwicklungen
+function svElemFx(e,c){
+ if(e==="Feuer")return svFlame(14,86,10,16,-12)+svFlame(88,84,9,14,12);
+ if(e==="Blitz")return svSparks("#ffe066");
+ if(e==="Psycho")return svOrbs(c);
+ if(e==="Natur")return svLeaf(10,80,12,-150,c)+svLeaf(90,76,12,-30,c);
+ if(e==="Wasser")return `<path d="M6,84 q5,-6 10,0 t10,0 M74,86 q5,-6 10,0 t10,0" stroke="#bfe9ff" stroke-width="2.2" fill="none" stroke-linecap="round"/>`;
+ if(e==="Erde")return `<path d="M8,90 l5,-9 l5,9 Z M82,90 l5,-9 l5,9 Z" fill="${c}" stroke="#3a2a1a" stroke-width="1"/>`;
+ if(e==="Wind")return `<path d="M4,62 q6,-6 12,0 t12,0 M74,70 q6,-6 12,0 t12,0" stroke="${c}" stroke-width="2" fill="none" opacity=".85"/>`;
+ return svStar(12,70,4,"#fff8c0")+svStar(88,66,3.5,"#fff8c0");
+}
+// Schwanzspitze je Element
+function svElemTip(e,x,y,c,ol){
+ if(e==="Feuer")return svFlame(x,y+2,12,20,0);
+ if(e==="Natur")return svLeaf(x,y,14,-80,c);
+ if(e==="Blitz")return svBolt(x,y-10,.6,"#ffe066",0);
+ if(e==="Wasser")return `<path d="M${x},${y-12} C${x+6},${y-4} ${x+6},${y+3} ${x},${y+4} C${x-6},${y+3} ${x-6},${y-4} ${x},${y-12} Z" fill="#9fe0ff" stroke="${ol}" stroke-width="1"/>`;
+ if(e==="Erde")return `<path d="M${x},${y-11} L${x+6},${y-2} L${x},${y+4} L${x-6},${y-2} Z" fill="${c}" stroke="${ol}" stroke-width="1"/>`;
+ if(e==="Wind")return `<path d="M${x-6},${y-4} q6,-10 12,0 q-6,6 -10,0" stroke="${c}" stroke-width="2.2" fill="none"/>`;
+ return `<circle cx="${x}" cy="${y-3}" r="5" fill="${c}" stroke="${ol}" stroke-width="1"/><circle cx="${x-1.5}" cy="${y-4.5}" r="1.6" fill="#fff"/>`;
+}
+
+// ---------- Bauplan: legendäre Ei-Entwicklungen (majestätischer Drache / Himmelsdrache) ----------
+function svLegend(D,G,ol){
+ const {c1,c2,c3}=D,ang=!!D.angel,t3=!!D.t3,acc=D.accent||c3,glow=D.glow||c3;let s="";
+ const fillA=`fill="url(#${G}a)" stroke="${ol}" stroke-width="1.6"`;
+ // Runenring hinter dem Wesen
+ s+=`<circle cx="50" cy="42" r="${t3?41:36}" fill="none" stroke="${glow}" stroke-width="${t3?2:1.5}" stroke-dasharray="${t3?"3 3":"1.5 4.5"}" opacity=".8"/>`;
+ if(t3)s+=`<circle cx="50" cy="42" r="46" fill="none" stroke="${glow}" stroke-width="1" opacity=".4"/>`+[0,60,120,180,240,300].map(a=>{const r=41,x=50+r*Math.cos(a*Math.PI/180),y=42+r*Math.sin(a*Math.PI/180);return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2" fill="${glow}"/>`}).join("");
+ // Sternenring (Cherub)
+ if(D.stars)s+=`<ellipse cx="50" cy="60" rx="46" ry="11" transform="rotate(-12 50 60)" fill="none" stroke="${acc}" stroke-width="2.6" opacity=".9"/>`;
+ // Schwanz
+ const tp="M60,78 C80,88 98,80 94,62 C91,50 82,47 79,54";
+ s+=`<path d="${tp}" stroke="${ol}" stroke-width="9" fill="none" stroke-linecap="round"/><path d="${tp}" stroke="${c1}" stroke-width="6.6" fill="none" stroke-linecap="round"/>`;
+ s+=`<path d="M80,84 l3,-6 l2,6 M90,76 l5,-4 l-1,6 M94,64 l5,-2 l-3,5" fill="${c3}" stroke="${ol}" stroke-width="1"/>`;
+ s+=svElemTip(D.elem,79,52,c3,ol);
+ // Flügel
+ const k=D.wings==="huge"?1.26:t3?1.12:1;
+ let wing;
+ if(ang)wing=`<path d="M42,48 C32,26 18,12 4,10 C8,16 6,20 10,24 C4,26 4,32 10,34 C4,38 6,44 12,46 C8,50 12,56 18,56 C18,60 24,62 28,60 C33,58 38,54 42,52 Z" fill="${c2}" stroke="${shade(acc,-60)}" stroke-width="1.3"/><path d="M40,50 L10,24 M38,52 L10,34 M36,54 L12,46 M34,56 L18,56" stroke="${acc}" stroke-width="1.2" fill="none" opacity=".85"/><path d="M4,10 C8,16 6,20 10,24 C6,20 4,15 4,10 Z" fill="${acc}"/>`;
+ else wing=`<path d="M42,48 C32,30 18,12 3,8 C9,16 7,22 11,27 C5,29 5,35 9,39 C5,43 7,49 13,51 C11,55 15,59 21,57 C26,58 33,57 40,56 Z" fill="${c3}" stroke="${ol}" stroke-width="1.4"/><path d="M42,48 L3,8 M40,51 L11,27 M39,53 L9,39 M38,55 L13,51" stroke="${shade(c3,-55)}" stroke-width="1.1" fill="none"/>`;
+ const wg=`<g transform="translate(42 48) scale(${k}) translate(-42 -48)">${wing}</g>`;
+ if(D.wings6){const w2=`<g transform="translate(4 -16) scale(.8)">${wing}</g>`,w3=`<g transform="translate(14 30) scale(.62)">${wing}</g>`;s+=w2+`<g ${MIRROR}>${w2}</g>`+w3+`<g ${MIRROR}>${w3}</g>`}
+ s+=wg+`<g ${MIRROR}>${wg}</g>`;
+ // Hinterbeine mit Krallen
+ [[36,-1],[64,1]].forEach(([x,sd])=>{
+  s+=`<ellipse cx="${x}" cy="76" rx="9.5" ry="11" transform="rotate(${sd*-12} ${x} 76)" ${fillA}/>`;
+  s+=`<path d="M${x-7},88 L${x-5},82 L${x+5},82 L${x+7},88 Z" fill="${shade(c1,-25)}" stroke="${ol}" stroke-width="1.3"/>`;
+  s+=`<path d="M${x-6},88 l-1.5,3 M${x},88.5 l0,3.2 M${x+6},88 l1.5,3" stroke="#f4f0e0" stroke-width="2" stroke-linecap="round"/>`;
+ });
+ // Körper (aufrecht, kräftig)
+ s+=`<path d="M36,82 C29,66 33,50 42,43 L58,43 C67,50 71,66 64,82 C57,86 43,86 36,82 Z" ${fillA}/>`;
+ s+=`<path d="M43,49 C46,47 54,47 57,49 L58,80 C54,83 46,83 42,80 Z" fill="${c2}" stroke="${shade(c2,-50)}" stroke-width="1"/>`;
+ for(let i=0;i<5;i++)s+=`<path d="M${43.5+i*.2},${55+i*5} Q50,${57+i*5} ${56.5-i*.2},${55+i*5}" stroke="${shade(c2,-45)}" stroke-width=".9" fill="none"/>`;
+ if(D.armor)s+=`<path d="M40,47 Q50,43 60,47 L60,62 Q50,68 40,62 Z" fill="#f2d672" stroke="#8a5a10" stroke-width="1.3"/><path d="M42,50 Q50,47 58,50" stroke="#fff4c0" stroke-width="1.2" fill="none"/>`;
+ // Leuchtender Kristall in der Brust
+ s+=`<circle cx="50" cy="56" r="7" fill="${glow}" opacity=".35"/><path d="M50,50 l4.5,6 l-4.5,6 l-4.5,-6 Z" fill="${glow}" stroke="#ffffff" stroke-width="1.1"/><path d="M50,51.5 l1.6,3" stroke="#fff" stroke-width="1"/>`;
+ // Arme mit Krallen (Wyvern: keine Arme)
+ if(!D.noArms){const a=`<path d="M41,50 C33,54 31,62 34,68" stroke="${ol}" stroke-width="7.4" fill="none" stroke-linecap="round"/><path d="M41,50 C33,54 31,62 34,68" stroke="${c1}" stroke-width="5.4" fill="none" stroke-linecap="round"/><path d="M31,69 l-1,3 M34,70 l0,3.2 M37,69 l1,3" stroke="#f4f0e0" stroke-width="1.6" stroke-linecap="round"/>`;s+=a+`<g ${MIRROR}>${a}</g>`}
+ // Hals
+ s+=`<path d="M43,46 C41,38 43,30 46,26 L54,26 C57,30 59,38 57,46 Z" ${fillA}/>`;
+ s+=`<path d="M47,30 L53,30 L55,44 L45,44 Z" fill="${c2}" opacity=".9"/>`;
+ // Mähne / Federkamm
+ if(ang)s+=[[38,30,-40],[36,38,-60],[62,30,40],[64,38,60]].map(([x,y,r])=>`<ellipse cx="${x}" cy="${y}" rx="3" ry="8" transform="rotate(${r} ${x} ${y})" fill="${acc}" stroke="${shade(acc,-60)}" stroke-width=".9"/>`).join("");
+ else s+=`<path d="M40,28 L32,26 L39,32 L30,34 L39,37 L32,42 L42,42 Z M60,28 L68,26 L61,32 L70,34 L61,37 L68,42 L58,42 Z" fill="${c3}" stroke="${ol}" stroke-width="1"/>`;
+ if(D.frills){const f=`<path d="M40,22 L22,10 L28,20 L14,22 L28,28 L20,36 L40,30 Z" fill="${c3}" stroke="${ol}" stroke-width="1.2"/>`;s+=f+`<g ${MIRROR}>${f}</g>`}
+ // Hörner
+ if(!ang&&!D.crown){
+  const h=`<path d="M43,16 C35,10 32,2 36,-7 C38,3 42,9 48,13 Z" fill="#f2e6b0" stroke="${ol}" stroke-width="1.2"/>`;s+=h+`<g ${MIRROR}>${h}</g>`;
+  if(t3){const h2=`<path d="M41,21 C33,19 28,14 28,8 C32,13 37,16 43,18 Z" fill="#e8d8a0" stroke="${ol}" stroke-width="1"/>`;s+=h2+`<g ${MIRROR}>${h2}</g>`}
+ }
+ if(ang){
+  const hy=D.doubleHalo?-1:2;
+  s+=`<ellipse cx="50" cy="${hy}" rx="13" ry="3.6" fill="none" stroke="#e8b830" stroke-width="3"/><ellipse cx="50" cy="${hy}" rx="13" ry="3.6" fill="none" stroke="#fff8c0" stroke-width="1"/>`;
+  if(D.doubleHalo)s+=`<ellipse cx="50" cy="-5" rx="18" ry="4.6" fill="none" stroke="#ffd84a" stroke-width="1.8" opacity=".75"/>`;
+  s+=`<path d="M46,14 C44,8 45,4 47,2 C48,6 49,9 50,12 C51,9 52,6 53,2 C55,4 56,8 54,14 Z" fill="${acc}" stroke="${shade(acc,-60)}" stroke-width=".9"/>`;
+ }
+ // Kopf (klein und edel)
+ s+=`<ellipse cx="50" cy="21" rx="11.5" ry="9.5" ${fillA}/>`;
+ s+=`<path d="M42,24 C42,30 46,33 50,33 C54,33 58,30 58,24 Z" fill="${shade(c1,22)}" stroke="${ol}" stroke-width="1.1"/>`;
+ s+=`<circle cx="47.5" cy="29" r=".9" fill="${ol}"/><circle cx="52.5" cy="29" r=".9" fill="${ol}"/>`;
+ s+=`<path d="M44.5,31 l1.2,2.4 l1.2,-2 Z M53.1,31 l1.2,2 l1.2,-2.4 Z" fill="#f4f0e0" stroke="${ol}" stroke-width=".4"/>`;
+ s+=svEyes(45.3,54.7,20,2.9,D.iris||"#ffcc33",ol,true,!ang);
+ s+=`<path d="M50,13 l1.6,2.6 l-1.6,2.6 l-1.6,-2.6 Z" fill="${glow}" stroke="#fff" stroke-width=".6"/>`;
+ if(D.crown)s+=`<path d="M40,15 L38,3 L44,9 L50,-1 L56,9 L62,3 L60,15 Z" fill="#ffd84a" stroke="#8a5a10" stroke-width="1.2"/><circle cx="50" cy="8" r="2.2" fill="#e8452c"/><circle cx="43" cy="11" r="1.4" fill="#3fa0e0"/><circle cx="57" cy="11" r="1.4" fill="#3fa0e0"/>`;
+ // Element-Effekte
+ s+=svElemFx(D.elem,c3);
+ if(D.stars)s+=svStar(6,70,5.5,"#fff4a0")+svStar(94,50,5.5,"#fff4a0")+svStar(18,14,4,"#fff8c0")+svStar(82,12,4,"#fff8c0");
+ return `<g transform="translate(5 8) scale(.9)">${s}</g>`;
+}
+
+// ---------- Bauplan: legendäre Engel (Entwicklungen des Babyengels) ----------
+function svCelestial(D,G,ol){
+ const {c1,c2,c3}=D,t3=!!D.t3,acc=D.accent||c3,glow=D.glow||c3,skin="#f8dcc4",hair=D.hair||acc;let s="";
+ // Lichtstrahlen und Runenring
+ if(t3)for(let a=0;a<360;a+=30){const r=a*Math.PI/180,x1=50+Math.cos(r)*20,y1=40+Math.sin(r)*20,x2=50+Math.cos(r)*50,y2=40+Math.sin(r)*50;s+=`<path d="M${x1.toFixed(1)},${y1.toFixed(1)} L${x2.toFixed(1)},${y2.toFixed(1)}" stroke="#fff6c8" stroke-width="2.4" opacity=".3" stroke-linecap="round"/>`}
+ s+=`<circle cx="50" cy="40" r="${t3?42:37}" fill="none" stroke="${glow}" stroke-width="${t3?2:1.5}" stroke-dasharray="${t3?"3 3":"1.5 4.5"}" opacity=".8"/>`;
+ if(D.stars)s+=`<ellipse cx="50" cy="62" rx="47" ry="11" transform="rotate(-12 50 62)" fill="none" stroke="${acc}" stroke-width="2.6" opacity=".9"/>`;
+ // Federflügel
+ const wing=`<path d="M43,42 C33,22 18,10 3,8 C8,14 6,19 10,23 C3,25 3,31 9,33 C3,37 5,43 11,45 C7,49 11,55 17,55 C17,60 23,62 28,60 C33,57 38,52 43,48 Z" fill="${c2}" stroke="${shade(acc,-60)}" stroke-width="1.3"/>`+
+  `<path d="M3,8 C8,14 6,19 10,23 C6,19 3,14 3,8 Z M9,33 C5,31 3,27 3,25 C4,29 6,31 9,33 Z M11,45 C7,43 5,40 5,37 C6,41 8,43 11,45 Z M17,55 C13,54 11,51 11,49 C12,52 14,54 17,55 Z" fill="${acc}"/>`+
+  `<path d="M41,44 L10,23 M40,46 L9,33 M39,48 L11,45 M37,50 L17,55 M34,53 L28,60" stroke="${shade(acc,-20)}" stroke-width="1" fill="none" opacity=".75"/>`+
+  `<path d="M42,42 C36,32 30,26 22,24 C28,30 30,34 32,38 C28,38 26,40 26,42 C32,42 38,44 42,46 Z" fill="${shade(c2,-8)}" stroke="${shade(acc,-60)}" stroke-width=".8"/>`;
+ const k=t3?1.14:1.02,wg=`<g transform="translate(43 44) scale(${k}) translate(-43 -44)">${wing}</g>`;
+ if(D.wings6){const w2=`<g transform="translate(9 -8) scale(.72)">${wing}</g>`,w3=`<g transform="translate(16 32) scale(.6)">${wing}</g>`;s+=w2+`<g ${MIRROR}>${w2}</g>`+w3+`<g ${MIRROR}>${w3}</g>`}
+ s+=wg+`<g ${MIRROR}>${wg}</g>`;
+ // Speer (Erzengel) hinter dem Körper
+ if(D.armor)s+=`<path d="M78,94 L78,10" stroke="#8a5a10" stroke-width="2.6"/><path d="M78,-2 L83,12 L78,9 L73,12 Z" fill="#e6ecf6" stroke="${ol}" stroke-width="1"/><path d="M73,14 L83,14" stroke="#f2d672" stroke-width="2.4"/>`;
+ // Langes Haar hinten
+ s+=`<path d="M41,24 C38,34 37,44 40,52 L46,46 L44,30 Z M59,24 C62,34 63,44 60,52 L54,46 L56,30 Z" fill="${hair}" stroke="${shade(hair,-60)}" stroke-width="1"/>`;
+ // Gewand
+ s+=`<path d="M40,44 C35,58 29,76 22,93 C36,97 64,97 78,93 C71,76 65,58 60,44 Z" fill="url(#${G}a)" stroke="${ol}" stroke-width="1.5"/>`;
+ s+=`<path d="M46,50 L54,50 L59,94 L41,94 Z" fill="${c2}" opacity=".9"/><path d="M46,50 L41,94 M54,50 L59,94" stroke="${acc}" stroke-width="1.6"/>`;
+ s+=`<path d="M37,66 C35,76 31,86 28,93 M63,66 C65,76 69,86 72,93 M44,70 L42,92 M56,70 L58,92" stroke="${shade(c1,-35)}" stroke-width="1" fill="none" opacity=".8"/>`;
+ s+=`<path d="M22,93 C36,97 64,97 78,93" stroke="${acc}" stroke-width="2.6" fill="none"/><path d="M24,90 C38,94 62,94 76,90" stroke="#f2d672" stroke-width="1.2" fill="none"/>`;
+ // Oberkörper und Gürtel
+ s+=`<path d="M40,44 Q50,40 60,44 L60,58 Q50,61 40,58 Z" fill="url(#${G}a)" stroke="${ol}" stroke-width="1.4"/>`;
+ if(D.armor)s+=`<path d="M40,43 Q50,39 60,43 L60,57 Q50,61 40,57 Z" fill="#f2d672" stroke="#8a5a10" stroke-width="1.3"/><path d="M42,47 Q50,44 58,47" stroke="#fff4c0" stroke-width="1.2" fill="none"/><ellipse cx="38" cy="45" rx="6" ry="4" fill="#f2d672" stroke="#8a5a10" stroke-width="1.1"/><ellipse cx="62" cy="45" rx="6" ry="4" fill="#f2d672" stroke="#8a5a10" stroke-width="1.1"/>`;
+ s+=`<path d="M40,57 Q50,61 60,57 L60,61 Q50,65 40,61 Z" fill="#f2d672" stroke="#8a5a10" stroke-width="1"/><circle cx="50" cy="61.5" r="2" fill="${glow}" stroke="#fff" stroke-width=".6"/>`;
+ s+=`<path d="M50,46 l3,4 l-3,4 l-3,-4 Z" fill="${glow}" stroke="#fff" stroke-width=".9"/>`;
+ // Ärmel und Hände, die eine leuchtende Element-Kugel halten
+ const sl=`<path d="M40,45 C34,50 33,58 38,66 L45,64 C43,58 43,52 45,48 Z" fill="${c2}" stroke="${shade(acc,-55)}" stroke-width="1.2"/><path d="M38,66 L45,64" stroke="${acc}" stroke-width="1.8"/>`;
+ s+=sl+`<g ${MIRROR}>${sl}</g>`;
+ s+=`<circle cx="50" cy="69" r="8" fill="${glow}" opacity=".3"/><circle cx="50" cy="69" r="4.6" fill="${glow}" stroke="#fff" stroke-width="1.2"/><circle cx="48.6" cy="67.6" r="1.4" fill="#fff"/>`;
+ s+=`<ellipse cx="44" cy="67" rx="2.6" ry="2.1" fill="${skin}" stroke="${shade(skin,-90)}" stroke-width=".8"/><ellipse cx="56" cy="67" rx="2.6" ry="2.1" fill="${skin}" stroke="${shade(skin,-90)}" stroke-width=".8"/>`;
+ // Hals und Kopf (klein, edel)
+ s+=`<path d="M47.5,34 L52.5,34 L52.5,42 L47.5,42 Z" fill="${skin}" stroke="${shade(skin,-90)}" stroke-width=".8"/>`;
+ s+=`<ellipse cx="50" cy="27" rx="7.4" ry="8.4" fill="${skin}" stroke="${shade(skin,-100)}" stroke-width="1.1"/>`;
+ s+=svEyes(47.1,52.9,27.5,1.7,D.iris||"#4a7ad8",ol,false,false);
+ s+=`<path d="M48.6,32.4 Q50,33.2 51.4,32.4" stroke="#b0685a" stroke-width=".9" fill="none" stroke-linecap="round"/>`;
+ s+=`<path d="M42.4,27 C41.6,19 45,16 50,16 C55,16 58.4,19 57.6,27 C56,22 53,20.5 50,21 C47,20.5 44,22 42.4,27 Z" fill="${hair}" stroke="${shade(hair,-60)}" stroke-width=".9"/>`;
+ s+=`<path d="M44,21.5 Q50,19 56,21.5" stroke="#f2d672" stroke-width="1.3" fill="none"/><path d="M50,18.6 l1.4,2.2 l-1.4,2.2 l-1.4,-2.2 Z" fill="${glow}" stroke="#fff" stroke-width=".5"/>`;
+ // Heiligenschein
+ s+=`<ellipse cx="50" cy="11" rx="11" ry="3" fill="none" stroke="#e8b830" stroke-width="2.8"/><ellipse cx="50" cy="11" rx="11" ry="3" fill="none" stroke="#fff8c0" stroke-width="1"/>`;
+ if(D.doubleHalo)s+=`<ellipse cx="50" cy="6" rx="16" ry="4.2" fill="none" stroke="#ffd84a" stroke-width="1.8" opacity=".75"/>`;
+ // Element-Effekte
+ s+=svElemFx(D.elem,c3);
+ if(D.stars)s+=svStar(6,72,5.5,"#fff4a0")+svStar(94,52,5.5,"#fff4a0")+svStar(18,14,4,"#fff8c0")+svStar(84,12,4,"#fff8c0");
+ return `<g transform="translate(5 7) scale(.9)">${s}</g>`;
+}
+
+const SV_TEMPLATES={celestial:svCelestial,hatch:svHatchling,legend:svLegend,quad:svQuad,bird:svBird,frog:svFrog,fish:svFish,jelly:svJelly,lizard:svLizard,spirit:svSpirit,warrior:svWarrior,golem:svGolem,crab:svCrab,beetle:svBeetle,serpent:svSerpent,angel:svAngel};
 const SV_CACHE={};
 function creatureVector(sid){
  if(SV_CACHE[sid])return SV_CACHE[sid];
@@ -1594,7 +1843,7 @@ function creatureVector(sid){
  const svg=`<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
   <defs>${svGrad(G+"a",D.c1)}</defs>
   <ellipse cx="50" cy="93" rx="28" ry="5" fill="#0000002e"/>
-  ${svAura(G,D,(SPECIES[sid]&&SPECIES[sid].stage)||1)}
+  ${svAura(G,D,D.auraStage||(SPECIES[sid]&&SPECIES[sid].stage)||1)}
   ${body}
  </svg>`;
  SV_CACHE[sid]=svg;
@@ -1660,10 +1909,18 @@ function makeCreature(sid,lvl){
   for(const mk of sorted){if(moves.length>=4)break;if(MOVES[mk].pow===0){if(statusOnly>=1)continue;statusOnly++}moves.push(mk)}
   if(!moves.some(mk=>MOVES[mk].type===s.type)){const own=learned.filter(mk=>MOVES[mk].type===s.type).sort((a,c)=>MOVES[c].pow-MOVES[a].pow)[0];if(own)moves[3]=own}
  }
- return {sid,name:s.name,type:s.type,rarity:s.rarity,level:l,
-  maxhp:Math.floor(b.hp+l*3),hp:Math.floor(b.hp+l*3),
-  atk:Math.floor(b.atk+l*1.2),def:Math.floor(b.def+l*1.1),spd:Math.floor(b.spd+l),spec:Math.floor(b.spec+l),
+ const L0=Math.min(l,5),up=Math.max(0,l-5);
+ const c={sid,name:s.name,type:s.type,rarity:s.rarity,level:l,
+  maxhp:Math.floor(b.hp+L0*3)+up*4,hp:0,
+  atk:Math.floor(b.atk+L0*1.2)+up*2,def:Math.floor(b.def+L0*1.1)+up*2,spd:Math.floor(b.spd+L0)+up,spec:Math.floor(b.spec+L0)+up,
   moves,learned,exp:0,expNeed:l*20*(s.slowExp?2:1),points:0};
+ // Punkte, die diesem Level zustehen (Lv.10 = 1, Lv.20 = +2 …), zufällig verteilen
+ const pts=typeof pointsDue==="function"?pointsDue(l):0;
+ if(pts>0){const keys=["hp","atk","def","spd","spec"];c.allocAuto={};
+  for(let i=0;i<pts;i++){const k=keys[Math.floor(Math.random()*keys.length)];c.allocAuto[k]=(c.allocAuto[k]||0)+1;
+   const g={hp:6,atk:2,def:2,spd:1,spec:1}[k];if(k==="hp")c.maxhp+=g;else c[k]+=g}}
+ c.hp=c.maxhp;
+ return c;
 }
 const STAT_POINT_GAIN={hp:6,atk:2,def:2,spd:1,spec:1};
 const STAT_LABELS={hp:"KP",atk:"Angriff",def:"Verteidigung",spd:"Tempo",spec:"Spezial"};
@@ -1679,11 +1936,9 @@ function evolveCreature(c,target){
 }
 function ensureCreatureFields(c){
  if(c.points===undefined)c.points=0;
+ if(SPECIES[c.sid]&&SPECIES[c.sid].evoDual&&c.level>=EGG_DUAL_LEVEL)c.evoReady=true;
  if(SPECIES[c.sid]){c.type=SPECIES[c.sid].type;c.name=SPECIES[c.sid].name} // Typ/Name immer aus den Artdaten übernehmen
  while(SPECIES[c.sid].evo&&c.level>=evoLevelOf(c.sid))evolveCreature(c); // ältere Spielstände: fällige Entwicklungen nachholen
- // Monster ohne Entwicklung: Extrapunkte ab Level 20 nachträglich gutschreiben
- const due=simpleBonusDue(c);
- if(due>(c.simpleBonus||0)){c.points=(c.points||0)+due-(c.simpleBonus||0);c.simpleBonus=due}
  if(!c.learned)c.learned=c.moves.slice();
  if(c.moves.length>4)c.moves=c.moves.slice(0,4);
  const activeBefore=c.moves.length;
@@ -1935,6 +2190,11 @@ function buildMap(){
    {id:t.id+"_markt",name:`Der Markt von ${t.name}`,x:ox+1,y:oy+7,w:3,h:2,roof:"#3a78c9",wall:"#f4f1ea",door:{x:ox+2,y:oy+8},shop:true,glassDoor:true},
    {id:t.id+"_haus",name:`Ein Wohnhaus in ${t.name}`,x:ox+12,y:oy+7,w:3,h:2,roof:t.house,wall:"#f3e6c8",door:{x:ox+13,y:oy+8},chimney:true}
   );
+  if(t.id==="felsburg"){
+   m[oy+1][ox+14]="B";m[oy+1][ox+15]="B";m[oy+1][ox+16]="B";m[oy+2][ox+14]="B";m[oy+2][ox+16]="B";
+   m[oy+2][ox+15]="d";   // Tür Monstergehege
+   EXTRA_BUILDINGS.push({id:"felsburg_gehege",name:"Das Monstergehege von Felsburg",x:ox+14,y:oy+1,w:3,h:2,roof:"#4f8a3a",wall:"#efe3c8",door:{x:ox+15,y:oy+2},glassDoor:true,paw:true});
+  }
  });
  // Hafenstadt: Südausgang schließen (dort ist nur Wald)
  m[29][29]="b";
@@ -1987,6 +2247,7 @@ function buildMap(){
  ];
  TOWER.forEach((row,ry)=>{for(let rx=0;rx<row.length;rx++){const ch=row[rx];m[86+ry][62+rx]=ch==="V"?"V":ch==="J"?"J":ch==="E"?"E":"z"}});
 
+ {let sd=777;const r2=()=>{sd=(sd*1103515245+12345)&0x7fffffff;return (sd%1000)/1000};for(let y=18;y<=23;y++)for(let x=2;x<=19;x++)if(m[y][x]==="s"&&r2()<0.3)m[y][x]="g"}
  return m;
 }
 let MAP=buildMap();
@@ -2135,8 +2396,8 @@ function onObstacleBump(o,fromButton){
  if(!fromButton&&obstBumpId===o.id&&now-obstBumpAt<2600)return;
  obstBumpAt=now;obstBumpId=o.id;
  const T=OBSTACLE_TYPES[o.kind],lead=state.team[0];
- if(lead&&lead.type===T.need){showFieldMove(o,lead);return}
- const other=state.team.find(c=>c.type===T.need);
+ if(lead&&hasType(lead,T.need)){showFieldMove(o,lead);return}
+ const other=state.team.find(c=>hasType(c,T.need));
  showDialog(`${T.desc} Ein ${TYPE_ICONS[T.need]} ${T.need}-Monster an erster Stelle im Team könnte ${T.hint}.`+(other?` Tipp: Stell ${other.name} im Team-Menü nach vorne!`:""));
 }
 function fieldMoveOpen(){return !!document.getElementById("fieldMove")}
@@ -2192,10 +2453,10 @@ BUILDINGS.forEach(b=>{BUILDING_AT_BR[(b.x+b.w-1)+","+(b.y+b.h-1)]=b;BUILDING_DOO
 const TILE=32;
 // Wilde-Kreaturen-Zonen: welche Kreaturen wo und auf welchem Level auftauchen
 const ENCOUNTER_ZONES=[
- {x1:10,y1:1,x2:32,y2:8,lv:[4,7],pool:["blattoro","mooskrabbe","dornhase","moosfrosch","wirbelschwalbe","bluetenkolibri","sturmfalke"]}, // Lindwiesen (Ost)
- {x1:1,y1:9,x2:20,y2:14,lv:[4,7],pool:["blattoro","mooskrabbe","dornhase","moosfrosch","wirbelschwalbe","bluetenkolibri","tropfling"]}, // Lindwiesen (Süd)                                   // Wiesen
- {x1:21,y1:9,x2:39,y2:16,lv:[7,12],pool:["dornhase","mooskrabbe","traumeule","moosfrosch","rankenwurm","funkenkaefer","glimmkaefer","sturmfalke","blattoro"]}, // Dämmerwald                     // Wald
- {x1:1,y1:25,x2:18,y2:30,lv:[11,16],pool:["tropfling","perlqualle","flossling","funkmaus","voltigel","perlkrebs","wellenotter","nebelkarpfen","stromaal"]},        // Küste
+ {x1:10,y1:1,x2:32,y2:8,lv:[4,7],pool:["blattoro","mooskrabbe","dornhase","moosfrosch","wirbelschwalbe","bluetenkolibri","sturmfalke","steinkrabbe"]}, // Lindwiesen (Ost)
+ {x1:1,y1:9,x2:20,y2:14,lv:[4,7],pool:["blattoro","mooskrabbe","dornhase","moosfrosch","wirbelschwalbe","bluetenkolibri","tropfling","steinkrabbe","erdrakel"]}, // Lindwiesen (Süd)                                   // Wiesen
+ {x1:21,y1:9,x2:39,y2:16,lv:[7,12],pool:["dornhase","mooskrabbe","traumeule","moosfrosch","rankenwurm","funkenkaefer","glimmkaefer","sturmfalke","blattoro","erdrakel","sandwurm"]}, // Dämmerwald                     // Wald
+ {x1:1,y1:25,x2:18,y2:30,lv:[11,16],pool:["tropfling","perlqualle","flossling","funkmaus","voltigel","perlkrebs","wellenotter","nebelkarpfen","stromaal","steinkrabbe"]},        // Küste
  {x1:1,y1:17,x2:20,y2:24,lv:[12,17],pool:["erdrakel","lehmgolem","kristallkaefer","schuppling","glutechse","glimmkaefer","sandwurm","steinkrabbe"]},  // Wüste
  {x1:40,y1:1,x2:53,y2:24,lv:[22,28],pool:["wolkenzottel","blitzschwinge","flammkugel","glutpanther","flussdrache","mystikatze","geistfuchs","drakonis","russfuchs","traumqualle","orakelfrosch"]}, // Nebelmoor
  {x1:75,y1:8,x2:95,y2:14,lv:[33,39],pool:["erdrakel","lehmgolem","kristallkaefer","glutechse","dornhase","sandwurm","felsbock","steinkrabbe","rankenwurm"]},    // Felsroute
@@ -2215,6 +2476,11 @@ function poolForTile(x,y){
 // ---------- FUNDSTÜCKE IN DER WELT ----------
 // Element-Fangkapseln gibt es nur als Fundstück: sie erhöhen die Fangchance bei Monstern ihres Elements stark.
 const ELEM_CAPSULE_BONUS=2.5;
+// Superkapseln: ab Lv.50 (ein Monster in Team oder Box) im Markt erhältlich
+const SUPER_LEVEL=50,SUPER_BONUS=1.5,SUPER_PRICE=40,SUPER_ELEM_PRICE=60;
+function superUnlocked(){try{return state.team.concat(state.storage).some(c=>c.level>=SUPER_LEVEL)}catch(e){return false}}
+function superElem(){return state.inv.superElem||(state.inv.superElem={})}
+function capKindLabel(k){if(k==="normal")return "🔴 Fangkapsel";if(k==="super")return "⭐ Superkapsel";if(k.startsWith("s_")){const t=k.slice(2);return `⭐${TYPE_ICONS[t]} Superkapsel (${t})`}return `${TYPE_ICONS[k]} ${k}kapsel`}
 const ITEM_SPOTS=[],ITEM_AT={};
 (function generateItems(){
  let seed=4242;const rng=()=>{seed=(seed*1103515245+12345)&0x7fffffff;return (seed%10000)/10000};
@@ -2246,7 +2512,7 @@ const ITEM_SPOTS=[],ITEM_AT={};
    if(r<0.35)it={kind:"elem",type:A.types[Math.floor(rng()*A.types.length)],qty:tier>=4?2:1};
    else if(r<0.6)it={kind:"fangkapsel",qty:2+Math.floor(tier/3)};
    else if(r<0.85)it={kind:"heiltrank",qty:1+Math.floor(tier/3)};
-   else it={kind:"gold",qty:60+tier*70};
+   else it={kind:"gold",qty:30+tier*35};
    it.x=x;it.y=y;it.key=x+","+y;
    ITEM_SPOTS.push(it);ITEM_AT[it.key]=it;
   }
@@ -2270,9 +2536,9 @@ const GEAR_EFFECTS={
  potion:{label:"Heiltrank-Wirkung",suffix:"des Heilers"}
 };
 const RARITY={
- normal:{name:"Normal",col:"#d0d4dc",min:2,max:5,amMin:5,amMax:10,sell:15},
- episch:{name:"Episch",col:"#c080ff",min:5,max:10,amMin:10,amMax:18,sell:60},
- legendaer:{name:"Legendär",col:"#ffb020",min:10,max:18,amMin:18,amMax:30,sell:200}
+ normal:{name:"Normal",col:"#d0d4dc",min:2,max:5,amMin:5,amMax:10,sell:8},
+ episch:{name:"Episch",col:"#c080ff",min:5,max:10,amMin:10,amMax:18,sell:30},
+ legendaer:{name:"Legendär",col:"#ffb020",min:10,max:18,amMin:18,amMax:30,sell:100}
 };
 function rollRarity(wN,wE,wL){const r=Math.random()*(wN+wE+wL);return r<wN?"normal":r<wN+wE?"episch":"legendaer"}
 function randInt(a,b){return a+Math.floor(Math.random()*(b-a+1))}
@@ -2303,7 +2569,7 @@ function gearLabel(it){return `${GEAR_SLOTS[it.slot].icon} ${it.name} (${RARITY[
 function gearTotal(k){const g=state.gear||{};let s=0;Object.values(g).forEach(it=>{if(it&&it.fx)it.fx.forEach(f=>{if(f.k===k)s+=f.v})});return s/100}
 // Amulett: verstärkt Monster eines Typs im eigenen Team
 function amuletMul(c,role){
- const it=state.gear&&state.gear.amulet;if(!it||!it.am||!c||c.type!==it.am.type||!state.team.includes(c))return 1;
+ const it=state.gear&&state.gear.amulet;if(!it||!it.am||!c||!hasType(c,it.am.type)||!state.team.includes(c))return 1;
  if(role==="att"&&it.am.kind==="dmg")return 1+it.am.v/100;
  if(role==="def"&&it.am.kind==="def")return 1-it.am.v/100;
  return 1;
@@ -2585,9 +2851,10 @@ let state={
  }
 };
 // Erst speichern, wenn wirklich gespielt wird – sonst würde der Titelbildschirm (Standardwerte) den echten Spielstand überschreiben
+const STATE_DEFAULT_JSON=JSON.stringify(state);
 let GAME_ON=false;
 function save(){if(!GAME_ON)return;try{localStorage.setItem("monsterwelt_save",JSON.stringify(state))}catch(e){}if(typeof mpScheduleSync==="function")mpScheduleSync()}
-function load(){const r=localStorage.getItem("monsterwelt_save");if(r){state=JSON.parse(r);if(state.inv.gold===undefined)state.inv.gold=100;if(!state.caughtCount)state.caughtCount={};if(!state.defeatedCount)state.defeatedCount={};if(!state.wanderBeaten)state.wanderBeaten={};if(state.arenaBeaten===undefined)state.arenaBeaten=false;if(!state.medals)state.medals={};if(!state.legends)state.legends={};if(!state.inv.elem)state.inv.elem={};if(state.inv.heilkraut===undefined)state.inv.heilkraut=1;if(!state.itemsTaken)state.itemsTaken={};if(state.arenaBeaten)state.medals.hafen=true;if(!state.visited)state.visited={lindorf:true};state.visited.lindorf=true;if(state.rivalMet&&!state.gotRivalEgg){state.gotRivalEgg=true;state.eggs=(state.eggs||[]).concat([{kind:Math.random()<0.5?"babydrache":"babyengel",steps:0}])}if(!state.cleared)state.cleared={};if(state.medals&&state.medals.lindorf)state.hasRod=true;OBSTACLES.forEach(o=>{if((state.visited&&state.visited[o.toTown])||o.tiles.some(([x,y])=>x===state.px&&y===state.py))state.cleared[o.id]=true});if((state.mapVer||1)<2){state.px=RX(state.px);state.py=RY(state.py);if(state.lastHeal)state.lastHeal={x:RX(state.lastHeal.x),y:RY(state.lastHeal.y)};state.mapVer=2}if(state.medals&&state.medals.sturmhafen)state.canSurf=true;if(state.surfing&&tileAt(state.px,state.py)!=="~")state.surfing=false;if(!state.playerName)state.playerName="Trainer";if(state.gender!=="w")state.gender="m";if(!state.surfing&&blocked(state.px,state.py)){state.px=2;state.py=3;state.dir="down"}state.team.forEach(ensureCreatureFields);state.storage.forEach(ensureCreatureFields);return true}return false}
+function load(){const r=localStorage.getItem("monsterwelt_save");if(r){state=JSON.parse(r);if(state.inv.gold===undefined)state.inv.gold=100;if(!state.caughtCount)state.caughtCount={};if(!state.defeatedCount)state.defeatedCount={};if(!state.wanderBeaten)state.wanderBeaten={};if(state.arenaBeaten===undefined)state.arenaBeaten=false;if(!state.medals)state.medals={};if(!state.legends)state.legends={};if(!state.inv.elem)state.inv.elem={};if(state.inv.heilkraut===undefined)state.inv.heilkraut=1;if(!state.itemsTaken)state.itemsTaken={};if(state.arenaBeaten)state.medals.hafen=true;if(!state.visited)state.visited={lindorf:true};state.visited.lindorf=true;if(state.rivalMet&&!state.gotRivalEgg){state.gotRivalEgg=true;state.eggs=(state.eggs||[]).concat([{kind:Math.random()<0.5?"babydrache":"babyengel",steps:0}])}if(!state.cleared)state.cleared={};if(state.medals&&state.medals.lindorf)state.hasRod=true;OBSTACLES.forEach(o=>{if((state.visited&&state.visited[o.toTown])||o.tiles.some(([x,y])=>x===state.px&&y===state.py))state.cleared[o.id]=true});if((state.mapVer||1)<2){state.px=RX(state.px);state.py=RY(state.py);if(state.lastHeal)state.lastHeal={x:RX(state.lastHeal.x),y:RY(state.lastHeal.y)};state.mapVer=2}if(state.medals&&state.medals.sturmhafen)state.canSurf=true;if(state.surfing&&tileAt(state.px,state.py)!=="~")state.surfing=false;if(!state.playerName)state.playerName="Trainer";if(state.gender!=="w")state.gender="m";if(!state.surfing&&blocked(state.px,state.py)){state.px=2;state.py=3;state.dir="down"}state.team.forEach(ensureCreatureFields);state.storage.forEach(ensureCreatureFields);if(!state.pointsV2){state.team.forEach(respecCreature);state.storage.forEach(respecCreature);state.pointsV2=true;RESPEC_DONE=true}return true}return false}
 // Einstellungen (nur auf diesem Gerät gespeichert)
 let OPTS={text:"normal",walk:"normal",controls:"std",gfx:"pixel",sound:"all",vol:"mid",lang:LANG};
 try{const o=JSON.parse(localStorage.getItem("monsterwelt_opts")||"null");if(o)OPTS=Object.assign(OPTS,o)}catch(e){}
@@ -3292,6 +3559,12 @@ function drawBuilding(b,camX,camY){
   ctx.fillStyle="#f4efe4";ctx.fillRect(doorCx2-22,wallTop+2,6,wallH-6);ctx.fillRect(doorCx2+16,wallTop+2,6,wallH-6);
   ctx.strokeStyle="#a09880";ctx.lineWidth=1;ctx.strokeRect(doorCx2-22,wallTop+2,6,wallH-6);ctx.strokeRect(doorCx2+16,wallTop+2,6,wallH-6);
  }
+ if(b.paw){
+  const cx=ox+W/2,cy=rt+rh-15;
+  ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(cx,cy,10,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#2d6a2c";ctx.lineWidth=1.5;ctx.stroke();
+  ctx.fillStyle="#3f8a30";ctx.beginPath();ctx.ellipse(cx,cy+2.5,4.2,3.4,0,0,Math.PI*2);ctx.fill();
+  [[-4.6,-2.2],[-1.6,-5],[1.6,-5],[4.6,-2.2]].forEach(([dx,dy])=>{ctx.beginPath();ctx.arc(cx+dx,cy+dy,1.7,0,Math.PI*2);ctx.fill()});
+ }
  if(b.shop){
   const cx=ox+W/2,cy=rt+rh-15;
   ctx.fillStyle="#fff";ctx.fillRect(cx-19,cy-7,38,13);
@@ -3536,12 +3809,81 @@ function enterHouse(b){
  }else if(b.id==="rivalhaus"){
   const rn=(state.rival&&state.rival.name)||"mein Sohn";
   showDialog(state.rivalMet?`Mutter von ${rn}: „Ach, du bist das! ${rn} redet von nichts anderem mehr als von eurem Kampf. Er trainiert jetzt jeden Tag!“`:`Mutter von ${rn}: „${rn} ist schon früh losgezogen – er wollte unbedingt zum Markt. Vielleicht triffst du ihn dort!“`);
+ }else if(b.id==="felsburg_gehege"){
+  openGehege();
  }else if(b.id==="nachbar"){
   if(!state.nachbarGift){
    state.nachbarGift=true;state.inv.fangkapsel+=3;save();
    showDialog("Nachbar Henrik: „Du gehst auf Reisen? Hier, nimm diese 3 Fangkapseln mit!“");
   }else showDialog("Nachbar Henrik: „Im Gras östlich der Stadt wimmelt es von Kreaturen. Viel Glück!“");
  }
+}
+// ---------- MONSTERGEHEGE (Felsburg) ----------
+// Monster aus der Monsterbox können hier in die Freiheit entlassen werden. Als Dank lassen sie Geschenke zurück:
+// Ausrüstung (Effekt passend zum Element, Seltenheit je nach Monster), Element-Fangkapseln und Heilmittel.
+const GEHEGE_FX={Wasser:"potion",Natur:"potion",Feuer:"exp",Blitz:"exp",Wind:"rare",Psycho:"rare",Erde:"catch",Drache:"gold",Normal:"catch"};
+let gehegeSel=null;
+function gehegeTier(c){const sp=SPECIES[c.sid]||{};return (sp.legendary||sp.mystic)?4:Math.max(1,Math.min(3,c.rarity||sp.rarity||1))}
+function gehegeProtected(c){const sp=SPECIES[c.sid]||{};return !!sp.special}
+function gehegeGifts(c){
+ const tier=gehegeTier(c),lvlB=Math.min(1,(c.level||1)/70),gifts=[];
+ // Ausrüstung: Chance und Seltenheit steigen mit Seltenheit und Level des Monsters
+ const chance=[0,0.5,0.75,0.95,1][tier]+lvlB*0.2;
+ if(Math.random()<chance){
+  const w=[[0,0,0],[80,18,2],[55,38,7],[25,55,20],[0,40,60]][tier];
+  const rar=rollRarity(w[0],w[1]*(1+lvlB),w[2]*(1+lvlB*2));
+  const amulet=Math.random()<0.35;
+  let it;
+  if(amulet){it=makeGear("amulet",rar);it.am.type=TYPE_CYCLE.includes(c.type)?c.type:it.am.type;it.name=`${it.am.type}-Amulett ${it.am.kind==="dmg"?"der Stärke":"des Schutzes"}`}
+  else{
+   const slots=["hat","shirt","pants","shoes"];it=makeGear(slots[Math.floor(Math.random()*slots.length)],rar);
+   const pref=GEHEGE_FX[c.type]||"catch";
+   if(!it.fx.some(f=>f.k===pref)){it.fx[0].k=pref;}
+   else{const i=it.fx.findIndex(f=>f.k===pref);const t=it.fx[0];it.fx[0]=it.fx[i];it.fx[i]=t}
+   it.name=`${GEAR_SLOTS[it.slot].bases[Math.floor(Math.random()*GEAR_SLOTS[it.slot].bases.length)]} ${GEAR_EFFECTS[it.fx[0].k].suffix}`;
+  }
+  addGear(it);gifts.push(`${gearLabel(it)} – ${gearFxText(it)}`);
+ }
+ // Element-Fangkapseln passend zum Element
+ const types=[c.type,c.type2].filter(t=>TYPE_CYCLE.includes(t));
+ types.forEach(t=>{const n=randInt(1,tier+(Math.random()<lvlB?1:0));if(!state.inv.elem)state.inv.elem={};state.inv.elem[t]=(state.inv.elem[t]||0)+n;gifts.push(`${n}x ${TYPE_ICONS[t]} ${t}kapsel`)});
+ // Heilmittel
+ if(Math.random()<0.6){const n=randInt(1,tier);state.inv.heiltrank+=n;gifts.push(`${n}x 💊 Heiltrank`)}
+ if(Math.random()<0.25+tier*0.1){state.inv.heilkraut=(state.inv.heilkraut||0)+1;gifts.push("1x 🌿 Heilkraut")}
+ // Seltene Monster lassen manchmal eine Superkapsel da
+ if(tier>=3&&Math.random()<0.35){state.inv.superkapsel=(state.inv.superkapsel||0)+1;gifts.push("1x ⭐ Superkapsel")}
+ return gifts;
+}
+function gehegeStars(c){const t=gehegeTier(c);return t>=4?"👑":"★".repeat(t)}
+function openGehege(msg){
+ const st=state.storage;
+ if(gehegeSel!=null&&!st[gehegeSel])gehegeSel=null;
+ const sel=gehegeSel!=null?st[gehegeSel]:null;
+ const tiles=st.map((c,i)=>boxTile(c,`data-gh="${i}"`,(gehegeSel===i?"boxSel ":"")+(gehegeProtected(c)?"ghLocked":""),`${gehegeStars(c)}${gehegeProtected(c)?" · 🔒":""}`)).join("");
+ let info=msg||"Hier kannst du Monster aus deiner Monsterbox in die Freiheit entlassen. Als Dank lassen sie Geschenke zurück – je nach Element und Seltenheit: Ausrüstung mit zufälligen Effekten, Element-Kapseln und Heilmittel.";
+ openSub(`<h3>🌳 Monstergehege von Felsburg</h3>
+  <div class="boxHint">${info}</div>
+  ${sel?`<div class="subCard" style="align-items:center;border-color:${TYPECOLORS[sel.type]||"#888"}"><div class="miniSprite" style="width:56px;height:56px">${creatureSVG(sel.sid)}</div><div style="flex:1"><b>${sel.name}</b> Lv.${sel.level} ${gehegeStars(sel)}<div style="font-size:12px;opacity:.85">${typeStr(sel)}</div></div></div>
+   <div style="display:flex;gap:6px;margin:6px 0 10px"><button id="ghFree" style="flex:1;background:linear-gradient(180deg,#5ea83e,#2d6a2c)">🕊️ Freilassen</button><button id="ghCancel" style="flex:1">Abbrechen</button></div>`:""}
+  <h4>📦 Monster in der Box (${st.length})</h4>
+  ${st.length?`<div class="teamGrid">${tiles}</div>`:`<div style="opacity:.75;text-align:center;padding:12px">Deine Monsterbox ist leer. Nur Monster aus der Box können freigelassen werden – dein Team bleibt immer bei dir.</div>`}
+  <button id="ghBack" style="width:100%;margin-top:10px">◀ Gehege verlassen</button>`);
+ subContent.onclick=e=>{
+  const b=e.target.closest("button");if(!b||b.disabled)return;
+  if(b.id==="ghBack"){gehegeSel=null;subpanel.style.display="none";return}
+  if(b.id==="ghCancel"){gehegeSel=null;openGehege();return}
+  if(b.dataset.gh!==undefined){
+   const i=+b.dataset.gh,c=st[i];
+   if(gehegeProtected(c)){gehegeSel=null;openGehege(`🔒 ${c.name} ist ein einzigartiges Ei-Monster und bleibt lieber bei dir.`);return}
+   gehegeSel=gehegeSel===i?null:i;openGehege();return;
+  }
+  if(b.id==="ghFree"&&sel){
+   if(!b.dataset.confirm){b.dataset.confirm="1";b.textContent="Wirklich freilassen? Nochmal tippen";return}
+   st.splice(gehegeSel,1);gehegeSel=null;
+   const gifts=gehegeGifts(sel);save();sfx("evolve");
+   openGehege(`🕊️ ${sel.name} läuft glücklich in die Freiheit! Als Dank hat es dir dagelassen:<br><b>${gifts.join("<br>")}</b>`);
+  }
+ };
 }
 function buildingAt(x,y){return BUILDINGS.find(b=>x>=b.x&&x<b.x+b.w&&y>=b.y&&y<b.y+b.h)}
 // Merkt sich das zuletzt besuchte Heilzentrum (Rückkehrpunkt nach einer Niederlage)
@@ -3562,21 +3904,31 @@ const SHOP_ITEMS=[
  {key:"heiltrank",icon:"💊",name:"Heiltrank",price:15,desc:"Heilt 20 HP im Kampf"},
  {key:"heilkraut",icon:"🌿",name:"Heilkraut",price:20,desc:"Heilt im Kampf Gift, Verbrennung, Schlaf, Benommenheit & Verwirrung"}
 ];
-const SELL_PRICES={fangkapsel:5,heiltrank:7,heilkraut:10};
+const SELL_PRICES={fangkapsel:3,heiltrank:4,heilkraut:5};
 let marketTab="buy";
+function shopItems(){
+ const list=SHOP_ITEMS.slice();
+ if(superUnlocked()){
+  list.push({key:"superkapsel",icon:"⭐",name:"Superkapsel",price:SUPER_PRICE,desc:`x${SUPER_BONUS} Fangchance bei allen Monstern`});
+  TYPE_CYCLE.forEach(t=>list.push({key:"s_"+t,icon:"⭐"+TYPE_ICONS[t],name:`Superkapsel (${t})`,price:SUPER_ELEM_PRICE,desc:`x${SUPER_BONUS} Fangchance · x${SUPER_BONUS*ELEM_CAPSULE_BONUS} bei ${t}-Monstern`}));
+ }
+ return list;
+}
+function invCount(k){return k.startsWith("s_")?(superElem()[k.slice(2)]||0):(state.inv[k]||0)}
+function invAdd(k,n){if(k.startsWith("s_")){const m=superElem(),t=k.slice(2);m[t]=(m[t]||0)+n}else state.inv[k]=(state.inv[k]||0)+n}
 function openMarket(){
  if(!state.gearBag)state.gearBag=[];
  const tabs=`<div class="optSeg" style="margin-bottom:10px"><button data-mtab="buy" class="${marketTab==="buy"?"on":""}">🛒 Kaufen</button><button data-mtab="sell" class="${marketTab==="sell"?"on":""}">💰 Verkaufen</button></div>`;
  let body;
  if(marketTab==="buy"){
-  body='<div class="subGrid">'+SHOP_ITEMS.map(it=>
+  body='<div class="subGrid">'+shopItems().map(it=>
    `<div class="itemCard">
     <div class="ii">${it.icon}</div>
     <b>${it.name}</b>
     <small>${it.desc}</small>
-    <div style="font-size:12px;margin-top:2px">Du hast: ${state.inv[it.key]||0}</div>
+    <div style="font-size:12px;margin-top:2px">Du hast: ${invCount(it.key)}</div>
     <button data-buy="${it.key}" style="margin-top:6px;width:100%"${state.inv.gold<it.price?" disabled":""}>Kaufen (${it.price}💰)</button>
-   </div>`).join("")+"</div>";
+   </div>`).join("")+"</div>"+(superUnlocked()?"":`<div style="text-align:center;font-size:12.5px;opacity:.8;margin-top:8px">🔒 Superkapseln gibt es hier, sobald eines deiner Monster Level 50 erreicht.</div>`);
  }else{
   const goods=SHOP_ITEMS.filter(it=>SELL_PRICES[it.key]);
   body='<h4>🎒 Gegenstände</h4><div class="subGrid">'+goods.map(it=>
@@ -3599,7 +3951,7 @@ function openMarket(){
  subContent.onclick=e=>{
   const b=e.target.closest("button");if(!b||b.disabled)return;
   if(b.dataset.mtab){marketTab=b.dataset.mtab;subContent.scrollTop=0;openMarket();return}
-  if(b.dataset.buy){const item=SHOP_ITEMS.find(i=>i.key===b.dataset.buy);if(item&&state.inv.gold>=item.price){state.inv.gold-=item.price;state.inv[item.key]=(state.inv[item.key]||0)+1;save();sfx("coin");openMarket()}return}
+  if(b.dataset.buy){const item=shopItems().find(i=>i.key===b.dataset.buy);if(item&&state.inv.gold>=item.price){state.inv.gold-=item.price;invAdd(item.key,1);save();sfx("coin");openMarket()}return}
   if(b.dataset.sellitem){const k=b.dataset.sellitem;if((state.inv[k]||0)>0){state.inv[k]--;state.inv.gold+=SELL_PRICES[k];save();sfx("coin");openMarket()}return}
   if(b.dataset.sellgear){
    if(!b.dataset.confirm){b.dataset.confirm="1";b.textContent="Sicher? Nochmal tippen";return}
@@ -3747,33 +4099,52 @@ document.querySelectorAll(".menuCard").forEach(makeTouchScrollable);
 function speciesKind(c){
  const sp=SPECIES[c.sid];if(!sp)return "";
  if(sp.legendary)return "⭐ Legendär";
- if(sp.special)return sp.evolvedFrom?"🥚 Ei-Monster · entwickelt":"🥚 Ei-Monster · Baby";
+ if(sp.special)return sp.eggFinal?"🥚 Ei-Monster · Endform":sp.evolvedFrom?"🥚 Ei-Monster · entwickelt":"🥚 Ei-Monster · Baby";
  if(sp.simple)return "Einzelform";
  return ["","Grundform","1. Entwicklung","2. Entwicklung","3. Entwicklung"][sp.stage]||"Entwicklung";
 }
 function elemBadge(t){return `<span class="elBadge" style="background:${TYPECOLORS[t]||"#888"}">${TYPE_ICONS[t]||""} ${t}</span>`}
+function elemBadges(c){return elemBadge(c.type)+(c.type2?" "+elemBadge(c.type2):"")}
+// Zweites Element: leuchtender Rand in der Farbe des 2. Elements
+function dualWrap(c,svg){return c&&c.type2?`<div class="dualGlow" style="--g2:${TYPECOLORS[c.type2]||"#fff"}">${svg}</div>`:svg}
+let teamSort=false,teamSel=null;
+function teamSwap(a,b){if(a===b||a<0||b<0||a>=state.team.length||b>=state.team.length)return;const t=state.team[a];state.team[a]=state.team[b];state.team[b]=t;save()}
 function renderTeam(){
+ if(state.team.length<2)teamSort=false;
  const tiles=state.team.map((c,i)=>{
-  const ko=c.hp<=0,pts=c.points>0,evo=c.evoReady&&SPECIES[c.sid].evoChoice;
-  return `<button class="teamTile${i===0?" lead":""}${ko?" ko":""}" data-detail-i="${i}" style="--el:${TYPECOLORS[c.type]||"#888"}">
-   ${pts||evo?`<span class="ttAlert">${evo?"✨":pts?c.points:""}</span>`:""}
-   <div class="ttImg">${creatureSVG(c.sid)}</div>
+  const ko=c.hp<=0,pts=c.points>0,evo=evoPending(c),sel=teamSort&&teamSel===i;
+  return `<button class="teamTile${i===0?" lead":""}${ko?" ko":""}${sel?" ttSel":""}${teamSort?" ttSortable":""}" data-detail-i="${i}" style="--el:${TYPECOLORS[c.type]||"#888"}">
+   ${!teamSort&&(pts||evo)?`<span class="ttAlert">${evo?"✨":pts?c.points:""}</span>`:""}
+   ${teamSort?`<span class="ttPos">${i+1}</span>`:""}
+   <div class="ttImg">${dualWrap(c,creatureSVG(c.sid))}</div>
    <div class="ttName">${c.name}</div>
    <div class="ttLv">Lv.${c.level}${i===0?" · ⭐":""}</div>
-   ${elemBadge(c.type)}
-   <div class="ttKind">${speciesKind(c)}</div>
+   ${elemBadges(c)}
+   ${teamSort?`<div class="ttMoveRow"><span class="ttMv" data-mv="${i}:-1"${i===0?' data-off="1"':""}>◀</span><span class="ttMv" data-mv="${i}:1"${i===state.team.length-1?' data-off="1"':""}>▶</span></div>`:`<div class="ttKind">${speciesKind(c)}</div>`}
    <div class="hpbar" style="margin-top:4px"><div class="hpfill" style="${hpFillStyle(c.hp,c.maxhp)}"></div></div>
   </button>`;
  }).join("");
+ const hint=teamSort?(teamSel===null?"Tippe ein Monster an und dann ein zweites, um die Plätze zu tauschen – oder schiebe es mit ◀ ▶. Platz 1 kämpft zuerst.":"Jetzt das Monster antippen, mit dem die Plätze getauscht werden sollen."):"Tippe ein Monster an für Werte, Attacken und mehr.";
  openSub(`<h3>🐾 Team <span style="font-size:13px;opacity:.75">(${state.team.length}/6)</span></h3>
-  <div style="font-size:12.5px;text-align:center;opacity:.8;margin:-6px 0 8px">Tippe ein Monster an für Werte, Attacken und mehr.</div>
+  <div style="font-size:12.5px;text-align:center;opacity:.85;margin:-6px 0 8px">${hint}</div>
+  ${state.team.length>1?`<button id="teamSortBtn" style="width:100%;margin-bottom:8px${teamSort?";background:linear-gradient(180deg,#e8b020,#a86a10)":""}">${teamSort?"✅ Fertig":"↕️ Reihenfolge ändern"}</button>`:""}
   <div class="teamGrid">${tiles}</div>`+
   (state.eggs&&state.eggs.length?'<h4>🥚 Eier im Team</h4>'+state.eggs.map(e=>`<div class="subCard"><div class="miniSprite" style="width:44px;height:52px">${EGG_SVG}</div><div style="flex:1"><b>Ungewöhnliches Ei</b><div class="expbar" style="height:8px;margin-top:6px"><div class="expfill" style="width:${Math.min(100,100*e.steps/EGG_STEPS)}%;background:#e8b020"></div></div><div style="font-size:12px;margin-top:2px">👣 ${e.steps}/${EGG_STEPS} Schritte · ${eggHint(e)}</div></div></div>`).join(""):"")+
   `<button id="teamToBox" style="width:100%;margin-top:10px">📦 Zur Monsterbox (${state.storage.length} Monster)</button>`);
  subContent.onclick=e=>{
-  if(e.target.closest("#teamToBox")){renderBox();return}
+  if(e.target.closest("#teamToBox")){teamSort=false;teamSel=null;renderBox();return}
+  if(e.target.closest("#teamSortBtn")){teamSort=!teamSort;teamSel=null;renderTeam();return}
+  const mv=e.target.closest("[data-mv]");
+  if(mv&&teamSort){if(mv.dataset.off)return;const [a,d]=mv.dataset.mv.split(":").map(Number);teamSwap(a,a+d);teamSel=null;sfx("tap");renderTeam();return}
   const t=e.target.closest("button[data-detail-i]");if(!t)return;
-  renderTeamDetail(+t.dataset.detailI);
+  const i=+t.dataset.detailI;
+  if(teamSort){
+   if(teamSel===null)teamSel=i;
+   else if(teamSel===i)teamSel=null;
+   else{teamSwap(teamSel,i);teamSel=null;sfx("tap")}
+   renderTeam();return;
+  }
+  renderTeamDetail(i);
  };
 }
 function renderTeamDetail(i){
@@ -3789,8 +4160,8 @@ function renderTeamDetail(i){
  openSub(`${switcher}
   <div class="subCard" style="align-items:flex-start;border-color:${TYPECOLORS[c.type]||"var(--accent)"}">
    <div style="width:92px;flex:0 0 auto;text-align:center">
-    <div style="width:92px;height:92px">${creatureSVG(c.sid)}</div>
-    ${elemBadge(c.type)}
+    <div style="width:92px;height:92px">${dualWrap(c,creatureSVG(c.sid))}</div>
+    ${elemBadges(c)}
    </div>
    <div style="flex:1;min-width:0">
     <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px">
@@ -3807,6 +4178,7 @@ function renderTeamDetail(i){
   </div>
   <div class="subCard" style="display:block">
    ${statRow("Angriff",c.atk,Math.max(120,c.atk))}${statRow("Verteidigung",c.def,Math.max(120,c.def))}${statRow("Tempo",c.spd,Math.max(120,c.spd))}${statRow("Spezial",c.spec,Math.max(120,c.spec))}
+   ${allocHtml(c)}
    <div style="font-size:12px;margin-top:6px;opacity:.9">⚔️ ${c.moves.map(m=>MOVES[m]?MOVES[m].name:m).join(" · ")}</div>
   </div>
   <div style="display:flex;gap:6px;margin-top:4px">
@@ -3815,7 +4187,7 @@ function renderTeamDetail(i){
   </div>
   <div style="display:flex;gap:6px;margin-top:6px">
    ${i>0?`<button data-team-i="${i}" style="flex:1">⭐ Nach vorne stellen</button>`:""}
-   ${c.evoReady&&SPECIES[c.sid].evoChoice?`<button data-evo-i="${i}" style="flex:1;background:linear-gradient(180deg,#e8b020,#a86a10)">✨ Entwickeln</button>`:""}
+   ${evoPending(c)?`<button data-evo-i="${i}" style="flex:1;background:linear-gradient(180deg,#e8b020,#a86a10)">✨ Entwickeln</button>`:""}
   </div>
   <button id="teamDetailBack" style="width:100%;margin-top:10px">◀ Zur Team-Übersicht</button>`);
  subContent.onclick=e=>{
@@ -3890,6 +4262,11 @@ document.getElementById("btnPoints").addEventListener(btnAEvt,openTeamFromPoints
 document.getElementById("btnFish").addEventListener(btnAEvt,fishButton);
 if(!window.PointerEvent)document.getElementById("btnFish").addEventListener("mousedown",fishButton);
 if(!window.PointerEvent)document.getElementById("btnPoints").addEventListener("mousedown",openTeamFromPoints);
+function allocHtml(c){
+ const line=(o,label)=>{const e=Object.keys(STAT_LABELS).filter(k=>o&&o[k]>0);if(!e.length)return "";
+  return `<div style="font-size:12px;margin-top:5px;line-height:1.4"><span style="font-weight:bold;color:#ffe37a">${label}</span> ${e.map(k=>`<span style="white-space:nowrap">${STAT_LABELS[k]}</span> <span style="font-weight:bold">+${o[k]}</span> <span style="opacity:.7">(+${o[k]*STAT_POINT_GAIN[k]})</span>`).join(" · ")}</div>`};
+ return line(c.allocAuto,"🎲 Zufällig verteilt (als es wild war):")+line(c.alloc,"🎯 Von dir verteilt:");
+}
 function renderStatAlloc(idx,from){
  const c=state.team[idx];
  const rows=Object.keys(STAT_POINT_GAIN).map(key=>{
@@ -3901,7 +4278,7 @@ function renderStatAlloc(idx,from){
  }).join("");
  openSub(`<h3>📊 ${c.name} – Werte</h3>
   <div style="text-align:center;margin-bottom:10px;font-size:15px;color:#ffe37a">✨ ${c.points} Punkte übrig</div>
-  ${rows}
+  ${rows}${allocHtml(c)}
   <button id="statAllocBack" style="width:100%;margin-top:10px">Zurück</button>`);
  subContent.onclick=e=>{
   const backBtn=e.target.closest("#statAllocBack");
@@ -3911,6 +4288,7 @@ function renderStatAlloc(idx,from){
   const key=addBtn.dataset.statAdd,gain=STAT_POINT_GAIN[key];
   c.points--;
   if(key==="hp"){c.maxhp+=gain;c.hp+=gain}else{c[key]+=gain}
+  c.alloc=c.alloc||{};c.alloc[key]=(c.alloc[key]||0)+1;
   save();renderStatAlloc(idx,from);
  };
 }
@@ -3920,6 +4298,7 @@ document.getElementById("mDex").addEventListener("click",()=>{
   const s=SPECIES[sid],count=owned.filter(c=>c.sid===sid).length,defeated=state.defeatedCount[sid]||0;
   const mastered=masteryActive(sid);
   const masteryLine=mastered?`🏆 Meisterschaft (+${Math.round(MASTERY_BONUS*100)}% Fangchance)`:`${defeated}/${MASTERY_THRESHOLD} besiegt für Meisterschaft`;
+  if(count===0&&s.eggHidden)return "";
   if(count===0){
    if(defeated===0)return `<div style="background:#0004;border-radius:8px;padding:8px;margin:4px 0">❓ <b>???</b> – noch nicht gefangen</div>`;
    return `<div style="background:#0004;border-radius:8px;padding:8px;margin:4px 0">❓ <b>???</b> – noch nicht gefangen<br><small>${masteryLine}</small></div>`;
@@ -3927,7 +4306,7 @@ document.getElementById("mDex").addEventListener("click",()=>{
   return `<div style="background:#0006;border-radius:8px;padding:8px;margin:4px 0;display:flex;gap:8px;align-items:center">
    <div class="miniSprite">${creatureSVG(sid)}</div>
    <div><b>${s.name}</b> (${s.type}) – Seltenheit ${s.rarity}<br>${count}x im Bestand · ${masteryLine}
-   <br><small style="opacity:.85">${s.mystic?"🌀 Mystisch – taucht nur nach langer Zeit beim Surfen aus der Tiefe auf":s.legendary?"⭐ Legendär – gibt es nur an einem einzigen Ort":s.evoChoice?"🥚 Schlüpft aus dem Ungewöhnlichen Ei · ab Lv.15 Entwicklung mit frei wählbarem Element":s.evo?`✨ Entwickelt sich ab Lv.${evoLevelOf(sid)} zu ${SPECIES[s.evo].name}`:s.evolvedFrom?`Entwicklung von ${SPECIES[s.evolvedFrom].name}`:"Entwickelt sich nicht"}</small>
+   <br><small style="opacity:.85">${s.mystic?"🌀 Mystisch – taucht nur nach langer Zeit beim Surfen aus der Tiefe auf":s.legendary?"⭐ Legendär – gibt es nur an einem einzigen Ort":s.eggFinal?`🥚 Endform von ${SPECIES[s.evolvedFrom].name} · bekommt ein zweites, frei wählbares Element`:s.evoDual?`Entwicklung von ${SPECIES[s.evolvedFrom].name} · ab Lv.25 zweite Entwicklung mit zweitem Element`:s.evoChoice?"🥚 Schlüpft aus dem Ungewöhnlichen Ei · ab Lv.15 Entwicklung mit frei wählbarem Element":s.evo?`✨ Entwickelt sich ab Lv.${evoLevelOf(sid)} zu ${SPECIES[s.evo].name}`:s.evolvedFrom?`Entwicklung von ${SPECIES[s.evolvedFrom].name}`:"Entwickelt sich nicht"}</small>
    </div>
   </div>`;
  }).join("");
@@ -3939,8 +4318,8 @@ document.getElementById("mDex").addEventListener("click",()=>{
 let boxSort="neu";
 function boxTile(c,attr,cls,extra){
  return `<button class="teamTile ${cls||""}" ${attr} style="--el:${TYPECOLORS[c.type]||"#888"}">
-  <div class="ttImg">${creatureSVG(c.sid)}</div><div class="ttName">${c.name}</div>
-  <div class="ttLv">Lv.${c.level}</div>${elemBadge(c.type)}<div class="ttKind">${extra||speciesKind(c)}</div></button>`;
+  <div class="ttImg">${dualWrap(c,creatureSVG(c.sid))}</div><div class="ttName">${c.name}</div>
+  <div class="ttLv">Lv.${c.level}</div>${elemBadges(c)}<div class="ttKind">${extra||speciesKind(c)}</div></button>`;
 }
 function renderBox(sel,dep,msg){
  const st=state.storage,tm=state.team;
@@ -3991,7 +4370,7 @@ function renderInv(){
   {key:"fangkapsel",icon:"🔴",name:"Fangkapsel",count:state.inv.fangkapsel,desc:"Zum Fangen wilder Kreaturen"},
   {key:"heiltrank",icon:"💊",name:"Heiltrank",count:state.inv.heiltrank,desc:"Heilt 20 HP · außerhalb und im Kampf einsetzbar"},
   {key:"heilkraut",icon:"🌿",name:"Heilkraut",count:state.inv.heilkraut||0,desc:"Im Kampf: heilt alle Statuseffekte"}
- ].concat(state.hasRod?[{key:"angel",icon:"🎣",name:"Angel",count:1,desc:"Vor Wasser benutzen · fängt Wasser- und Drachen-Monster"}]:[]).concat(TYPE_CYCLE.filter(t=>state.inv.elem&&state.inv.elem[t]>0).map(t=>({key:"elem_"+t,icon:TYPE_ICONS[t],name:t+"kapsel",count:state.inv.elem[t],desc:`Nur als Fundstück · x${ELEM_CAPSULE_BONUS} Fangchance bei ${t}-Monstern`})));
+ ].concat(state.hasRod?[{key:"angel",icon:"🎣",name:"Angel",count:1,desc:"Vor Wasser benutzen · fängt Wasser- und Drachen-Monster"}]:[]).concat(TYPE_CYCLE.filter(t=>state.inv.elem&&state.inv.elem[t]>0).map(t=>({key:"elem_"+t,icon:TYPE_ICONS[t],name:t+"kapsel",count:state.inv.elem[t],desc:`Nur als Fundstück · x${ELEM_CAPSULE_BONUS} Fangchance bei ${t}-Monstern`}))).concat((state.inv.superkapsel||0)>0?[{key:"superkapsel",icon:"⭐",name:"Superkapsel",count:state.inv.superkapsel,desc:`x${SUPER_BONUS} Fangchance bei allen Monstern`}]:[]).concat(TYPE_CYCLE.filter(t=>(superElem()[t]||0)>0).map(t=>({key:"s_"+t,icon:"⭐"+TYPE_ICONS[t],name:`Superkapsel (${t})`,count:superElem()[t],desc:`x${SUPER_BONUS} Fangchance · x${SUPER_BONUS*ELEM_CAPSULE_BONUS} bei ${t}-Monstern`})));
  openSub("<h3>🎒 Inventar</h3><div class=\"subGrid\">"+items.map(it=>
   `<div class="itemCard${it.count===0?" empty":""}">
    <div class="ii">${it.icon}</div>
@@ -4098,7 +4477,7 @@ function renderMapOverview(){
  c2.strokeStyle="#fff";c2.lineWidth=2;c2.stroke();
 }
 document.getElementById("mMap").addEventListener("click",renderMapOverview);
-const TYPE_ICONS={Wasser:"💧",Feuer:"🔥",Natur:"🌿",Erde:"🪨",Blitz:"⚡",Psycho:"🔮",Drache:"🐉",Wind:"🌪️"};
+const TYPE_ICONS={Wasser:"💧",Feuer:"🔥",Natur:"🌿",Erde:"🪨",Blitz:"⚡",Psycho:"🔮",Drache:"🐉",Wind:"🌪️",Normal:"⚪"};
 function typeCycleSVG(){
  const cx=150,cy=150,R=114,n=TYPE_CYCLE.length,NR=25;
  const pts=TYPE_CYCLE.map((t,i)=>{const a=-Math.PI/2+i*2*Math.PI/n;return {t,x:cx+R*Math.cos(a),y:cy+R*Math.sin(a)}});
@@ -4214,11 +4593,14 @@ const PASSIVES={
  babydrache:{name:"Drachenmut",icon:"🔥",desc:"verursacht 15 % mehr Schaden",dmgMul:1.15},
  drache_evo:{name:"Drachenherz",icon:"🐉",desc:"verursacht 25 % mehr Schaden",dmgMul:1.25},
  babyengel:{name:"Heiliger Schein",icon:"😇",desc:"ist immun gegen Gift, Verbrennung, Schlaf, Benommenheit und Verwirrung",statusImmune:true},
- engel_evo:{name:"Schutzengel",icon:"👼",desc:"ist immun gegen Statuseffekte und heilt am Ende jeder Runde 1/16 seiner max. KP",statusImmune:true,regen:1/16}
+ engel_evo:{name:"Schutzengel",icon:"👼",desc:"ist immun gegen Statuseffekte und heilt am Ende jeder Runde 1/16 seiner max. KP",statusImmune:true,regen:1/16},
+ drache_final:{name:"Drachenkönig",icon:"👑",desc:"verursacht 30 % mehr Schaden und erleidet 10 % weniger Schaden",dmgMul:1.3,dmgTakenMul:0.9},
+ engel_final:{name:"Erzsegen",icon:"🕊️",desc:"ist immun gegen Statuseffekte und heilt am Ende jeder Runde 1/10 seiner max. KP",statusImmune:true,regen:0.1}
 };
 function passiveOf(c){
  if(!c||!SPECIES[c.sid])return null;
  if(PASSIVES[c.sid])return PASSIVES[c.sid];
+ if(SPECIES[c.sid].eggFinal)return SPECIES[c.sid].eggFinal==="babydrache"?PASSIVES.drache_final:PASSIVES.engel_final;
  const from=SPECIES[c.sid].evolvedFrom;
  if(from==="babydrache")return PASSIVES.drache_evo;
  if(from==="babyengel")return PASSIVES.engel_evo;
@@ -4255,7 +4637,7 @@ function applyStatus(target,st,forced){
   target.confused=2+Math.floor(Math.random()*3);
   return `${target.name} wird verwirrt! ❓`;
  }
- if(STATUS_IMMUNE[st]===target.type)return forced?`${target.name} ist als ${target.type}-Monster immun!`:null;
+ if(STATUS_IMMUNE[st]&&hasType(target,STATUS_IMMUNE[st]))return forced?`${target.name} ist als ${STATUS_IMMUNE[st]}-Monster immun!`:null;
  if(target.status)return forced?`Es hat keine Wirkung … ${target.name} ist bereits ${STATUS_INFO[target.status].name}.`:null;
  target.status=st;
  if(st==="schlaf"){target.sleepTurns=1+Math.floor(Math.random()*3);return `${target.name} ist eingeschlafen! 💤`}
@@ -4267,7 +4649,7 @@ function applyStatus(target,st,forced){
 function effSpd(c){return c.status==="benommen"?c.spd*0.5:c.spd}
 // Gegner-KI: Status-Attacken nicht sinnlos wiederholen
 function pickEnemyMove(e,a){
- const usable=e.moves.filter(mk=>{const mv=MOVES[mk];if(mv.pow>0)return true;const st=mv.effect&&mv.effect.status;if(st==="verwirrt")return !(a.confused>0);return !a.status&&STATUS_IMMUNE[st]!==a.type});
+ const usable=e.moves.filter(mk=>{const mv=MOVES[mk];if(mv.pow>0)return true;const st=mv.effect&&mv.effect.status;if(st==="verwirrt")return !(a.confused>0);return !a.status&&!(STATUS_IMMUNE[st]&&hasType(a,STATUS_IMMUNE[st]))});
  const pool=usable.length?usable:e.moves;
  return pool[Math.floor(Math.random()*pool.length)];
 }
@@ -4441,7 +4823,7 @@ function updateFishButton(){
 function fishButton(e){if(e)e.preventDefault();if(menu.style.display==="flex"||document.getElementById("subpanel").style.display==="flex")return;tryFish()}
 
 // ---------- SURFEN (Belohnung der 5. Arena) ----------
-function surfMon(){return state.team.find(c=>c.type==="Wasser")||null}
+function surfMon(){return state.team.find(c=>hasType(c,"Wasser"))||null}
 let LAND_CACHE={key:"",set:null};
 // An Land gehen darf man nur dort, wo man auch zu Fuß hinkäme (Hindernisse/Story bleiben gültig)
 function landReachable(x,y){
@@ -4551,16 +4933,17 @@ function showHatch(egg){
 // Entwicklung mit Element-Wahl (Babydrache/Babyengel)
 function checkEvoChoice(){
  if(state.inBattle||fieldMoveOpen()||cutscene)return;
- const c=state.team.find(x=>x.evoReady&&SPECIES[x.sid]&&SPECIES[x.sid].evoChoice);
+ const c=state.team.find(x=>evoPending(x));
  if(c)showEvoChoice(c);
 }
 function showEvoChoice(c){
  if(fieldMoveOpen())return;
- const sp=SPECIES[c.sid];if(!sp.evoChoice)return;
+ const sp=SPECIES[c.sid];if(sp.evoDual){showDualEvo(c);return}if(!sp.evoChoice)return;
  const el=document.createElement("div");el.id="fieldMove";
  el.innerHTML=`<div class="fmCard fmWide"><div class="fmHead">✨ Entwicklung</div>
   <div class="evoTop"><div class="evoCur">${creatureSVG(c.sid)}</div><div class="fmText">${c.name} ist bereit, sich zu entwickeln! Wähle <b>einmalig</b> ein Element – die Wahl gilt für immer.</div></div>
-  <div class="evoGrid">${TYPE_CYCLE.map(t=>{const sid=sp.evoChoice[t];return `<button data-evo="${sid}" style="border-color:${TYPECOLORS[t]}"><div class="evoImg">${creatureSVG(sid)}</div><b>${SPECIES[sid].name}</b><small>${TYPE_ICONS[t]} ${t}</small></button>`}).join("")}</div>
+  <div class="evoGrid evoGrid3">${TYPE_CYCLE.filter(t=>!EGG_BLOCKED_FIRST.includes(t)).map(t=>{const sid=sp.evoChoice[t];return `<button data-evo="${sid}" style="border-color:${TYPECOLORS[t]}"><div class="evoImg">${creatureSVG(sid)}</div><b>${SPECIES[sid].name}</b><small>${TYPE_ICONS[t]} ${t}</small></button>`}).join("")}</div>
+  <div class="evoOdds">🐉 Drache und 🔮 Psycho sind nicht wählbar. Ab Lv.25 folgt eine zweite Entwicklung mit einem zweiten Element.</div>
   <button class="evoLater">Später entscheiden</button></div>`;
  {const d=document.getElementById("dialog");d.style.display="none";clearTimeout(showDialog._t)}
  document.body.appendChild(el);
@@ -4573,9 +4956,54 @@ function showEvoChoice(c){
   if(e.target.closest(".evoLater")){el.remove();showDialog(`Du kannst ${c.name} jederzeit im Team-Menü entwickeln („✨ Entwickeln“).`);return}
   const b=e.target.closest("button[data-evo]");if(!b)return;
   const oldName=c.name,to=b.dataset.evo;
-  evolveCreature(c,to);c.evoReady=false;save();done=true;sfx("evolve");
+  evolveCreature(c,to);c.evoReady=!!(SPECIES[c.sid].evoDual&&c.level>=EGG_DUAL_LEVEL);save();done=true;sfx("evolve");
   el.querySelector(".fmCard").innerHTML=`<div class="fmHead">✨ Entwicklung</div><div class="fmStage" style="justify-content:center"><div class="fmMon fmGo">${creatureSVG(c.sid)}</div></div><div class="fmText"></div><div class="fmNext">▼</div>`;
   fmTyper(el).type(`✨ ${oldName} hat sich zu ${c.name} (${TYPE_ICONS[c.type]} ${c.type}) entwickelt!`);
+ });
+}
+// Babydrache und seine Entwicklungen machen ca. 25 % weniger Schaden (Ausgleich zur Stärke)
+function isEggDragon(c){const sp=c&&SPECIES[c.sid];if(!sp)return false;return c.sid==="babydrache"||sp.evolvedFrom==="babydrache"||sp.eggFinal==="babydrache"}
+function evoPending(c){const s=c&&SPECIES[c.sid];return !!(c&&c.evoReady&&s&&(s.evoChoice||s.evoDual))}
+// Zweites Element: alle Attacken dieses Elements bis zum aktuellen Level merken, die stärkste sofort aktivieren
+function teachSecondElement(c){
+ const prog=TYPE_MOVE_PROGRESSION[c.type2]||{};if(!c.learned)c.learned=c.moves.slice();
+ const avail=Object.keys(prog).filter(l=>+l<=c.level).map(l=>prog[l]);
+ avail.forEach(mk=>{if(!c.learned.includes(mk))c.learned.push(mk)});
+ const best=avail.sort((x,y)=>MOVES[y].pow-MOVES[x].pow)[0];
+ if(best&&!c.moves.includes(best)){
+  if(c.moves.length<4)c.moves.push(best);
+  else{let wi=0,wp=1e9;c.moves.forEach((m,k)=>{const mv=MOVES[m];const pw=mv.pow>0?mv.pow:999;if(pw<wp){wp=pw;wi=k}});c.moves[wi]=best}
+ }
+ return best;
+}
+function showDualEvo(c){
+ if(fieldMoveOpen())return;
+ const sp=SPECIES[c.sid];if(!sp.evoDual)return;
+ const bid=sp.evolvedFrom,V=EGG_VARIANTS[bid];
+ const opts=TYPE_CYCLE.filter(t=>t!==c.type);
+ const el=document.createElement("div");el.id="fieldMove";
+ el.innerHTML=`<div class="fmCard fmWide"><div class="fmHead">✨ Zweite Entwicklung</div>
+  <div class="evoTop"><div class="evoCur">${creatureSVG(c.sid)}</div><div class="fmText">${c.name} ist bereit für seine zweite Entwicklung! Wähle einmalig ein zweites Element – danach hat es zwei Elemente.</div></div>
+  <div class="evoGrid">${opts.map(t=>`<button data-el2="${t}" style="border-color:${TYPECOLORS[t]}"><div class="evoImg evoIcon">${TYPE_ICONS[t]}</div><b>${t}</b><small>${TYPE_ICONS[c.type]} + ${TYPE_ICONS[t]}</small></button>`).join("")}</div>
+  <div class="evoOdds">🎲 Gestalt per Zufall: ${V.map(v=>`${v.label} ${Math.round(v.p*100)} %`).join(" · ")}</div>
+  <button class="evoLater">Später entscheiden</button></div>`;
+ {const d=document.getElementById("dialog");d.style.display="none";clearTimeout(showDialog._t)}
+ document.body.appendChild(el);
+ let done=false;
+ el._advance=()=>{if(done)el.remove()};
+ el._back=()=>{el.remove()};
+ el.addEventListener("click",e=>{
+  e.preventDefault();
+  if(done){el.remove();return}
+  if(e.target.closest(".evoLater")){el.remove();showDialog(`Du kannst ${c.name} jederzeit im Team-Menü entwickeln („✨ Entwickeln“).`);return}
+  const b=e.target.closest("button[data-el2]");if(!b)return;
+  const t2=b.dataset.el2,oldName=c.name,vi=rollEggVariant(bid),v=V[vi];
+  evolveCreature(c,sp.evoDual[vi]);c.type2=t2;c.evoReady=false;
+  const mk=teachSecondElement(c);
+  save();done=true;sfx("evolve");
+  const pas=passiveOf(c);
+  el.querySelector(".fmCard").innerHTML=`<div class="fmHead">✨ Zweite Entwicklung</div><div class="fmStage" style="justify-content:center"><div class="fmMon fmGo">${dualWrap(c,creatureSVG(c.sid))}</div></div><div class="fmText"></div><div class="fmNext">▼</div>`;
+  fmTyper(el).type(`✨ ${oldName} hat sich zu ${c.name} entwickelt! Gestalt: ${v.label} (${Math.round(v.p*100)} %) · Elemente: ${TYPE_ICONS[c.type]} ${c.type} + ${TYPE_ICONS[c.type2]} ${c.type2} · Passiv: ${pas.icon} ${pas.name} · Neue Attacke: ${mk?MOVES[mk].name:"–"}`);
  });
 }
 
@@ -4669,10 +5097,10 @@ function caveRescueScene(){
   [L,["Da bist du ja! Ich bin dir gefolgt … Meine Monster – sie sind frei! Danke, danke, danke!",`Nimm das als Dank. Und pass auf dich auf – die Gilde ist größer, als wir dachten …`,"Ihr Stromzaun am Weg nach Nebelhain hat jetzt keinen Strom mehr aus der Höhle. Mit einem Erd-Monster kommst du hindurch!"]]
  ],()=>{
   story().cassiaRescued=true;if(state.quests.qGilde1)state.quests.qGilde1.done=true;
-  state.inv.heiltrank+=4;state.inv.fangkapsel+=5;state.inv.gold+=800;
+  state.inv.heiltrank+=4;state.inv.fangkapsel+=5;state.inv.gold+=400;
   const it=makeGear(Math.random()<0.5?"amulet":"hat","episch");addGear(it);save();
   showGearFound(it,`🎁 Geschenk von ${L}`);
-  setTimeout(()=>showDialog("Belohnung: 💰 800, 4x Heiltrank, 5x Fangkapsel!"),200);
+  setTimeout(()=>showDialog("Belohnung: 💰 400, 4x Heiltrank, 5x Fangkapsel!"),200);
  });
 }
 function novaAttackScene(){
@@ -4692,7 +5120,7 @@ function finaleScene(){
  storyTalk([
   ["Gildenmeisterin Vesper",["Unmöglich … Ein Kind hat die ganze Gilde besiegt?","… Du hast gewonnen. Die Jäger-Gilde löst sich auf. Die Monster gehören dir – äh, sich selbst."]],
   [L,["Du hast es wirklich geschafft! Meine Drachen sind frei!",`${state.playerName}, du hast nicht nur alle Arenen gemeistert – du hast die Monster dieser Welt gerettet.`,"Von heute an bist du eine echte Legende!"]]
- ],()=>{story().finished=true;if(state.quests.qGilde2)state.quests.qGilde2.done=true;state.inv.gold+=5000;const it=makeGear("amulet","legendaer");addGear(it);save();showEnding()});
+ ],()=>{story().finished=true;if(state.quests.qGilde2)state.quests.qGilde2.done=true;state.inv.gold+=2500;const it=makeGear("amulet","legendaer");addGear(it);save();showEnding()});
 }
 function showEnding(){
  setMusic("world");sfx("victory");
@@ -4701,9 +5129,9 @@ function showEnding(){
  el.innerHTML=`<div class="opSky"></div><div class="opSun"></div><div class="opScene" data-s="3" style="opacity:1"><div class="opVillage">${[[4,22,"#b5533a"],[18,30,"#d9534f"],[34,24,"#3a78c9"],[52,34,"#4f9a3f"],[70,26,"#8a5a3a"],[84,20,"#b5533a"]].map(([l,h,c])=>`<div class="opHouse" style="left:${l}%;height:${h}%;--roof:${c}"></div>`).join("")}</div></div>
   <div class="opTitle" style="opacity:1;transform:rotate(-2deg);font-size:min(8vw,11vh)">🏆 GESCHAFFT! 🏆</div>
   <div class="endBox"><div style="font-size:clamp(16px,4vmin,22px);font-weight:bold">Herzlichen Glückwunsch, ${state.playerName}!</div>
-   <div style="margin:6px 0">Du hast die Arenen gemeistert, die Jäger-Gilde zerschlagen und die gestohlenen Monster befreit.<br>Du hast Monsterwelt durchgespielt!</div>
+   <div style="margin:6px 0">Du hast die Arenen gemeistert, die Jäger-Gilde zerschlagen und die gestohlenen Monster befreit.<br>Du hast Monsterworld durchgespielt!</div>
    <div class="endTeam">${state.team.map(c=>`<div><div class="etImg">${creatureSVG(c.sid)}</div><small>${c.name} Lv.${c.level}</small></div>`).join("")}</div>
-   <div style="font-size:13px;opacity:.9;margin-top:6px">📖 ${dex} verschiedene Monster · 🏅 ${medalCount()}/${TOWNS.length} Medaillen · Belohnung: 💰 5000 + legendäres Amulett</div>
+   <div style="font-size:13px;opacity:.9;margin-top:6px">📖 ${dex} verschiedene Monster · 🏅 ${medalCount()}/${TOWNS.length} Medaillen · Belohnung: 💰 2500 + legendäres Amulett</div>
    <button class="endBtn">Weiterspielen ▶</button></div>`;
  document.body.appendChild(el);
  el.querySelector(".endBtn").addEventListener("click",()=>{el.classList.add("opOut");setTimeout(()=>el.remove(),700)});
@@ -4762,11 +5190,11 @@ function openBattlePanel(){
 function renderBattle(){
  if(!battle)return;
  const e=battle.enemy,a=battle.ally;
- document.getElementById("enemySprite").innerHTML=creatureSVG(e.sid);
- document.getElementById("allySprite").innerHTML=creatureSVG(a.sid);
+ document.getElementById("enemySprite").innerHTML=dualWrap(e,creatureSVG(e.sid));
+ document.getElementById("allySprite").innerHTML=dualWrap(a,creatureSVG(a.sid));
  const caughtMark=(!battle.trainer&&hasCaught(e.sid))?CAUGHT_ICON:"";
- document.getElementById("enemyInfo").innerHTML=`<b>${e.name}</b>${caughtMark} Lv.${e.level} (${e.type})${statusBadges(e)}<div class="hpbar"><div class="hpfill" style="${hpFillStyle(e.hp,e.maxhp)}"></div></div>${e.hp}/${e.maxhp}`;
- document.getElementById("playerInfo").innerHTML=`<b>${a.name}</b> Lv.${a.level} (${a.type})${statusBadges(a)}<div class="hpbar"><div class="hpfill" style="${hpFillStyle(a.hp,a.maxhp)}"></div></div>${a.hp}/${a.maxhp}<div class="expbar"><div class="expfill" style="width:${100*a.exp/a.expNeed}%"></div></div>`;
+ document.getElementById("enemyInfo").innerHTML=`<b>${e.name}</b>${caughtMark} Lv.${e.level} (${typeStr(e)})${statusBadges(e)}<div class="hpbar"><div class="hpfill" style="${hpFillStyle(e.hp,e.maxhp)}"></div></div>${e.hp}/${e.maxhp}`;
+ document.getElementById("playerInfo").innerHTML=`<b>${a.name}</b> Lv.${a.level} (${typeStr(a)})${statusBadges(a)}<div class="hpbar"><div class="hpfill" style="${hpFillStyle(a.hp,a.maxhp)}"></div></div>${a.hp}/${a.maxhp}<div class="expbar"><div class="expfill" style="width:${100*a.exp/a.expNeed}%"></div></div>`;
  const lg=document.getElementById("log");lg.textContent=battle.log||"";lg.style.display=battle.log?"block":"none";
  layoutBattle();
 }
@@ -4852,8 +5280,8 @@ async function act(actor,target,moveKey,side){
  if(mv.pow>0){
   const d=dmgCalc(actor,target,mv);
   target.hp=Math.max(0,target.hp-d);
-  flashHit(other,eff(mv.type,target.type));renderBattle();
-  await say(`${n} setzt ${mv.name} ein!${effText(mv.type,target.type)} (${d} Schaden)`);
+  flashHit(other,effC(mv.type,target));renderBattle();
+  await say(`${n} setzt ${mv.name} ein!${effText(mv.type,target)} (${d} Schaden)`);
   if(mv.drain&&actor.hp>0&&actor.hp<actor.maxhp){const h=Math.min(actor.maxhp-actor.hp,Math.max(1,Math.floor(d*mv.drain)));actor.hp+=h;renderBattle();await say(`✨ ${n} wird vom Licht gestärkt und heilt ${h} KP!`)}
   if(mv.defDown&&target.hp>0){if((target.defDown||0)<3){target.defDown=(target.defDown||0)+mv.defDown;renderBattle();await say(`🛡️ Die Verteidigung von ${target.name} sinkt!`)}else await say(`Die Verteidigung von ${target.name} kann nicht weiter sinken.`)}
   if(mv.effect&&target.hp>0&&Math.random()<mv.effect.chance){
@@ -4908,8 +5336,10 @@ async function checkFaints(){
   a.confused=0;
   await say(`${a.name} kann nicht mehr kämpfen!`);
   await passiveLeave(a);
-  const idx=activeIdx();
+  let idx=activeIdx();
   if(idx<0){await endBattle(false);return true}
+  idx=await pickNextAlly();
+  if(!battle||battle.over)return true;
   battle.ally=state.team[idx];markParticipant();renderBattle();save();
   await say(`Los, ${battle.ally.name}!`);
   await passiveEnter(battle.ally);
@@ -4938,6 +5368,19 @@ async function runRound(allyMove){
  showMenu();
 }
 function enemyFreeTurn(){return runRound(null)}
+// Auswahl des nächsten Monsters, wenn das aktive besiegt wurde (nur wenn mehrere noch kämpfen können)
+function pickNextAlly(){
+ return new Promise(res=>{
+  const alive=state.team.map((c,i)=>[c,i]).filter(([c])=>c.hp>0);
+  if(alive.length<=1){res(alive.length?alive[0][1]:-1);return}
+  bdEl().style.display="none";
+  battle.log="Welches Monster soll als Nächstes kämpfen?";renderBattle();
+  const box=document.getElementById("actMoves");
+  box.innerHTML=alive.map(([c,i])=>`<button data-n="${i}"><b>${c.name}</b><small>Lv.${c.level} · ${c.hp}/${c.maxhp} KP · ${typeStr(c)}</small></button>`).join("");
+  box.style.display="grid";document.getElementById("actMain").style.display="none";layoutBattleSoon();
+  box.onclick=e=>{const b=e.target.closest("button[data-n]");if(!b)return;box.onclick=null;box.style.display="none";box.innerHTML="";battle.log="";res(+b.dataset.n)};
+ });
+}
 function openSwitch(){
  const box=document.getElementById("actMoves");
  box.innerHTML=state.team.map((c,i)=>c.hp>0&&c!==battle.ally?`<button data-s="${i}"><b>${c.name}</b><small>Lv.${c.level} · ${c.hp}/${c.maxhp} HP</small></button>`:"").join("")+`<button data-s="back"><b>Zurück</b></button>`;
@@ -4982,14 +5425,14 @@ function openItems(){
 function openMoves(){
  const a=battle.ally;
  const box=document.getElementById("actMoves");
- const et=battle.enemy.type;
+ const et=typeStr(battle.enemy);
  box.onclick=null;
  box.innerHTML=a.moves.map(m=>{
-  const mv=MOVES[m],f=eff(mv.type,et),lb=effLabel(f);
+  const mv=MOVES[m],f=effC(mv.type,battle.enemy),lb=effLabel(f);
   const border=mv.pow>0?(f>1?"#7dff8a":f<1?"#ff8a7a":"#ffdd88"):"#c9a8ff";
   const fx=mv.effect?`<small style="color:#ffd0f0">${effectText(mv)}</small>`:mv.drain?`<small style="color:#a8ffb8">💚 heilt ${Math.round(mv.drain*100)}% des Schadens</small>`:mv.defDown?`<small style="color:#c8d4ff">🛡️↓ senkt Verteidigung</small>`:"";
   const eline=mv.pow>0?`<small style="color:${lb.col};font-weight:bold">${lb.txt} gegen ${et}${f!==1?` (x${f})`:""}</small>`:"";
-  return `<button data-m="${m}" style="border-color:${border}"><b>${mv.name}</b><small>${mv.type} · ${powText(mv)}${mv.pow>0&&mv.type===a.type?" · +20%":""}</small>${eline}${fx}</button>`;
+  return `<button data-m="${m}" style="border-color:${border}"><b>${mv.name}</b><small>${mv.type} · ${powText(mv)}${mv.pow>0&&(mv.type===a.type||mv.type===a.type2)?" · +20%":""}</small>${eline}${fx}</button>`;
  }).join("")+`<button data-m="back"><b>Zurück</b></button>`;
  box.style.display="grid";document.getElementById("actMain").style.display="none";layoutBattleSoon();
 }
@@ -5002,14 +5445,14 @@ function moveClickHandler(e){
  doTurn(m);
 }
 document.getElementById("actMoves").addEventListener("click",moveClickHandler);
-function effText(mt,dt){const f=eff(mt,dt);return f>1?" Sehr effektiv!":f<1?" Nicht sehr effektiv …":""}
+function effText(mt,dt){const f=typeof dt==="object"?effC(mt,dt):eff(mt,dt);return f>1?" Sehr effektiv!":f<1?" Nicht sehr effektiv …":""}
 function dmgCalc(att,def,move){
- const stab=move.type===att.type?1.2:1;
- const fx=eff(move.type,def.type);
+ const stab=(move.type===att.type||move.type===att.type2)?1.2:1;
+ const fx=effC(move.type,def);
  const burn=att.status==="brand"?0.8:1; // Verbrennung schwächt Angriffe etwas
  const defDown=1+0.25*(def.defDown||0); // gesenkte Verteidigung: mehr Schaden
  const pA=passiveOf(att),pD=passiveOf(def);
- const pas=((pA&&pA.dmgMul)||1)*((pD&&pD.dmgTakenMul)||1)*amuletMul(att,"att")*amuletMul(def,"def");
+ const pas=((pA&&pA.dmgMul)||1)*((pD&&pD.dmgTakenMul)||1)*amuletMul(att,"att")*amuletMul(def,"def")*(isEggDragon(att)?0.75:1);
  const raw=((att.atk*move.pow)/50)*stab*fx*burn*defDown*pas;
  return Math.max(1,Math.floor(raw*(0.85+Math.random()*0.3)));
 }
@@ -5021,11 +5464,13 @@ function doTurn(moveKey){
 // Kapselwahl: normale Fangkapsel oder gefundene Element-Fangkapseln
 function openCapsulePick(){
  const elem=state.inv.elem||{};
- const kinds=TYPE_CYCLE.filter(t=>elem[t]>0);
- if(!kinds.length){tryCatch("normal");return}
+ const kinds=TYPE_CYCLE.filter(t=>elem[t]>0),sup=state.inv.superkapsel||0,sKinds=TYPE_CYCLE.filter(t=>(superElem()[t]||0)>0);
+ if(!kinds.length&&!sup&&!sKinds.length){tryCatch("normal");return}
  const et=battle.enemy.type;
  const box=document.getElementById("actMoves");
  box.innerHTML=`<button data-c="normal"${state.inv.fangkapsel>0?"":" disabled"}><b>🔴 Fangkapsel</b><small>${state.inv.fangkapsel}x · normale Chance</small></button>`+
+  (sup?`<button data-c="super" style="border-color:#6aa8ff"><b>⭐ Superkapsel</b><small>${sup}x · ▲ x${SUPER_BONUS} Chance</small></button>`:"")+
+  sKinds.map(t=>`<button data-c="s_${t}" style="${t===et?"border-color:#7dff8a":"border-color:#6aa8ff"}"><b>⭐${TYPE_ICONS[t]} Superkapsel (${t})</b><small>${superElem()[t]}x · ${t===et?`<span style="color:#7dff8a;font-weight:bold">▲ x${SUPER_BONUS*ELEM_CAPSULE_BONUS} Chance gegen ${et}</span>`:`▲ x${SUPER_BONUS} Chance`}</small></button>`).join("")+
   kinds.map(t=>`<button data-c="${t}" style="${t===et?"border-color:#7dff8a":""}"><b>${TYPE_ICONS[t]} ${t}kapsel</b><small>${elem[t]}x · ${t===et?`<span style="color:#7dff8a;font-weight:bold">▲ x${ELEM_CAPSULE_BONUS} Chance gegen ${et}</span>`:"normale Chance"}</small></button>`).join("")+
   `<button data-c="back"><b>Zurück</b></button>`;
  box.style.display="grid";document.getElementById("actMain").style.display="none";layoutBattleSoon();
@@ -5043,16 +5488,19 @@ async function tryCatch(kind){
  if(kind==="normal"){
   if(state.inv.fangkapsel<=0){await say("Keine Fangkapseln mehr übrig!");showMenu();return}
   state.inv.fangkapsel--;
+ }else if(kind==="super"||kind.startsWith("s_")){
+  if(!(invCount(kind==="super"?"superkapsel":kind)>0)){await say("Keine solche Kapsel mehr übrig!");showMenu();return}
+  invAdd(kind==="super"?"superkapsel":kind,-1);
  }else{
   if(!(elem[kind]>0)){await say("Keine solche Kapsel mehr übrig!");showMenu();return}
   elem[kind]--;
  }
  battle.capKind=kind;
- await say(kind==="normal"?"Du wirfst eine Fangkapsel!":`Du wirfst eine ${TYPE_ICONS[kind]} ${kind}fangkapsel!`);
+ await say(kind==="normal"?"Du wirfst eine Fangkapsel!":kind==="super"||kind.startsWith("s_")?`Du wirfst eine ${capKindLabel(kind)}!`:`Du wirfst eine ${TYPE_ICONS[kind]} ${kind}fangkapsel!`);
  if(!battle)return;
  hideBattleMenus();
  const cap=document.getElementById("catchCapsule");
- const capTop=cap.querySelector("rect");if(capTop)capTop.setAttribute("fill",kind==="normal"?"#e8c15a":TYPECOLORS[kind]);
+ const capTop=cap.querySelector("rect");if(capTop)capTop.setAttribute("fill",kind==="normal"?"#e8c15a":kind==="super"?"#4a8ef0":kind.startsWith("s_")?TYPECOLORS[kind.slice(2)]:TYPECOLORS[kind]);
  cap.className="";cap.style.display="block";void cap.offsetWidth;
  cap.classList.add("throwCap");sfx("throw");
  setTimeout(()=>{sfx("wobble");
@@ -5099,8 +5547,10 @@ function resolveCatch(cap){
  const hpFrac=e.hp/e.maxhp;
  let chance=(tierChance(e.level)+(1-hpFrac)*0.1)/e.rarity;
  if(battle.legendId)chance=0.03+(1-hpFrac)*0.3; // legendär: schwer, aber mit wenig KP machbar
- const elemMatch=battle.capKind&&battle.capKind!=="normal"&&battle.capKind===e.type;
+ const ck=battle.capKind||"normal",isSuper=ck==="super"||ck.startsWith("s_"),capElem=ck.startsWith("s_")?ck.slice(2):(ck!=="normal"&&ck!=="super"?ck:null);
+ const elemMatch=!!capElem&&hasType(e,capElem);
  if(elemMatch)chance*=ELEM_CAPSULE_BONUS;
+ if(isSuper)chance*=SUPER_BONUS;
  if(e.status==="schlaf"||e.status==="benommen")chance*=1.5; // schlafende/benommene Monster sind leichter zu fangen
  const hadMastery=masteryActive(e.sid);
  if(hadMastery)chance*=(1+MASTERY_BONUS);
@@ -5113,11 +5563,22 @@ function resolveCatch(cap){
   clearBattleStatus(e);
   if(state.team.length<6)state.team.push(e);else{state.storage.push(e);msgs.push(`Dein Team ist voll – ${e.name} wurde ins Lager geschickt.`)}
   state.caughtCount[e.sid]=(state.caughtCount[e.sid]||0)+1;
-  if(elemMatch)msgs.push(`Die ${TYPE_ICONS[e.type]} ${e.type}fangkapsel hat besonders gut gewirkt!`);
+  if(elemMatch)msgs.push(isSuper?`Die ${capKindLabel(ck)} hat besonders gut gewirkt!`:`Die ${TYPE_ICONS[e.type]} ${e.type}fangkapsel hat besonders gut gewirkt!`);
   if(battle.legendId){if(!state.legends)state.legends={};state.legends[battle.legendId]="caught";msgs.push(`⭐ Du hast das legendäre ${e.name} gefangen!`)}
   if(e.type==="Wasser"&&!state.quests.qWasser.done){
    state.quests.qWasser.done=true;state.inv.fangkapsel+=2;
    msgs.push("Quest erfüllt: 2x Fangkapsel erhalten!");
+  }
+  // EP wie bei einem Sieg für alle Monster, die gegen das gefangene Monster gekämpft haben
+  {const parts=[...(battle.parts||[battle.ally])].filter(c=>c&&c!==e&&c.hp>0&&state.team.includes(c));
+   parts.forEach(c=>{
+    const exp=Math.round(expGain(e.level,c.level)*(1+gearTotal("exp")));c.exp+=exp;msgs.push(`${c.name} erhält ${exp} EP.`);
+    const r=levelUpCreature(c);
+    if(r.leveled)msgs.push(`${c.name} erreicht Level ${r.level}!${r.pointsGained?` (+${r.pointsGained} Punkte zu verteilen)`:""}`+(r.learned.length?` Lernt ${r.learned.join(", ")}!`:"")+(r.stored.length?` Merkt sich außerdem ${r.stored.join(", ")} (im Attacken-Menü aktivierbar).`:""));
+    if(r.leveled&&evoPending(c))msgs.push(SPECIES[c.sid].evoDual?`✨ ${c.name} kann sich jetzt ein zweites Mal entwickeln – du darfst gleich ein zweites Element wählen!`:`✨ ${c.name} kann sich jetzt entwickeln – du darfst gleich ein Element wählen!`);
+    if(r.evolved)msgs.push(`✨ Was? ${r.evolved.from} entwickelt sich … zu ${r.evolved.to}!`);
+   });
+   if(parts.some(c=>c.level>=SUPER_LEVEL)&&!state.superInfo){state.superInfo=true;msgs.push("⭐ Eines deiner Monster hat Level 50 erreicht! Im Markt gibt es jetzt Superkapseln.")}
   }
   renderBattle();save();
   setTimeout(async()=>{
@@ -5158,20 +5619,26 @@ async function fleeBattle(){
 //  normal 3 · Monster ohne Entwicklung ab Level 20 auf jedem geraden Level +1 (gleicht fehlende Entwicklungen aus)
 //  Monster der 4. Entwicklungsstufe ab Level 90: keine Punkte mehr
 function simpleBonusDue(c){const sp=SPECIES[c.sid];if(!sp||!sp.simple||c.level<20)return 0;return Math.floor((c.level-20)/2)+1}
-function pointsForLevelUp(c){
- const sp=SPECIES[c.sid];
- if(sp.stage>=4&&c.level>=90)return 0;
- let p=3;
- if(sp.simple&&c.level>=20&&c.level%2===0){p++;c.simpleBonus=(c.simpleBonus||0)+1}
- return p;
+// Neues System: Punkte gibt es nur bei Level 10, 20, 30 … 100 (Level 10 = 1 Punkt, Level 20 = 2 Punkte … Level 100 = 10 Punkte)
+function pointsForLevelUp(c){return (c.level%10===0&&c.level<=100)?c.level/10:0}
+function pointsDue(level){let p=0;for(let l=10;l<=Math.min(100,level);l+=10)p+=l/10;return p}
+// Einmalige Neuberechnung aller Werte (alte Punkte zurücksetzen, Punkte nach neuem System gutschreiben)
+function respecCreature(c){
+ const sp=SPECIES[c.sid];if(!sp)return;
+ const b=sp.base,L=c.level||1,L0=Math.min(L,5),up=Math.max(0,L-5),frac=c.maxhp>0?c.hp/c.maxhp:1;
+ c.maxhp=Math.floor(b.hp+L0*3)+up*4;c.atk=Math.floor(b.atk+L0*1.2)+up*2;c.def=Math.floor(b.def+L0*1.1)+up*2;c.spd=Math.floor(b.spd+L0)+up;c.spec=Math.floor(b.spec+L0)+up;
+ c.hp=c.hp>0?Math.max(1,Math.round(c.maxhp*frac)):0;
+ c.points=pointsDue(L);c.simpleBonus=0;
 }
+let RESPEC_DONE=false;
 function levelUpCreature(a){
  let leveled=false,learned=[],stored=[],evolved=null,pointsGained=0;
  if(!a.learned)a.learned=a.moves.slice();
  while(a.exp>=a.expNeed){
   a.exp-=a.expNeed;a.level++;a.maxhp+=4;a.hp=a.maxhp;a.atk+=2;a.def+=2;a.spd+=1;a.spec+=1;a.expNeed=a.level*20*(SPECIES[a.sid].slowExp?2:1);
   const gain=pointsForLevelUp(a);a.points=(a.points||0)+gain;pointsGained+=gain;leveled=true;
-  const learnList=(LEARN[a.sid]&&LEARN[a.sid][a.level])||[];
+  const t2m=a.type2&&TYPE_MOVE_PROGRESSION[a.type2]&&TYPE_MOVE_PROGRESSION[a.type2][a.level];
+  const learnList=((LEARN[a.sid]&&LEARN[a.sid][a.level])||[]).concat(t2m?[t2m]:[]);
   learnList.forEach(learn=>{
    if(a.learned.includes(learn))return;
    a.learned.push(learn);
@@ -5181,6 +5648,7 @@ function levelUpCreature(a){
   });
   while(SPECIES[a.sid].evo&&a.level>=evoLevelOf(a.sid))evolved=evolveCreature(a)||evolved;
   if(SPECIES[a.sid].evoChoice&&a.level>=evoLevelOf(a.sid))a.evoReady=true;
+  if(SPECIES[a.sid].evoDual&&a.level>=EGG_DUAL_LEVEL)a.evoReady=true;
  }
  return {leveled,level:a.level,learned,stored,evolved,pointsGained};
 }
@@ -5189,9 +5657,9 @@ function expGain(enemyLevel,recipientLevel){
  const ratio=Math.min(2,Math.max(0.1,enemyLevel/recipientLevel));
  return Math.max(1,Math.round(base*ratio));
 }
-// Wilde Monster geben deutlich weniger Gold als Trainerkämpfe (ca. ein Viertel)
-function wildGoldReward(l){return Math.round(l*1+Math.random()*l*0.5)+2}
-function goldReward(enemyLevel){return Math.round(enemyLevel*4+Math.random()*enemyLevel*2)+5}
+// Wilde Monster geben sehr wenig Gold (80 % weniger als früher) – Gold verdient man vor allem in Trainerkämpfen
+function wildGoldReward(l){return Math.max(1,Math.round((l*1+Math.random()*l*0.5+2)*0.1))}
+function goldReward(enemyLevel){return Math.max(1,Math.round((enemyLevel*4+Math.random()*enemyLevel*2+5)*0.5))}
 async function endBattle(won){
  if(battle.over)return;
  battle.over=true;setMusic(null);sfx(won?"victory":"defeat");
@@ -5221,13 +5689,14 @@ async function endBattle(won){
    let part="";
    const r=levelUpCreature(c);
    if(r.leveled){
-    part+=`${c.name} erreicht Level ${r.level}!${r.pointsGained?` (+${r.pointsGained} Punkte zu verteilen)`:" (keine Punkte mehr – Höchststufe)"}`+(r.learned.length?` Lernt ${r.learned.join(", ")}!`:"")+(r.stored.length?` Merkt sich außerdem ${r.stored.join(", ")} (im Attacken-Menü aktivierbar).`:"");
+    part+=`${c.name} erreicht Level ${r.level}!${r.pointsGained?` (+${r.pointsGained} Punkte zu verteilen)`:""}`+(r.learned.length?` Lernt ${r.learned.join(", ")}!`:"")+(r.stored.length?` Merkt sich außerdem ${r.stored.join(", ")} (im Attacken-Menü aktivierbar).`:"");
    }
    if(part)logParts.push(part);
-   if(r.leveled&&c.evoReady&&SPECIES[c.sid].evoChoice)logParts.push(`✨ ${c.name} kann sich jetzt entwickeln – du darfst gleich ein Element wählen!`);
+   if(r.leveled&&evoPending(c))logParts.push(SPECIES[c.sid].evoDual?`✨ ${c.name} kann sich jetzt ein zweites Mal entwickeln – du darfst gleich ein zweites Element wählen!`:`✨ ${c.name} kann sich jetzt entwickeln – du darfst gleich ein Element wählen!`);
    if(r.evolved)logParts.push(`✨ Was? ${r.evolved.from} entwickelt sich … zu ${r.evolved.to}!`);
   });
   const msgs=logParts;
+  if(!state.superInfo&&superUnlocked()){state.superInfo=true;msgs.push("⭐ Eines deiner Monster hat Level 50 erreicht! Im Markt gibt es jetzt Superkapseln.")}
   if(battle.rival){msgs.push(`${state.rival.name}: „Was?! Ich habe verloren? … Na warte, beim nächsten Mal bin ich stärker!“`);const em=giveRivalEgg();if(em)msgs.push(em)}
   if(battle.trainer&&!battle.rival&&!battle.wanderId&&!battle.arenaTeam&&!state.trainerBeaten){
    state.trainerBeaten=true;state.quests.qTrainer.done=true;state.inv.heiltrank+=2;
@@ -5248,7 +5717,7 @@ async function endBattle(won){
    if(!state.medals)state.medals={};
    state.medals[battle.leaderId]=true;
    if(battle.leaderId==="hafen")state.arenaBeaten=true;
-   const gold=300+ti*250,caps=3+ti,pots=2+Math.ceil(ti/2);
+   const gold=150+ti*125,caps=3+ti,pots=2+Math.ceil(ti/2);
    state.inv.gold+=gold;state.inv.fangkapsel+=caps;state.inv.heiltrank+=pots;
    msgs.push(`🏅 Du erhältst die ${town.medal.icon} ${town.medal.name}! (${medalCount()}/${TOWNS.length}) Belohnung: 💰 ${gold}, ${caps}x Fangkapsel, ${pots}x Heiltrank!`);
    if(battle.leaderId==="sturmhafen"&&!state.canSurf){state.canSurf=true;msgs.push(`🌊 ${town.leader.name}: „Nimm diese Surf-Lizenz! Ab jetzt kann dich ein Wasser-Monster aus deinem Team übers Meer tragen. Stell dich ans Ufer, schau aufs Wasser und drück A.“`,"🌊 Auf dem Meer lauern wilde Wasser-, Drachen- und Wind-Monster. Und man erzählt sich, dass nach sehr langer Zeit auf See etwas Uraltes aus der Tiefe auftaucht …")}
@@ -5378,9 +5847,9 @@ addEventListener("pagehide",()=>{try{save()}catch(e){}});
 let hiddenAt=0;
 document.addEventListener("visibilitychange",()=>{
  if(document.hidden){hiddenAt=Date.now();return}
- if(hiddenAt&&Date.now()-hiddenAt>3*60*1000&&!document.getElementById("title")){try{save()}catch(e){}location.reload()}
+ if(hiddenAt&&Date.now()-hiddenAt>3*60*1000&&!document.getElementById("title")&&GAME_ON){if(state.inBattle){try{save()}catch(e){}location.reload()}else backToTitle()}
 });
-addEventListener("pageshow",e=>{if(e.persisted&&!document.getElementById("title"))location.reload()});
+addEventListener("pageshow",e=>{if(e.persisted&&!document.getElementById("title")&&GAME_ON&&!state.inBattle)backToTitle()});
 try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}catch(e){}
 document.addEventListener("visibilitychange",()=>{if(document.hidden){try{save()}catch(e){}}});
 function loop(now){
@@ -5388,7 +5857,7 @@ function loop(now){
   updateControlsMode();
   const dt=Math.min(0.05,(now-last)/1000);last=now;drawDt=dt;
   worldTime+=dt;
-  if(!state.inBattle){
+  if(GAME_ON&&!state.inBattle){
    applyDesktopInput();tryMove(dt);
    updateWanderers(dt);
    updateFishing();
@@ -5405,7 +5874,7 @@ function loop(now){
 const STARTER_SIDS=["lohwolf","tropfling","blattoro","sturmfalke","erdrakel"];
 function showStarterPicker(onDone){
  const html="<h3>🐾 Wähle deinen Partner</h3>"+
-  "<div style='font-size:13px;text-align:center;margin-bottom:10px;opacity:.85'>Dein erstes Monster startet auf Level 5 mit 5 freien Punkten zum Verteilen.</div>"+
+  "<div style='font-size:13px;text-align:center;margin-bottom:10px;opacity:.85'>Dein erstes Monster startet auf Level 5. Punkte zum Verteilen gibt es ab Level 10 und dann alle 10 Level.</div>"+
   STARTER_SIDS.map(sid=>{
    const s=SPECIES[sid];
    return `<div class="subCard">
@@ -5426,7 +5895,7 @@ function showStarterPicker(onDone){
   const sid=btn.dataset.starter;
   const c=makeCreature(sid,5);
   state.starterSid=sid;state.rival=null;state.rivalMet=false;ensureRival();
-  c.points=5;
+  c.points=0;
   state.team=[c];
   subpanel.style.display="none";
   subCloseBtn.style.display="";
@@ -5434,7 +5903,10 @@ function showStarterPicker(onDone){
   onDone();
  };
 }
-function startGame(){GAME_ON=true;requestAnimationFrame(loop);try{mpInit()}catch(e){}}
+let LOOP_ON=false;
+function startGame(){GAME_ON=true;if(RESPEC_DONE){RESPEC_DONE=false;save();setTimeout(()=>{try{showDialog("📊 Neues Punktesystem: Die Werte aller deiner Monster wurden neu berechnet. Punkte gibt es jetzt nur noch bei Level 10, 20, 30 … 100 – die dir zustehenden Punkte kannst du im Team-Menü neu verteilen.")}catch(e){}},900)}if(!LOOP_ON){LOOP_ON=true;requestAnimationFrame(loop)}try{mpInit()}catch(e){}}
+// Zurück zum Titelbildschirm ohne Neuladen der Seite (funktioniert auch im Browser-/iFrame-Modus)
+function backToTitle(){try{save()}catch(e){}GAME_ON=false;try{menu.style.display="none";subpanel.style.display="none";document.getElementById("dialog").style.display="none"}catch(e){}try{FISH.active=false;resetJoy();KEYS.clear();MOUSE.held=false}catch(e){}if(!document.getElementById("title"))showTitle()}
 // ---------- BEGRÜSSUNG (Professorin Linde) ----------
 const PROF_SVG=`<svg viewBox="0 0 150 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
  <defs>
@@ -5544,7 +6016,7 @@ function showIntro(onDone){
  const nm=()=>state.playerName;
  const steps=[
   {t:()=>"Hallo, hallo! Schön, dass du da bist!"},
-  {t:()=>"Willkommen in der Monsterwelt! Ich bin Professorin Linde und erforsche hier in Eichendorff die Monster."},
+  {t:()=>"Willkommen in der Monsterworld! Ich bin Professorin Linde und erforsche hier in Eichendorff die Monster."},
   {t:()=>"Das ist Funki, meine kleine Funkmaus. Monster wie sie leben überall – im hohen Gras, am Meer, in der Wüste und im Nebelmoor.",pet:true},
   {t:()=>"Manche Menschen kämpfen mit ihnen, andere sammeln sie. Und manche werden die besten Freunde ihrer Monster."},
   {t:()=>"Und dann gibt es noch die Legenden … Schau mal, das hier ist Sylvarion!",legend:true},
@@ -5642,7 +6114,7 @@ function showOpening(onDone){
   <div class="opScene" data-s="1">${parade.map((s,i)=>`<div class="opMon" style="animation-delay:${(i*0.45).toFixed(2)}s;bottom:${12+(i%3)*6}%">${creatureSVG(s)}</div>`).join("")}</div>
   <div class="opScene" data-s="2">${["sylvarion","leviaqua","chronodrak"].map((s,i)=>`<div class="opLeg" style="left:${14+i*28}%;animation-delay:${(i*0.6).toFixed(1)}s">${creatureSVG(s)}</div>`).join("")}</div>
   <div class="opScene" data-s="3"><div class="opVillage">${[[4,22,"#b5533a"],[18,30,"#d9534f"],[34,24,"#3a78c9"],[52,34,"#4f9a3f"],[70,26,"#8a5a3a"],[84,20,"#b5533a"]].map(([l,h,c])=>`<div class="opHouse" style="left:${l}%;height:${h}%;--roof:${c}"></div>`).join("")}</div></div>
-  <div class="opTitle">MONSTERWELT</div>
+  <div class="opTitle">MONSTERWORLD</div>
   <div class="opText"></div>
   <button class="opSkip">Überspringen ⏭</button>`;
  document.body.appendChild(el);
@@ -5669,6 +6141,7 @@ function showOpening(onDone){
  show(0);
 }
 function beginNewGame(){
+ state=JSON.parse(STATE_DEFAULT_JSON);animFromX=state.px;animFromY=state.py;animT=1;
  showOpening(()=>showIntro(()=>{
   showStarterPicker(()=>{
    startGame();save();
@@ -5695,7 +6168,7 @@ function mpPack(c){return {sid:c.sid,level:c.level,exp:c.exp||0,maxhp:c.maxhp,at
 function mpCleanCreature(o){
  if(!o||typeof o!=="object"||!isSid(o.sid))return null;
  const lvl=Math.max(1,Math.min(100,Math.floor(+o.level)||1));
- const c=makeCreature(o.sid,lvl);
+ const c=makeCreature(o.sid,lvl);delete c.allocAuto;
  const num=(v,d)=>{v=Math.floor(+v);return isFinite(v)&&v>0&&v<=3000?v:d};
  c.maxhp=num(o.maxhp,c.maxhp);c.hp=c.maxhp;c.atk=num(o.atk,c.atk);c.def=num(o.def,c.def);c.spd=num(o.spd,c.spd);c.spec=num(o.spec,c.spec);
  if(Array.isArray(o.moves)){const mv=o.moves.filter(m=>isMove(m)).slice(0,4);if(mv.length)c.moves=mv}
@@ -5903,7 +6376,7 @@ function mpTabHtml(){
   const t=MP.trades.find(x=>x.id===MP.flow.tid);
   if(!t||t.status!=="open"){MP.flow=null;return mpTabHtml()}
   const off=t.offer||{},wish=mpWish(t.wish);
-  const cands=mpMyCreatures().filter(m=>wish==="egal"||m.c.type===wish);
+  const cands=mpMyCreatures().filter(m=>wish==="egal"||hasType(m.c,wish));
   return `<h4>🔄 Tauschen mit ${mpEsc(mpTrainer(t.fromTrainer))}</h4>`+
    mpCard(off.sid,`Du bekommst: <b>${mpEsc(isSid(off.sid)?SPECIES[off.sid].name:"?")}</b> Lv.${Math.floor(+off.level)||"?"}`,isSid(off.sid)?SPECIES[off.sid].type:"")+
    `<div style="font-size:12.5px;opacity:.85;margin:8px 0 4px">Was gibst du dafür? ${wish==="egal"?"(beliebiges Monster)":`(gewünscht: ${mpEsc(wish)})`}</div>`+
@@ -6032,7 +6505,7 @@ function renderOptions(container,onBack,inGame){
 document.getElementById("mOpts").addEventListener("click",()=>{
  openSub("");renderOptions(subContent,()=>{subpanel.style.display="none"},true);
 });
-document.getElementById("mTitle").addEventListener("click",()=>{save();location.reload()});
+document.getElementById("mTitle").addEventListener("click",()=>backToTitle());
 
 // ---------- LADE- & TITELBILDSCHIRM ----------
 function hasSave(){try{return !!localStorage.getItem("monsterwelt_save")}catch(e){return false}}
@@ -6048,10 +6521,10 @@ function showTitle(){
  setMusic("world");
  const el=document.createElement("div");el.id="title";
  let stars="";for(let i=0;i<28;i++)stars+=`<div class="tStar" style="left:${Math.random()*100}%;top:${Math.random()*55}%;animation-delay:${(Math.random()*2.4).toFixed(2)}s"></div>`;
- el.innerHTML=stars+`<div id="titleInner"><div id="titleLogo">MONSTERWELT</div><div id="titleSub">Das große Monster-Abenteuer</div>
+ el.innerHTML=stars+`<div id="titleInner"><div id="titleLogo">MONSTERWORLD</div><div id="titleSub">Das große Monster-Abenteuer</div>
   <div id="titleMons">${STARTER_SIDS.map((sid,i)=>`<div style="animation-delay:${i*0.18}s">${creatureSVG(sid)}</div>`).join("")}</div>
-  <div id="titleLoad">Lade Monsterwelt …<div id="titleBar"><div></div></div></div>
-  <div id="titleMenu"></div><div id="titlePanel"></div></div><div id="titleVer">v1.6 · by Franks</div>`;
+  <div id="titleLoad">Lade Monsterworld …<div id="titleBar"><div></div></div></div>
+  <div id="titleMenu"></div><div id="titlePanel"></div></div><div id="titleVer">v3.0 · by Franks</div>`;
  document.body.appendChild(el);makeTouchScrollable(el);
  const bar=el.querySelector("#titleBar div"),loadBox=el.querySelector("#titleLoad"),menuEl=el.querySelector("#titleMenu"),panel=el.querySelector("#titlePanel"),mons=el.querySelector("#titleMons");
  // Ladebalken: Monster-Grafiken vorbereiten (füllt den Grafik-Speicher), mindestens ~1,2 s anzeigen
@@ -6078,13 +6551,20 @@ function showTitle(){
  }
  function confirmNew(){
   el.scrollTop=0;menuEl.style.display="none";mons.style.display="none";panel.style.display="block";
-  panel.innerHTML=`<h3>✨ Neues Spiel</h3><div style="text-align:center;font-size:14px;margin-bottom:12px">Dein bisheriger Spielstand<br><b>${saveSummary()}</b><br>wird dabei überschrieben.</div>
-   <button id="tYes" style="width:100%;background:#a8322a;margin-bottom:8px">Ja, neu beginnen</button><button id="tNo" style="width:100%">◀ Zurück</button>`;
+  const bs="width:100%;padding:12px 10px;font-size:16px;font-weight:bold;border-radius:12px;border:2px solid rgba(255,255,255,.35);color:#fff;cursor:pointer";
+  panel.innerHTML=`<h3>⚠️ Neues Spiel starten?</h3><div style="text-align:center;font-size:14px;margin-bottom:12px">Es ist bereits ein Spielstand vorhanden:<br><b>${saveSummary()}</b><br>Dein bisheriger Spielstand wird dabei überschrieben.</div>
+   <button id="tYes" style="${bs};background:#a8322a;margin-bottom:8px">Ja, neu beginnen</button><button id="tNo" style="${bs};background:#2f6b3a">◀ Nein, zurück</button>`;
+  let armed=false;
   panel.onclick=e=>{
-   if(e.target.closest("#tYes")){panel.onclick=null;try{localStorage.removeItem("monsterwelt_save")}catch(err){}close(beginNewGame)}
+   const y=e.target.closest("#tYes");
+   if(y){
+    if(!armed){armed=true;y.textContent="⚠️ Wirklich? Nochmal tippen zum Bestätigen";y.style.background="#d02a1e";return}
+    panel.onclick=null;try{localStorage.removeItem("monsterwelt_save")}catch(err){}close(beginNewGame);return
+   }
    if(e.target.closest("#tNo")){panel.onclick=null;showMenu()}
   };
  }
+
 }
 try{
  applyOpts();
